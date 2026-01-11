@@ -1,0 +1,30 @@
+class E_ForbiddenZone extends GameElement {
+    constructor() {
+        super(new Polygon({
+            points: [
+                0, GP.bh,
+                0, 0,
+                GP.bw, 0,
+                GP.bw, GP.bh,
+                GP.bw - GP.ENV.paddingSide, GP.bh,
+                GP.bw - GP.ENV.paddingSide, GP.ENV.paddingTop,
+                GP.ENV.paddingSide, GP.ENV.paddingTop,
+                GP.ENV.paddingSide, GP.bh,
+            ],
+            fill: "#E85B5B87",
+        }));
+    }
+
+    relocate(e) {
+        this.el.points = [
+            0, e.height,
+            0, 0,
+            e.width, 0,
+            e.width, e.height,
+            e.width - GP.ENV.paddingSide, e.height,
+            e.width - GP.ENV.paddingSide, GP.ENV.paddingTop,
+            GP.ENV.paddingSide, GP.ENV.paddingTop,
+            GP.ENV.paddingSide, e.height,
+        ];
+    }
+}
