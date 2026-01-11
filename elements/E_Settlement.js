@@ -26,8 +26,18 @@ class E_Settlement extends GameElementCentered {
         this.cy = e.height / 2 - 64;
     }
 
-    initFont() {
+    init() {
+        this.#loadFont();
+        this.#preloadImage();
+    }
+
+    #loadFont() {
         GP.initFont("HYBeiBingYang-W", "./assets/fonts/HYBeiBingYang-W.woff2").then(null);
+    }
+
+    #preloadImage() {
+        Resource.loadImage("./assets/img/GL.jpg");
+        Resource.loadImage("./assets/img/DL.jpg");
     }
 
     win() {

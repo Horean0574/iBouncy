@@ -40,8 +40,8 @@ const Scoring = new E_Scoring();
 const Tablet = new E_Tablet();
 const Ball = new E_Ball();
 
-Scoring.initFont();
-Settlement.initFont();
+Scoring.init();
+Settlement.init();
 
 ForbiddenZone.render();
 Tablet.render();

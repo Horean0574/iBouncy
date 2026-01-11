@@ -49,7 +49,11 @@ class E_Scoring extends GameElement {
         this.#newScore();
     }
 
-    initFont() {
+    init() {
+        this.#loadFont();
+    }
+
+    #loadFont() {
         GP.initFont("HYDiSiKe-U", "./assets/fonts/HYDiSiKe-U.woff2")
             .then(this.#newScore.bind(this));
     }
