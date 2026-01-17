@@ -5,6 +5,7 @@ const {
     Polygon,
     Path,
     Resource,
+    Platform,
     ResizeEvent,
     KeyEvent,
     AnimateEvent,
@@ -25,11 +26,18 @@ const GP = new GameProcessor({
     paddingSide: 40,
     timeLimit: 180,
 });
+const GI = new GameInteraction();
+const timer = new EmbeddedTimer({
+    minInterval: 0,
+    autoHandleFPS: true,
+});
 
 const leafer = new Leafer({
-    view: window,
+    view: document.querySelector("canvas"),
     fill: "#EFF",
 });
+const loading = document.querySelector("#loading");
+loading.addEventListener("dragstart", e => e.preventDefault());
 
 const Mask = new E_Mask();
 const Settlement = new E_Settlement();
@@ -40,39 +48,24 @@ const Scoring = new E_Scoring();
 const Tablet = new E_Tablet();
 const Ball = new E_Ball();
 
-Scoring.init();
-Settlement.init();
-
-ForbiddenZone.render();
-Tablet.render();
-Ball.render();
-Timing.render();
-Scoring.render();
-FPS.render();
-
-const GI = new GameInteraction();
 let prevTimeStamp;
 let accumulated = 0;
-let timer = new EmbeddedTimer({
-    minInterval: 0,
-    autoHandleFPS: true,
-});
-beforeStart();
+
+Mask.render("#333", 0.9, 0.2);
 requestAnimationFrame(firstFrame);
+GP.initializeAll()
+    .then(function () {
+        beforeStart();
+        GP.state("init1");
+    })
+    .catch(function (err) {
+        console.error("Initialization failed...\n", err);
+    });
 
 timer.newInterval(() => FPS.assign(timer.FPS), 400);
 
 function beforeStart() {
     Timing.reset();
-    Tablet.reset();
-    Ball.reset();
-}
-
-function resetGame() {
-    Mask.cull();
-    Settlement.cull();
-    Timing.reset();
-    Scoring.reset();
     Tablet.reset();
     Ball.reset();
 }
@@ -87,10 +80,16 @@ function gameLoop(timeStamp) {
     prevTimeStamp = timeStamp;
     timer.timeDetect(timeStamp);
 
-    GP.at("init1") && GP.measureRefreshRate(deltaTime / GP.ENV.stdUnitInterval);
-    if (GP.at("init2")) {
+    if (GP.at("init1")) {
+        GP.measureRefreshRate(deltaTime / GP.ENV.stdUnitInterval);
+    } else if (GP.at("init2")) {
         Ball.prepare();
+        GP.state("almost-prepared");
+    } else if (GP.at("almost-prepared")) {
         GP.state("prepared");
+        GP.renderAll();
+        Mask.cull();
+        GP.loadingFadeOut();
     }
 
     let steps = 1;
@@ -139,7 +138,7 @@ leafer.on(KeyEvent.UP, function (e) {
             GP.state("playing");
             Timing.start();
         } else if (GP.at("over")) {
-            resetGame();
+            GP.reset();
             GP.state("playing");
             Timing.start();
         }

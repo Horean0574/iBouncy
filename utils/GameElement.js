@@ -1,6 +1,9 @@
 class GameElement {
-    constructor(el) {
+    #zIndex;
+
+    constructor(el, zIndex = 0) {
         this.el = el;
+        this.el.zIndex = this.#zIndex = zIndex;
     }
 
     get w() { // width
@@ -71,7 +74,9 @@ class GameElement {
         this.el.destroy();
     }
 
-    render() {
+    render(zIndex = void 0) {
+        if (!Number.isInteger(zIndex)) this.el.zIndex = this.#zIndex;
+        else this.el.zIndex = zIndex;
         leafer.add(this.el);
     }
 

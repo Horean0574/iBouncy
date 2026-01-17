@@ -1,4 +1,10 @@
 class E_Mask extends GameElement {
+    #config = {
+        fill: "#666",
+        opacity: 0.6,
+        fadeInDuration: 0.8,
+    };
+
     constructor() {
         super(new Rect({
             x: 0,
@@ -7,21 +13,32 @@ class E_Mask extends GameElement {
             height: GP.bh,
             fill: "#666",
             opacity: 0,
-            animation: {
-                style: { opacity: 0.6 },
-                duration: 0.8,
-                join: true,
-            },
             animationOut: {
                 style: { opacity: 0 },
                 duration: 0.5,
                 join: true,
             },
-        }));
+        }), 990);
+        this.el.fill = this.#config.fill;
+        this.el.animation = {
+            style: { opacity: this.#config.opacity },
+            duration: this.#config.fadeInDuration,
+            join: true,
+        };
     }
 
     relocate(e) {
         this.w = e.width;
         this.h = e.height;
+    }
+
+    render(fill = void 0, opacity = void 0, duration = void 0) {
+        if (fill === void 0) this.el.fill = this.#config.fill;
+        else this.el.fill = fill;
+        if (opacity === void 0) this.el.animation.style.opacity = this.#config.opacity;
+        else this.el.animation.style.opacity = opacity;
+        if (duration === void 0) this.el.animation.duration = this.#config.fadeInDuration;
+        else this.el.animation.duration = duration;
+        leafer.add(this.el);
     }
 }

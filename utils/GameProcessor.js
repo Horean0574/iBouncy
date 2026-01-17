@@ -1,5 +1,5 @@
 class GameProcessor {
-    #SM = "init1"; // state machine
+    #SM = "init"; // state machine
     measured = 0;
     refreshRateBucket = new Map();
 
@@ -23,6 +23,22 @@ class GameProcessor {
     at(...states) {
         for (let s of states) if (this.#SM === s) return true;
         return false;
+    }
+
+    async initializeAll() {
+        await Promise.all([
+            Scoring.init(),
+            Settlement.init(),
+        ]);
+    }
+
+    renderAll() {
+        ForbiddenZone.render();
+        Tablet.render();
+        Ball.render();
+        Timing.render();
+        Scoring.render();
+        FPS.render();
     }
 
     measureRefreshRate(prog) {
@@ -51,15 +67,31 @@ class GameProcessor {
         }
     }
 
-    async initFont(name, src) {
-        const font = new FontFace(name, `url(${src})`);
+    async fontInitializer(name, src) {
+        const font = new FontFace(name, `url(${src}.woff2)`);
         try {
             await font.load();
             document.fonts.add(font);
             leafer.forceRender();
-        } catch (e) {
-            console.error(e);
+        } catch {
+            const font2 = new FontFace(name, `url(${src}.woff)`);
+            try {
+                await font2.load();
+                document.fonts.add(font2);
+                leafer.forceRender();
+            } catch (e) {
+                console.error(e);
+            }
         }
+    }
+
+    reset() {
+        Mask.cull();
+        Settlement.cull();
+        Timing.reset();
+        Scoring.reset();
+        Tablet.reset();
+        Ball.reset();
     }
 
     pause() {
@@ -83,5 +115,14 @@ class GameProcessor {
         if (win) Settlement.win();
         else Settlement.fail();
         return true;
+    }
+
+    loadingFadeOut() {
+        loading.animate([
+            { opacity: 0 },
+        ], {
+            duration: 300,
+            fill: "both",
+        });
     }
 }

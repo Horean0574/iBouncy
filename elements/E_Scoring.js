@@ -23,6 +23,7 @@ class E_Scoring extends GameElement {
             fill: "#777A",
         }));
         this.Integer = new GameElement(new Text({
+            x: -GP.bw,
             y: 7,
             fontSize: 40,
             fill: "#FFF",
@@ -30,6 +31,7 @@ class E_Scoring extends GameElement {
             fontFamily: "HYDiSiKe-U",
         }));
         this.Decimal = new GameElement(new Text({
+            x: -GP.bw,
             y: 15,
             fontSize: 32,
             fill: "#DDD",
@@ -37,6 +39,8 @@ class E_Scoring extends GameElement {
             fontFamily: "HYDiSiKe-U",
         }));
         this.el.add([this.Panel.el, this.Integer.el, this.Decimal.el]);
+
+        this.init = this.init.bind(this);
     }
 
     reset() {
@@ -49,13 +53,13 @@ class E_Scoring extends GameElement {
         this.#newScore();
     }
 
-    init() {
-        this.#loadFont();
+    async init() {
+        await this.#loadFont();
     }
 
-    #loadFont() {
-        GP.initFont("HYDiSiKe-U", "./assets/fonts/HYDiSiKe-U.woff2")
-            .then(this.#newScore.bind(this));
+    async #loadFont() {
+        await GP.fontInitializer("HYDiSiKe-U", "./assets/fonts/HYDiSiKe-U");
+        this.#newScore();
     }
 
     assign(score) {

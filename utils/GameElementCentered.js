@@ -1,7 +1,7 @@
 class GameElementCentered extends GameElement {
-    constructor(el) {
+    constructor(el, zIndex = 0) {
         el.around = "center";
-        super(el);
+        super(el, zIndex);
     }
 
     get cx() {
