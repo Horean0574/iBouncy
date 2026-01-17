@@ -1,11 +1,11 @@
-Brand font: Akaya Telivigala
-
 # 🎮 iBouncy - LeaferJS 弹球游戏
 
 > 一个优雅、高性能的 Canvas 弹球游戏，基于 LeaferJS 构建
 
+> 品牌字体：[Akaya Telivigala](https://fonts.google.com/specimen/Akaya+Telivigala)
+
 [![GitHub license](https://img.shields.io/github/license/Horean0574/iBouncy)](https://github.com/Horean0574/iBouncy/blob/main/LICENSE)
-[![Vite](https://img.shields.io/badge/built%20with-Vite-646CFF?logo=vite)](https://vitejs.dev/)
+[![Vite](https://img.shields.io/badge/built%20with-Vite-646CFF?logo=vite)](https://vite.dev/)
 [![LeaferJS](https://img.shields.io/badge/powered%20by-LeaferJS-20A8D7)](https://leaferjs.com/)
 
 ## ✨ 特性亮点
@@ -22,12 +22,6 @@ Brand font: Akaya Telivigala
 **[点击这里立即体验](https://ibouncy.hxrch.top)**
 
 > 💡 提示：使用 **WASD** 或 **方向键** 移动挡板，**空格键** 开始/重新游戏
-
-## 📸 游戏截图
-
-| 游戏界面 | 碰撞特效 | 胜利画面 |
-|----------|----------|----------|
-| ![游戏界面](assets/screenshots/gameplay.png) | ![碰撞特效](assets/screenshots/collision.png) | ![胜利画面](assets/screenshots/victory.png) |
 
 ## 🛠️ 本地运行
 
@@ -92,18 +86,15 @@ iBouncy/
 
 ### 物理系统
 反弹加分公式：
-
-分别记：
-
-- 本次加分为 $\Delta s$
+$$
+\Delta s=\frac{7}{10}(log_{2}v+\sec\frac{\pi v}{20})+\frac{3}{10}(\cos\frac{2\pi|x_2-x_1|}{w}+\frac{1}{2})
+$$
+其中：
+- 本次总加分为 $\Delta s$
 - 反弹时球速为 $v$
 - 反弹时球中心横坐标为 $x_1$
 - 反弹时挡板中心横坐标为 $x_2$
 - 挡板宽度为 $w$
-
-$$
-\Delta s=\frac{7}{10}(log_{2}v+\sec\frac{\pi v}{20})+\frac{3}{10}(\cos\frac{2\pi|x_2-x_1|}{w}+\frac{1}{2})
-$$
 
 ### 难度曲线
 - 🟢 0-20 秒：基础速度
@@ -111,11 +102,11 @@ $$
 - 🔴 最后 15 秒：紧张倒计时动画
 
 ## 🔧 技术栈
-| 技术       | 用途         | 版本     |
-|----------|----------|----------|
-| LeaferJS | Canvas 渲染引擎 | 1.12.0 |
-| Vite | 构建工具与开发服务器 | 7.x |
-| Vanilla JavaScript | 核心逻辑 | ES2022+ |
+| 技术                             | 用途         | 版本     |
+|--------------------------------|----------|----------|
+| [LeaferJS](https://leaferjs.com) | Canvas 渲染引擎 | 1.12.0 |
+| [Vite](https://vite.dev)       | 构建工具与开发服务器 | 7.x |
+| Vanilla JavaScript             | 核心逻辑 | ES2022+ |
 
 ## 🤝 贡献指南
 欢迎提交 Issue 和 Pull Request！
