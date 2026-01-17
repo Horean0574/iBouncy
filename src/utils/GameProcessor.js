@@ -1,6 +1,5 @@
 import {
     setPrevTimeStamp,
-    prevTimeStamp,
     Ball,
     ForbiddenZone,
     FPS,
