@@ -1,1 +1,0 @@
-Brand font: Akaya Telivigala
