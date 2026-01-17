@@ -58,7 +58,7 @@ requestAnimationFrame(firstFrame);
 timer.newInterval(() => FPS.assign(timer.FPS), 400);
 GP.initializeAll()
     .then(() => GP.state("init1"))
-    .catch(() => console.error("Initialization failed...\n", err));
+    .catch(err => console.error("Initialization failed...\n", err));
 
 function beforeStart() {
     Timing.reset();
