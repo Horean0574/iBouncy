@@ -32,11 +32,13 @@ class E_Mask extends GameElement {
         this.h = e.height;
     }
 
-    render(fill = void 0, opacity = void 0, duration = void 0) {
+    render(fill = void 0, fromOpacity = void 0, toOpacity = void 0, duration = void 0) {
         if (fill === void 0) this.el.fill = this.#config.fill;
         else this.el.fill = fill;
-        if (opacity === void 0) this.el.animation.style.opacity = this.#config.opacity;
-        else this.el.animation.style.opacity = opacity;
+        if (fromOpacity === void 0) this.el.opacity = 0;
+        else this.el.opacity = fromOpacity;
+        if (toOpacity === void 0) this.el.animation.style.opacity = this.#config.opacity;
+        else this.el.animation.style.opacity = toOpacity;
         if (duration === void 0) this.el.animation.duration = this.#config.fadeInDuration;
         else this.el.animation.duration = duration;
         leafer.add(this.el);

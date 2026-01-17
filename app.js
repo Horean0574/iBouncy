@@ -51,18 +51,14 @@ const Ball = new E_Ball();
 let prevTimeStamp;
 let accumulated = 0;
 
-Mask.render("#333", 0.9, 0.2);
+Mask.render("#FFF", 1, 0.7, 0.4);
+beforeStart();
+GP.renderAll();
 requestAnimationFrame(firstFrame);
-GP.initializeAll()
-    .then(function () {
-        beforeStart();
-        GP.state("init1");
-    })
-    .catch(function (err) {
-        console.error("Initialization failed...\n", err);
-    });
-
 timer.newInterval(() => FPS.assign(timer.FPS), 400);
+GP.initializeAll()
+    .then(() => GP.state("init1"))
+    .catch(() => console.error("Initialization failed...\n", err));
 
 function beforeStart() {
     Timing.reset();
@@ -87,7 +83,6 @@ function gameLoop(timeStamp) {
         GP.state("almost-prepared");
     } else if (GP.at("almost-prepared")) {
         GP.state("prepared");
-        GP.renderAll();
         Mask.cull();
         GP.loadingFadeOut();
     }
