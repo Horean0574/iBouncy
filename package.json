@@ -1,0 +1,31 @@
+{
+  "name": "ibouncy",
+  "version": "1.0.0",
+  "description": "Brand font: Akaya Telivigala",
+  "main": "src/app.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Horean0574/iBouncy.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Horean0574/iBouncy/issues"
+  },
+  "homepage": "https://github.com/Horean0574/iBouncy#readme",
+  "devDependencies": {
+    "vite": "^7.3.1",
+    "vite-plugin-static-copy": "^3.1.4"
+  },
+  "dependencies": {
+    "@leafer-game/node": "^1.12.4",
+    "leafer-game": "^1.12.4"
+  }
+}

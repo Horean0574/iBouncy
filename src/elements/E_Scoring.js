@@ -1,4 +1,9 @@
-class E_Scoring extends GameElement {
+import GameElement from "../utils/GameElement";
+import GameElementCentered from "../utils/GameElementCentered";
+import { Group, Path, Text } from "leafer-game";
+import { Ball, F, GP, timer } from "../core/instances";
+
+export default class E_Scoring extends GameElement {
     v = 0;
 
     constructor() {

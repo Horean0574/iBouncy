@@ -1,4 +1,20 @@
-class GameProcessor {
+import {
+    setPrevTimeStamp,
+    prevTimeStamp,
+    Ball,
+    ForbiddenZone,
+    FPS,
+    GP,
+    leafer, loading,
+    Mask,
+    Scoring,
+    Settlement,
+    Tablet,
+    timer,
+    Timing,
+} from "../core/instances";
+
+export class GameProcessor {
     #SM = "init"; // state machine
     measured = 0;
     refreshRateBucket = new Map();
@@ -103,7 +119,7 @@ class GameProcessor {
     resume() {
         if (this.at("playing", "prepared", "over") || this.#SM.startsWith("init")) return;
         this.state("playing");
-        prevTimeStamp = performance.now();
+        setPrevTimeStamp(performance.now());
         timer.resumeAll();
     }
 

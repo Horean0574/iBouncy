@@ -1,4 +1,9 @@
-class E_Ball extends GameElement {
+import GameElement from "../utils/GameElement";
+import { Ellipse } from "leafer-game";
+import EX_BallTrailing from "../elements_extensions/EX_BallTrailing";
+import { GI, GP, leafer, Timing } from "../core/instances";
+
+export default class E_Ball extends GameElement {
     vx;
     ax;
     ay;

@@ -1,4 +1,8 @@
-class E_Tablet extends GameElement {
+import GameElement from "../utils/GameElement";
+import { Rect, Keyboard } from "leafer-game";
+import { GI, GP, Tablet } from "../core/instances";
+
+export default class E_Tablet extends GameElement {
     vxMax;
     vyMax;
     vx;

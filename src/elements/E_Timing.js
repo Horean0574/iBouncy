@@ -1,4 +1,8 @@
-class E_Timing extends GameElement {
+import GameElement from "../utils/GameElement";
+import { Group, Path, Text } from "leafer-game";
+import { F, GP, timer } from "../core/instances";
+
+export default class E_Timing extends GameElement {
     alarm;
     remaining = GP.ENV.timeLimit;
     animatingFlag = false;

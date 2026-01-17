@@ -1,4 +1,8 @@
-class E_Mask extends GameElement {
+import GameElement from "../utils/GameElement";
+import { Rect } from "leafer-game";
+import { GP, leafer } from "../core/instances";
+
+export default class E_Mask extends GameElement {
     #config = {
         fill: "#666",
         opacity: 0.6,

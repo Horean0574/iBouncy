@@ -1,4 +1,6 @@
-class EmbeddedTimer {
+import Queue from "./Queue";
+
+export default class EmbeddedTimer {
     #timeoutMap = new Map();
     #timeout2delete = new Set();
     #intervalMap = new Map();

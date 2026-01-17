@@ -1,4 +1,8 @@
-class E_Settlement extends GameElementCentered {
+import GameElementCentered from "../utils/GameElementCentered";
+import { Text, Resource, Platform } from "leafer-game";
+import { GP } from "../core/instances";
+
+export default class E_Settlement extends GameElementCentered {
     constructor() {
         super(new Text({
             x: GP.bw / 2,

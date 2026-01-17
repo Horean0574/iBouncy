@@ -1,4 +1,8 @@
-class EX_BallTrailing {
+import GameElementCentered from "../utils/GameElementCentered";
+import { Ellipse, AnimateEvent } from "leafer-game";
+import { Ball, C, F, GP, leafer } from "../core/instances";
+
+export default class EX_BallTrailing {
     length = 8;
     dotRadius = 5.5;
     loopIdx = 0;

@@ -1,4 +1,6 @@
-class GameInteraction {
+import { Ball, D, GP, Tablet, timer } from "../core/instances";
+
+export default class GameInteraction {
     collisionStat = 0;
     accelerateCD = 50;
     prevAccelerateTime;

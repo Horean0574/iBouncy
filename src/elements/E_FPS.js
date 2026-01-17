@@ -1,4 +1,8 @@
-class E_FPS extends GameElement {
+import GameElement from "../utils/GameElement";
+import { Text } from "leafer-game";
+import { GP } from "../core/instances";
+
+export default class E_FPS extends GameElement {
     constructor() {
         super(new Text({
             x: 12,

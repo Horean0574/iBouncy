@@ -1,2 +1,11 @@
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
 .idea/
-assets/js/http_unpkg.com_leafer-game@1.12.0_dist_web.js
+.vscode/
+
+.DS_Store
+Thumbs.db

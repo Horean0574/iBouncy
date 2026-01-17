@@ -1,4 +1,6 @@
-class GameElement {
+import { leafer } from "../core/instances";
+
+export default class GameElement {
     #zIndex;
 
     constructor(el, zIndex = 0) {

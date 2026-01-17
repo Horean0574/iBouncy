@@ -1,4 +1,6 @@
-class GameElementCentered extends GameElement {
+import GameElement from "./GameElement";
+
+export default class GameElementCentered extends GameElement {
     constructor(el, zIndex = 0) {
         el.around = "center";
         super(el, zIndex);

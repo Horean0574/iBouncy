@@ -1,4 +1,8 @@
-class E_ForbiddenZone extends GameElement {
+import GameElement from "../utils/GameElement";
+import { Polygon } from "leafer-game";
+import { GP } from "../core/instances";
+
+export default class E_ForbiddenZone extends GameElement {
     constructor() {
         super(new Polygon({
             points: [

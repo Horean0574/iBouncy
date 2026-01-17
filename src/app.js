@@ -1,54 +1,30 @@
-const {
-    Group,
-    Rect,
-    Ellipse,
-    Polygon,
-    Path,
-    Resource,
-    Platform,
+import {
+    setPrevTimeStamp,
+    F,
+    D,
+    prevTimeStamp,
+    loading,
+    leafer,
+    GI,
+    GP,
+    timer,
+    Mask,
+    Settlement,
+    FPS,
+    ForbiddenZone,
+    Timing,
+    Scoring,
+    Tablet,
+    Ball,
+} from "./core/instances";
+
+import {
     ResizeEvent,
     KeyEvent,
-    AnimateEvent,
-    Text,
-    Keyboard,
-} = LeaferUI;
+} from "leafer-game";
 
-const D = Math.abs;
-const C = Math.ceil;
-const F = Math.floor;
-const GP = new GameProcessor({
-    refreshRate: 60,
-    actUnitInterval: 16.7,
-    stdUnitInterval: 16.7,
-    fixedStep: 16.7,
-    maxStepPerFrame: 10,
-    paddingTop: 80,
-    paddingSide: 40,
-    timeLimit: 180,
-});
-const GI = new GameInteraction();
-const timer = new EmbeddedTimer({
-    minInterval: 0,
-    autoHandleFPS: true,
-});
-
-const leafer = new Leafer({
-    view: document.querySelector("canvas"),
-    fill: "#EFF",
-});
-const loading = document.querySelector("#loading");
 loading.addEventListener("dragstart", e => e.preventDefault());
 
-const Mask = new E_Mask();
-const Settlement = new E_Settlement();
-const FPS = new E_FPS();
-const ForbiddenZone = new E_ForbiddenZone();
-const Timing = new E_Timing();
-const Scoring = new E_Scoring();
-const Tablet = new E_Tablet();
-const Ball = new E_Ball();
-
-let prevTimeStamp;
 let accumulated = 0;
 
 Mask.render("#FFF", 1, 0.7, 0.4);
@@ -67,13 +43,13 @@ function beforeStart() {
 }
 
 function firstFrame(timeStamp) {
-    prevTimeStamp = timeStamp;
+    setPrevTimeStamp(timeStamp);
     gameLoop(timeStamp);
 }
 
 function gameLoop(timeStamp) {
     const deltaTime = timeStamp - prevTimeStamp;
-    prevTimeStamp = timeStamp;
+    setPrevTimeStamp(timeStamp);
     timer.timeDetect(timeStamp);
 
     if (GP.at("init1")) {
