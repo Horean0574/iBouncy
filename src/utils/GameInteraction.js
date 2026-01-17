@@ -1,4 +1,4 @@
-import { Ball, D, GP, Tablet, timer } from "../core/instances";
+import { Ball, GP, Tablet, timer } from "../core/instances";
 
 export default class GameInteraction {
     collisionStat = 0;
@@ -36,73 +36,32 @@ export default class GameInteraction {
     }
 
     collisionDetect() {
-        if (!this.#AABBDetect()) {
+        if (!this.#preciselyDetect()) {
             this.collisionStat = 0;
             return false;
         }
         if (this.collisionStat) return false;
-        let initialJudged = false;
-        if (Ball.cx >= Tablet.x && Ball.cx <= Tablet.ox) {
-            this.collisionStat = 1;
-            initialJudged = true;
-            Ball.vy *= -this.tempAccelerate("y");
-            if (D(Ball.cy - Tablet.y) <= D(Ball.cy - Tablet.oy)) {
-                Ball.oy = Tablet.y;
-            } else {
-                Ball.y = Tablet.oy;
-            }
-        }
-        if (Ball.cy >= Tablet.y && Ball.cy <= Tablet.oy) {
-            this.collisionStat = 1;
-            initialJudged = true;
+        this.collisionStat = 1;
+        const overlapX = Math.min(Ball.ox, Tablet.ox) - Math.max(Ball.x, Tablet.x);
+        const overlapY = Math.min(Ball.oy, Tablet.oy) - Math.max(Ball.y, Tablet.y);
+        if (overlapX < 0 || overlapY < 0) return false;
+        const sameXDirection = Math.sign(Ball.vx) === Math.sign(Ball.cx - Tablet.cx);
+        const sameYDirection = Math.sign(Ball.vy) === Math.sign(Ball.cy - Tablet.cy);
+        if (sameXDirection && sameYDirection) {
+            Ball.x += Ball.vx * 1.5;
+            Ball.y += Ball.vy * 1.5;
+            Ball.vx *= this.tempAccelerate("x");
+            Ball.vy *= this.tempAccelerate("y");
+        } else if (sameYDirection || (overlapX < overlapY && !sameXDirection)) {
+            if (Ball.cx < Tablet.cx) Ball.ox = Tablet.x;
+            else Ball.x = Tablet.ox;
             Ball.vx *= -this.tempAccelerate("x");
-            if (D(Ball.cx - Tablet.x) <= D(Ball.cx - Tablet.ox)) {
-                Ball.ox = Tablet.x;
-            } else {
-                Ball.x = Tablet.ox;
-            }
+        } else {
+            if (Ball.cy < Tablet.cy) Ball.oy = Tablet.y;
+            else Ball.y = Tablet.oy;
+            Ball.vy *= -this.tempAccelerate("y");
         }
-        if (initialJudged) return true;
-        return this.handleCornerCollisions();
-    }
-
-    handleCornerCollisions() {
-        if (Ball.cx < Tablet.x && Ball.cy < Tablet.y) {
-            return this.cornerCollision(false, false);
-        } else if (Ball.cx > Tablet.ox && Ball.cy < Tablet.y) {
-            return this.cornerCollision(true, false);
-        } else if (Ball.cx > Tablet.ox && Ball.cy > Tablet.oy) {
-            return this.cornerCollision(true, true);
-        } else if (Ball.cx < Tablet.x && Ball.cy > Tablet.oy) {
-            return this.cornerCollision(false, true);
-        }
-        return false;
-    }
-
-    /**
-     * Collision handler for one corner.
-     * @param {boolean} cnxFlag - flag of corner name of abscissa
-     * @param {boolean} cnyFlag - flag of corner name of ordinate
-     * @returns {boolean}
-     */
-    cornerCollision(cnxFlag, cnyFlag) {
-        const [cnx, cnxR] = cnxFlag ? ["ox", "x"] : ["x", "ox"]; // R means reverse
-        const [cny, cnyR] = cnyFlag ? ["oy", "y"] : ["y", "oy"];
-        const radius = Ball.w / 2;
-        const deltaX = Ball.cx - Tablet[cnx];
-        const deltaY = Ball.cy - Tablet[cny];
-        if (deltaX ** 2 + deltaY ** 2 <= radius ** 2) {
-            this.collisionStat = 1;
-            if (D(deltaY) >= D(deltaX)) {
-                Ball[cnyR] = Tablet[cny];
-                Ball.vy *= -this.tempAccelerate("y");
-            } else {
-                Ball[cnxR] = Tablet[cnx];
-                Ball.vx *= -this.tempAccelerate("x");
-            }
-            return true;
-        }
-        return false;
+        return true;
     }
 
     tempAccelerate(direction) {
@@ -130,5 +89,21 @@ export default class GameInteraction {
 
     #AABBDetect() {
         return !(Ball.ox < Tablet.x || Ball.x > Tablet.ox || Ball.oy < Tablet.y || Ball.y > Tablet.oy);
+    }
+
+    #insideDetect() {
+        return (Ball.cx >= Tablet.x && Ball.cx <= Tablet.ox) || (Ball.cy >= Tablet.y && Ball.cy <= Tablet.oy);
+    }
+
+    #pointCircleDetect(x, y) {
+        return Math.sqrt((Ball.cx - x) ** 2 + (Ball.cy - y) ** 2) <= Ball.w / 2;
+    }
+
+    #preciselyDetect() {
+        if (!this.#AABBDetect()) return false;
+        if (this.#insideDetect()) return true;
+        const nearestCornerX = Ball.cx < Tablet.cx ? Tablet.x : Tablet.ox;
+        const nearestCornerY = Ball.cy < Tablet.cy ? Tablet.y : Tablet.oy;
+        return this.#pointCircleDetect(nearestCornerX, nearestCornerY);
     }
 }
