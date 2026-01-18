@@ -9,6 +9,7 @@ import {
     GP,
     timer,
     Mask,
+    Menu,
     Settlement,
     FPS,
     ForbiddenZone,
@@ -59,8 +60,14 @@ function gameLoop(timeStamp) {
         GP.state("almost-prepared");
     } else if (GP.at("almost-prepared")) {
         GP.state("prepared");
-        Mask.cull();
         GP.loadingFadeOut();
+        Mask.el.animate([
+            { opacity: 0.4 },
+        ], {
+            duration: 0.5,
+            join: true,
+        });
+        Menu.render();
     }
 
     let steps = 1;
@@ -95,6 +102,7 @@ document.addEventListener("visibilitychange", function () {
 });
 leafer.on(ResizeEvent.RESIZE, function (e) {
     Mask.relocate(e);
+    Menu.relocate(e);
     Settlement.relocate(e);
     FPS.relocate(e);
     ForbiddenZone.relocate(e);
@@ -108,6 +116,7 @@ leafer.on(KeyEvent.UP, function (e) {
         if (GP.at("prepared")) {
             GP.state("playing");
             Timing.start();
+            GP.start();
         } else if (GP.at("over")) {
             GP.reset();
             GP.state("playing");

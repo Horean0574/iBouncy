@@ -3,6 +3,7 @@ import { GameProcessor } from "../utils/GameProcessor";
 import GameInteraction from "../utils/GameInteraction";
 import EmbeddedTimer from "../utils/EmbeddedTimer";
 import E_Mask from "../elements/E_Mask";
+import E_Menu from "../elements/E_Menu";
 import E_Settlement from "../elements/E_Settlement";
 import E_FPS from "../elements/E_FPS";
 import E_ForbiddenZone from "../elements/E_ForbiddenZone";
@@ -46,6 +47,7 @@ export const timer = new EmbeddedTimer({
 });
 
 export const Mask = new E_Mask();
+export const Menu = new E_Menu();
 export const Settlement = new E_Settlement();
 export const FPS = new E_FPS();
 export const ForbiddenZone = new E_ForbiddenZone();

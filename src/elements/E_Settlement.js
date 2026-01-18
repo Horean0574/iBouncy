@@ -1,5 +1,5 @@
 import GameElementCentered from "../utils/GameElementCentered";
-import { Text, Resource, Platform } from "leafer-game";
+import { Text } from "leafer-game";
 import { GP } from "../core/instances";
 
 export default class E_Settlement extends GameElementCentered {
@@ -32,8 +32,8 @@ export default class E_Settlement extends GameElementCentered {
         this.cy = e.height / 2 - 64;
     }
 
-    init() {
-        return Promise.all([
+    async init() {
+        await Promise.all([
             this.#loadFont(),
             this.#preloadImage(),
         ]);
@@ -45,14 +45,9 @@ export default class E_Settlement extends GameElementCentered {
 
     async #preloadImage() {
         await Promise.all([
-            this.#loadAndTransferImg("./assets/img/GL.jpg", "leafer://GL.jpg"),
-            this.#loadAndTransferImg("./assets/img/DL.jpg", "leafer://DL.jpg"),
+            GP.ImageInitializer("GL.jpg", "./assets/img/GL.jpg"),
+            GP.ImageInitializer("DL.jpg", "./assets/img/DL.jpg"),
         ]);
-    }
-
-    async #loadAndTransferImg(src, name) {
-        let img = await Platform.origin.loadImage(src);
-        Resource.setImage(name, img);
     }
 
     win() {

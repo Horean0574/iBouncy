@@ -1,17 +1,20 @@
 import {
     setPrevTimeStamp,
+    loading,
     Ball,
     ForbiddenZone,
     FPS,
     GP,
-    leafer, loading,
+    leafer,
     Mask,
+    Menu,
     Scoring,
     Settlement,
     Tablet,
     timer,
     Timing,
 } from "../core/instances";
+import { Platform, Resource } from "leafer-game";
 
 export class GameProcessor {
     #SM = "init"; // state machine
@@ -42,6 +45,7 @@ export class GameProcessor {
 
     async initializeAll() {
         await Promise.all([
+            Menu.init(),
             Scoring.init(),
             Settlement.init(),
         ]);
@@ -100,6 +104,11 @@ export class GameProcessor {
         }
     }
 
+    async ImageInitializer(name, src) {
+        let img = await Platform.origin.loadImage(src);
+        Resource.setImage(`leafer://${name}`, img);
+    }
+
     reset() {
         Mask.cull();
         Settlement.cull();
@@ -107,6 +116,11 @@ export class GameProcessor {
         Scoring.reset();
         Tablet.reset();
         Ball.reset();
+    }
+
+    start() {
+        Mask.cull();
+        Menu.cull();
     }
 
     pause() {
