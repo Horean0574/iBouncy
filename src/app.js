@@ -65,7 +65,7 @@ function gameLoop(timeStamp) {
 
     let steps = 1;
     if (GP.at("playing")) {
-        accumulated += Math.min(deltaTime, 3000); // can redisplay frames of up to 3s
+        accumulated += Math.min(deltaTime, 2000); // can redisplay frames of up to 2s
         Ball.timeDivisor = Math.min(F(accumulated / GP.ENV.fixedStep), GP.ENV.maxStepPerFrame);
         while (accumulated >= GP.ENV.fixedStep && steps <= GP.ENV.maxStepPerFrame) { // sub-stepping loop
             accumulated -= GP.ENV.fixedStep;
