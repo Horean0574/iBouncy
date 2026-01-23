@@ -27,6 +27,9 @@ export const loading = document.querySelector("#loading");
 export const leafer = new Leafer({
     view: document.querySelector("canvas"),
     fill: "#EFF",
+    pointer: {
+        preventDefaultMenu: true,
+    },
 });
 
 export const GP = new GameProcessor({
