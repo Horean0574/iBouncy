@@ -72,7 +72,7 @@ function gameLoop(timeStamp) {
 
     let steps = 1;
     if (GP.at("playing")) {
-        accumulated += Math.min(deltaTime, 1000); // can redisplay frames of up to 1s
+        accumulated += Math.min(deltaTime, 800); // can redisplay frames of up to 0.8s
         Ball.timeDivisor = Math.min(F(accumulated / GP.ENV.fixedStep), GP.ENV.maxStepPerFrame);
         while (accumulated >= GP.ENV.fixedStep && steps <= GP.ENV.maxStepPerFrame) { // sub-stepping loop
             accumulated -= GP.ENV.fixedStep;
@@ -109,7 +109,7 @@ leafer.on(ResizeEvent.RESIZE, function (e) {
     Scoring.relocate_(e);
 });
 leafer.on(KeyEvent.HOLD, function (e) {
-    e.code === "Semicolon" && FPS.toggle();
+    e.code === "Semicolon" && FPS.toggle_();
 });
 leafer.on(KeyEvent.UP, function (e) {
     if (e.code === "Space") {
