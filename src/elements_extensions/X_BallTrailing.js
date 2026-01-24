@@ -1,8 +1,7 @@
-import GameElementCentered from "../utils/GameElementCentered";
 import { Ellipse, AnimateEvent } from "leafer-game";
 import { Ball, C, F, GP, leafer } from "../core/instances";
 
-export default class EX_BallTrailing {
+export default class X_BallTrailing {
     length = 8;
     dotRadius = 5.5;
     loopIdx = 0;
@@ -13,20 +12,21 @@ export default class EX_BallTrailing {
 
     constructor() {
         for (let i = 0; i < this.length; ++i) {
-            this.dots.set(i, new GameElementCentered(new Ellipse({
+            this.dots.set(i, new Ellipse({
                 x: -100,
                 y: -100,
                 width: this.dotRadius * 2,
                 height: this.dotRadius * 2,
+                around: "center",
                 fill: "#FF4500BA",
                 visible: false,
-            })));
+            }));
         }
     }
 
     render() {
         for (let d of this.dots.values()) {
-            leafer.add(d.el);
+            d.render_();
         }
     }
 
@@ -44,17 +44,17 @@ export default class EX_BallTrailing {
             const idx = this.dotIdx = (this.dotIdx + 1) % this.length;
             const dot = this.dots.get(idx);
             dot.w = dot.h = this.dotRadius * 2;
-            dot.el.opacity = 1;
-            dot.cx = Ball.cx;
-            dot.cy = Ball.cy;
-            dot.el.visible = true;
+            dot.opacity = 1;
+            dot.x = Ball.cx;
+            dot.y = Ball.cy;
+            dot.visible = true;
             if (this.activeAnimations.has(idx)) {
                 const oldAni = this.activeAnimations.get(idx);
                 oldAni.off(AnimateEvent.COMPLETED);
                 leafer.killAnimate(oldAni);
                 this.activeAnimations.delete(idx);
             }
-            const ani = dot.el.animate(
+            const ani = dot.animate(
                 [
                     { opacity: 1, width: this.dotRadius * 2, height: this.dotRadius * 2 },
                     { opacity: 0.3, width: 5, height: 5 },
@@ -66,9 +66,9 @@ export default class EX_BallTrailing {
             );
             ani.on(AnimateEvent.COMPLETED, () => {
                 this.activeAnimations.delete(idx);
-                dot.el.visible = false;
+                dot.visible = false;
                 dot.w = dot.h = this.dotRadius * 2;
-                dot.el.opacity = 1;
+                dot.opacity = 1;
             });
             this.activeAnimations.set(idx, ani);
         }

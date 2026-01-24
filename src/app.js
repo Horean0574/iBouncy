@@ -28,19 +28,19 @@ loading.addEventListener("dragstart", e => e.preventDefault());
 
 let accumulated = 0;
 
-Mask.render("#FFF", 1, 0.7, 0.4);
+Mask.render_("#FFF", 1, 0.7, 0.4);
 beforeStart();
 GP.renderAll();
 requestAnimationFrame(firstFrame);
-timer.newInterval(() => FPS.assign(timer.FPS), 400);
+timer.newInterval(() => FPS.assign_(timer.FPS), 400);
 GP.initializeAll()
     .then(() => GP.state("init1"))
     .catch(err => console.error("Initialization failed...\n", err));
 
 function beforeStart() {
-    Timing.reset();
-    Tablet.reset();
-    Ball.reset();
+    Timing.reset_();
+    Tablet.reset_();
+    Ball.reset_();
 }
 
 function firstFrame(timeStamp) {
@@ -56,18 +56,18 @@ function gameLoop(timeStamp) {
     if (GP.at("init1")) {
         GP.measureRefreshRate(deltaTime / GP.ENV.stdUnitInterval);
     } else if (GP.at("init2")) {
-        Ball.prepare();
+        Ball.prepare_();
         GP.state("almost-prepared");
     } else if (GP.at("almost-prepared")) {
         GP.state("prepared");
         GP.loadingFadeOut();
-        Mask.el.animate([
+        Mask.animate([
             { opacity: 0.4 },
         ], {
             duration: 0.5,
             join: true,
         });
-        Menu.render();
+        Menu.render_();
     }
 
     let steps = 1;
@@ -78,14 +78,14 @@ function gameLoop(timeStamp) {
             accumulated -= GP.ENV.fixedStep;
             ++steps;
             const unitProg = GP.ENV.fixedStep / GP.ENV.stdUnitInterval;
-            Ball.frameLoop(unitProg);
+            Ball.frameLoop_(unitProg);
             Tablet.frameLoop(unitProg);
             if (GI.collisionDetect() && Ball.vy < 0) {
                 const bv = Math.sqrt(Ball.vx ** 2 + Ball.vy ** 2);
                 const bvP = Math.log2(bv) + 1 / Math.cos(Math.PI / 20 * bv);
                 const d = D(Tablet.cx - Ball.cx);
                 const dP = Math.cos(Math.PI / Tablet.w * 2 * d) + 0.5;
-                Scoring.tip(Scoring.delta(0.7 * bvP + 0.3 * dP));
+                Scoring.tip_(Scoring.delta_(0.7 * bvP + 0.3 * dP));
             }
         }
     }
@@ -101,12 +101,12 @@ document.addEventListener("visibilitychange", function () {
     }
 });
 leafer.on(ResizeEvent.RESIZE, function (e) {
-    Mask.relocate(e);
-    Menu.relocate(e);
+    Mask.relocate_(e);
+    Menu.relocate_(e);
     Settlement.relocate(e);
-    FPS.relocate(e);
-    ForbiddenZone.relocate(e);
-    Scoring.relocate(e);
+    FPS.relocate_(e);
+    ForbiddenZone.relocate_(e);
+    Scoring.relocate_(e);
 });
 leafer.on(KeyEvent.HOLD, function (e) {
     e.code === "Semicolon" && FPS.toggle();
@@ -115,12 +115,12 @@ leafer.on(KeyEvent.UP, function (e) {
     if (e.code === "Space") {
         if (GP.at("prepared")) {
             GP.state("playing");
-            Timing.start();
+            Timing.start_();
             GP.start();
         } else if (GP.at("over")) {
             GP.reset();
             GP.state("playing");
-            Timing.start();
+            Timing.start_();
         }
     }
 });

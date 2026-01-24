@@ -13,10 +13,10 @@ import {
     Tablet,
     timer,
     Timing,
-} from "../core/instances";
+} from "./instances";
 import { Platform, Resource } from "leafer-game";
 
-export class GameProcessor {
+export default class Processor {
     #SM = "init"; // state machine
     measured = 0;
     refreshRateBucket = new Map();
@@ -46,18 +46,18 @@ export class GameProcessor {
     async initializeAll() {
         await Promise.all([
             Menu.init(),
-            Scoring.init(),
+            Scoring.init_(),
             Settlement.init(),
         ]);
     }
 
     renderAll() {
-        ForbiddenZone.render();
-        Tablet.render();
-        Ball.render();
-        Timing.render();
-        Scoring.render();
-        FPS.render();
+        ForbiddenZone.render_();
+        Tablet.render_();
+        Ball.render_();
+        Timing.render_();
+        Scoring.render_();
+        FPS.render_();
     }
 
     measureRefreshRate(prog) {
@@ -110,17 +110,17 @@ export class GameProcessor {
     }
 
     reset() {
-        Mask.cull();
-        Settlement.cull();
-        Timing.reset();
-        Scoring.reset();
-        Tablet.reset();
-        Ball.reset();
+        Mask.cull_();
+        Settlement.cull_();
+        Timing.reset_();
+        Scoring.reset_();
+        Tablet.reset_();
+        Ball.reset_();
     }
 
     start() {
-        Mask.cull();
-        Menu.cull();
+        Mask.cull_();
+        Menu.cull_();
     }
 
     pause() {
@@ -139,8 +139,8 @@ export class GameProcessor {
     gameOver(win = false) {
         if (this.at("over")) return true;
         this.state("over");
-        Timing.stop();
-        Mask.render();
+        Timing.stop_();
+        Mask.render_();
         if (win) Settlement.win();
         else Settlement.fail();
         return true;

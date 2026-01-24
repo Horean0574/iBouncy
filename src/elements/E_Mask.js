@@ -1,8 +1,7 @@
-import GameElement from "../utils/GameElement";
 import { Rect } from "leafer-game";
 import { GP, leafer } from "../core/instances";
 
-export default class E_Mask extends GameElement {
+export default class E_Mask extends Rect {
     #config = {
         fill: "#666",
         opacity: 0.6,
@@ -10,7 +9,7 @@ export default class E_Mask extends GameElement {
     };
 
     constructor() {
-        super(new Rect({
+        super({
             x: 0,
             y: 0,
             width: GP.bw,
@@ -22,29 +21,30 @@ export default class E_Mask extends GameElement {
                 duration: 0.5,
                 join: true,
             },
-        }), 990);
-        this.el.fill = this.#config.fill;
-        this.el.animation = {
+            zIndex: 990,
+        });
+        this.fill = this.#config.fill;
+        this.animation = {
             style: { opacity: this.#config.opacity },
             duration: this.#config.fadeInDuration,
             join: true,
         };
     }
 
-    relocate(e) {
+    relocate_(e) {
         this.w = e.width;
         this.h = e.height;
     }
 
-    render(fill = void 0, fromOpacity = void 0, toOpacity = void 0, duration = void 0) {
-        if (fill === void 0) this.el.fill = this.#config.fill;
-        else this.el.fill = fill;
-        if (fromOpacity === void 0) this.el.opacity = 0;
-        else this.el.opacity = fromOpacity;
-        if (toOpacity === void 0) this.el.animation.style.opacity = this.#config.opacity;
-        else this.el.animation.style.opacity = toOpacity;
-        if (duration === void 0) this.el.animation.duration = this.#config.fadeInDuration;
-        else this.el.animation.duration = duration;
-        leafer.add(this.el);
+    render_(fill = void 0, fromOpacity = void 0, toOpacity = void 0, duration = void 0) {
+        if (fill === void 0) this.fill = this.#config.fill;
+        else this.fill = fill;
+        if (fromOpacity === void 0) this.opacity = 0;
+        else this.opacity = fromOpacity;
+        if (toOpacity === void 0) this.animation.style.opacity = this.#config.opacity;
+        else this.animation.style.opacity = toOpacity;
+        if (duration === void 0) this.animation.duration = this.#config.fadeInDuration;
+        else this.animation.duration = duration;
+        leafer.add(this);
     }
 }

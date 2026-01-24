@@ -1,6 +1,6 @@
-import { Ball, GP, Tablet, timer } from "../core/instances";
+import { Ball, GP, Tablet, timer } from "./instances";
 
-export default class GameInteraction {
+export default class Interaction {
     collisionStat = 0;
     accelerateCD = 50;
     prevAccelerateTime;

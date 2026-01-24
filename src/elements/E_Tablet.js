@@ -1,8 +1,7 @@
-import GameElement from "../utils/GameElement";
 import { Rect, Keyboard } from "leafer-game";
 import { GI, GP, Tablet } from "../core/instances";
 
-export default class E_Tablet extends GameElement {
+export default class E_Tablet extends Rect {
     vxMax;
     vyMax;
     vx;
@@ -10,14 +9,14 @@ export default class E_Tablet extends GameElement {
     availZone = [80, 40, 0, 40]; // Top, Right, Bottom, Left
 
     constructor() {
-        super(new Rect({
+        super({
             width: 120, // 120
             height: 25,
             fill: "#32CD79",
-        }));
+        });
     }
 
-    reset() {
+    reset_() {
         this.vxMax = 6;
         this.vyMax = 2.8;
         this.vx = 0;

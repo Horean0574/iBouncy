@@ -1,6 +1,7 @@
 import { Leafer } from "leafer-game";
-import { GameProcessor } from "../utils/GameProcessor";
-import GameInteraction from "../utils/GameInteraction";
+import extendUI from "./UIExtensions";
+import Processor from "./processor";
+import Interaction from "./interaction";
 import EmbeddedTimer from "../utils/EmbeddedTimer";
 import E_Mask from "../elements/E_Mask";
 import E_Menu from "../elements/E_Menu";
@@ -24,6 +25,8 @@ export function setPrevTimeStamp(v) {
 
 export const loading = document.querySelector("#loading");
 
+extendUI();
+
 export const leafer = new Leafer({
     view: document.querySelector("canvas"),
     fill: "#EFF",
@@ -32,7 +35,7 @@ export const leafer = new Leafer({
     },
 });
 
-export const GP = new GameProcessor({
+export const GP = new Processor({
     refreshRate: 60,
     actUnitInterval: 16.7,
     stdUnitInterval: 16.7,
@@ -43,7 +46,7 @@ export const GP = new GameProcessor({
     timeLimit: 180,
 });
 
-export const GI = new GameInteraction();
+export const GI = new Interaction();
 export const timer = new EmbeddedTimer({
     minInterval: 0,
     autoHandleFPS: true,

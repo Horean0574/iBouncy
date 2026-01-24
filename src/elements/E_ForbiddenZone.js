@@ -1,10 +1,9 @@
-import GameElement from "../utils/GameElement";
 import { Polygon } from "leafer-game";
 import { GP } from "../core/instances";
 
-export default class E_ForbiddenZone extends GameElement {
+export default class E_ForbiddenZone extends Polygon {
     constructor() {
-        super(new Polygon({
+        super({
             points: [
                 0, GP.bh,
                 0, 0,
@@ -16,11 +15,11 @@ export default class E_ForbiddenZone extends GameElement {
                 GP.ENV.paddingSide, GP.bh,
             ],
             fill: "#E85B5B87",
-        }));
+        });
     }
 
-    relocate(e) {
-        this.el.points = [
+    relocate_(e) {
+        this.points = [
             0, e.height,
             0, 0,
             e.width, 0,

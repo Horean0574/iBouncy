@@ -64,9 +64,9 @@ iBouncy/
 │   │   ├── E_Tablet.js    # 挡板类
 │   │   ├── E_Scoring.js   # 计分系统
 │   │   └── ...
-│   ├── utils/            # 工具类
-│   │   ├── GameElement.js # 游戏元素基类
-│   │   ├── GameProcessor.js # 游戏流程控制
+│   ├── utils/               # 工具类
+│   │   ├── EmbeddedTimer.js # 重制计时器
+│   │   ├── Queue.js         # 队列数据类型
 │   │   └── ...
 │   └── app.js            # 游戏主入口
 ├── assets/               # 静态资源

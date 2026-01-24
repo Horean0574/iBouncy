@@ -1,12 +1,12 @@
-import GameElementCentered from "../utils/GameElementCentered";
 import { Text } from "leafer-game";
 import { GP } from "../core/instances";
 
-export default class E_Settlement extends GameElementCentered {
+export default class E_Settlement extends Text {
     constructor() {
-        super(new Text({
+        super({
             x: GP.bw / 2,
             y: GP.bh / 3,
+            around: "center",
             text: "",
             fontSize: 128,
             fontFamily: "HYBeiBingYang-W",
@@ -22,7 +22,8 @@ export default class E_Settlement extends GameElementCentered {
                 duration: 0.3,
                 join: true,
             },
-        }), 991);
+            zIndex: 991,
+        });
 
         this.init = this.init.bind(this);
     }
@@ -51,21 +52,21 @@ export default class E_Settlement extends GameElementCentered {
     }
 
     win() {
-        this.el.text = " You Win! ";
+        this.text = " You Win! ";
         this.#setTextFill("leafer://GL.jpg");
         this.#setShadowColor("#FFEF00");
-        this.render();
+        this.render_();
     }
 
     fail() {
-        this.el.text = " FAIL ";
+        this.text = " FAIL ";
         this.#setTextFill("leafer://DL.jpg");
         this.#setShadowColor("#474746");
-        this.render();
+        this.render_();
     }
 
     #setTextFill(src) {
-        this.el.fill = {
+        this.fill = {
             type: "image",
             url: src,
             offset: { y: -50 },
@@ -73,7 +74,7 @@ export default class E_Settlement extends GameElementCentered {
     }
 
     #setShadowColor(color) {
-        this.el.shadow = {
+        this.shadow = {
             x: 0,
             y: 0,
             blur: 25,

@@ -1,24 +1,23 @@
-import GameElement from "../utils/GameElement";
 import { Ellipse } from "leafer-game";
-import EX_BallTrailing from "../elements_extensions/EX_BallTrailing";
+import X_BallTrailing from "../elements_extensions/X_BallTrailing";
 import { GI, GP, leafer, Timing } from "../core/instances";
 
-export default class E_Ball extends GameElement {
+export default class E_Ball extends Ellipse {
     vx;
     ax;
     ay;
     timeDivisor = 1;
 
     constructor() {
-        super(new Ellipse({
+        super({
             width: 20,
             height: 20,
             fill: "#20A8D7",
-        }));
-        this.trailing = new EX_BallTrailing();
+        });
+        this.trailing = new X_BallTrailing();
     }
 
-    reset() {
+    reset_() {
         this.vx = (Math.random() * 2.7 + 0.8) * (Math.random() > 0.5 ? 1 : -1);
         this.vy = 3.5;
         this.ax = 1.27e-4;
@@ -27,16 +26,16 @@ export default class E_Ball extends GameElement {
         this.cy = GP.bh / 4;
     }
 
-    render() {
+    render_() {
         this.trailing.render();
-        leafer.add(this.el);
+        leafer.add(this);
     }
 
-    prepare() {
+    prepare_() {
         this.trailing.prepare();
     }
 
-    frameLoop(prog) {
+    frameLoop_(prog) {
         if (Timing.remaining >= 70 && Timing.remaining < 160) {
             this.vx *= (1 + this.ax) ** prog;
             this.vy *= (1 + this.ay) ** prog;
