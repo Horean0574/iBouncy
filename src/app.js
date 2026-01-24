@@ -79,7 +79,7 @@ function gameLoop(timeStamp) {
                 const bvP = Math.log2(bv) + 1 / Math.cos(Math.PI / 20 * bv);
                 const d = D(Tablet.cx - Ball.cx);
                 const dP = Math.cos(Math.PI / Tablet.w * 2 * d) + 0.5;
-                Scoring.tip_(Scoring.delta_(0.7 * bvP + 0.3 * dP));
+                Scoring.tip_(Scoring.delta_(0.4 * bvP + 0.16 * dP));
             }
         }
     }
