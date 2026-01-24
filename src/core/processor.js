@@ -47,11 +47,12 @@ export default class Processor {
         await Promise.all([
             Menu.init(),
             Scoring.init_(),
-            Settlement.init(),
+            Settlement.init_(),
         ]);
     }
 
     renderAll() {
+        Settlement.render_();
         ForbiddenZone.render_();
         Tablet.render_();
         Ball.render_();
@@ -109,18 +110,32 @@ export default class Processor {
         Resource.setImage(`leafer://${name}`, img);
     }
 
-    reset() {
-        Mask.cull_();
-        Settlement.cull_();
+    resetMain(removeMask = true) {
+        removeMask && Mask.cull_();
+        Settlement.hide_();
         Timing.reset_();
         Scoring.reset_();
         Tablet.reset_();
         Ball.reset_();
     }
 
+    menu(existed = true) {
+        existed ? Menu.reset_() : Menu.render_();
+        this.resetMain(false);
+        if (Mask.fill !== "#FFF" || Mask.opacity !== 0.4) {
+            Mask.animate([
+                { fill: "#FFF", opacity: 0.4 },
+            ], {
+                duration: 0.5,
+                join: true,
+            });
+        }
+        Menu.show_();
+    }
+
     start() {
         Mask.cull_();
-        Menu.cull_();
+        Menu.hide_();
     }
 
     pause() {
@@ -140,9 +155,9 @@ export default class Processor {
         if (this.at("over")) return true;
         this.state("over");
         Timing.stop_();
-        Mask.render_();
-        if (win) Settlement.win();
-        else Settlement.fail();
+        Mask.render_("#FFF", 0, 0.4, 0.8);
+        if (win) Settlement.win_();
+        else Settlement.fail_();
         return true;
     }
 

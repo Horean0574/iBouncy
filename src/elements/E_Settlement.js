@@ -1,83 +1,138 @@
-import { Text } from "leafer-game";
+import { AnimateEvent, Group, Text } from "leafer-game";
 import { GP } from "../core/instances";
+import TextLine from "../utils/TextLine";
 
-export default class E_Settlement extends Text {
+export default class E_Settlement extends Group {
     constructor() {
         super({
+            x: 0,
+            y: 0,
+            width: GP.bw,
+            height: GP.bh,
+            visible: false,
+            zIndex: 991,
+        });
+        this.Title = new Text({
             x: GP.bw / 2,
-            y: GP.bh / 3,
+            y: GP.bh * 2 / 7,
             around: "center",
             text: "",
             fontSize: 128,
             fontFamily: "HYBeiBingYang-W",
             scale: 0.5,
-            opacity: 0.6,
-            animation: {
-                style: { scale: 1, opacity: 1 },
-                duration: 0.4,
-                join: true,
-            },
-            animationOut: {
-                style: { scale: 0.4, opacity: 0.2 },
-                duration: 0.3,
-                join: true,
-            },
-            zIndex: 991,
+            opacity: 0,
         });
+        this.Hint1 = new TextLine(GP.bw / 2, GP.bh * 9 / 14 - 12, "center", "#444", 16)
+            .$append("按")
+            .$append("空格键", 3, void 0, void 0, "bold")
+            .$append("重新开始");
+        this.Hint1.opacity = 0;
+        this.Hint2 = new TextLine(GP.bw / 2, GP.bh * 9 / 14 + 12, "center", "#444", 16)
+            .$append("按")
+            .$append("回车键", 3, void 0, void 0, "bold")
+            .$append("返回菜单");
+        this.Hint2.opacity = 0;
+        this.add([this.Title, this.Hint1, this.Hint2]);
 
-        this.init = this.init.bind(this);
+        this.init_ = this.init_.bind(this);
     }
 
-    relocate(e) {
-        this.x = e.width / 2;
-        this.y = e.height / 2 - 64;
+    relocate_(e) {
+        this.Title.x = e.width / 2;
+        this.Title.y = e.height * 2 / 7;
     }
 
-    async init() {
+    async init_() {
         await Promise.all([
-            this.#loadFont(),
-            this.#preloadImage(),
+            this.#loadFont_(),
+            this.#preloadImage_(),
         ]);
     }
 
-    async #loadFont() {
+    async #loadFont_() {
         await GP.fontInitializer("HYBeiBingYang-W", "./assets/fonts/HYBeiBingYang-W");
     }
 
-    async #preloadImage() {
+    async #preloadImage_() {
         await Promise.all([
             GP.ImageInitializer("GL.jpg", "./assets/img/GL.jpg"),
             GP.ImageInitializer("DL.jpg", "./assets/img/DL.jpg"),
         ]);
     }
 
-    win() {
-        this.text = " You Win! ";
-        this.#setTextFill("leafer://GL.jpg");
-        this.#setShadowColor("#FFEF00");
-        this.render_();
+    show_() {
+        this.visible = true;
+        this.relocate_({ width: GP.bw, height: GP.bh });
+        this.Title.animate([
+            { scale: 1, opacity: 1 },
+        ], {
+            duration: 0.4,
+            join: true,
+        });
+        this.Hint1.animate([
+            { opacity: 1 },
+        ], {
+            duration: 0.8,
+            delay: 0.2,
+            join: true,
+        });
+        this.Hint2.animate([
+            { opacity: 1 },
+        ], {
+            duration: 0.8,
+            delay: 0.4,
+            join: true,
+        });
     }
 
-    fail() {
-        this.text = " FAIL ";
-        this.#setTextFill("leafer://DL.jpg");
-        this.#setShadowColor("#474746");
-        this.render_();
+    hide_() {
+        this.Title.animate([
+            { scale: 0.3, opacity: 0 },
+        ], {
+            duration: 0.3,
+            join: true,
+        });
+        const aniConfig = [
+            [
+                { opacity: 0 },
+            ], {
+                duration: 0.5,
+                join: true,
+            },
+        ];
+        this.Hint1.animate(...aniConfig);
+        this.Hint2.animate(...aniConfig)
+            .once(AnimateEvent.COMPLETED, () => this.visible = false);
     }
 
-    #setTextFill(src) {
-        this.fill = {
+    win_() {
+        this.Title.text = " You Win! ";
+        this.#setTextFill_("leafer://GL.jpg", 75);
+        this.#setShadowColor_("#FFEF00");
+        this.show_();
+    }
+
+    fail_() {
+        this.Title.text = " FAIL ";
+        this.#setTextFill_("leafer://DL.jpg", -50);
+        this.#setShadowColor_("#474746");
+        this.show_();
+    }
+
+    #setTextFill_(src, offsetY) {
+        this.Title.fill = {
             type: "image",
             url: src,
-            offset: { y: -50 },
+            offset: { y: offsetY },
         };
     }
 
-    #setShadowColor(color) {
-        this.shadow = {
+    #setShadowColor_(color) {
+        this.Title.shadow = {
             x: 0,
             y: 0,
             blur: 25,
+            spread: 15,
             color: color,
         };
     }

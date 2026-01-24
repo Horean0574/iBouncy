@@ -61,18 +61,12 @@ function gameLoop(timeStamp) {
     } else if (GP.at("almost-prepared")) {
         GP.state("prepared");
         GP.loadingFadeOut();
-        Mask.animate([
-            { opacity: 0.4 },
-        ], {
-            duration: 0.5,
-            join: true,
-        });
-        Menu.render_();
+        GP.menu(false);
     }
 
     let steps = 1;
     if (GP.at("playing")) {
-        accumulated += Math.min(deltaTime, 800); // can redisplay frames of up to 0.8s
+        accumulated += Math.min(deltaTime, 500); // can redisplay frames of up to 0.5s
         Ball.timeDivisor = Math.min(F(accumulated / GP.ENV.fixedStep), GP.ENV.maxStepPerFrame);
         while (accumulated >= GP.ENV.fixedStep && steps <= GP.ENV.maxStepPerFrame) { // sub-stepping loop
             accumulated -= GP.ENV.fixedStep;
@@ -103,7 +97,7 @@ document.addEventListener("visibilitychange", function () {
 leafer.on(ResizeEvent.RESIZE, function (e) {
     Mask.relocate_(e);
     Menu.relocate_(e);
-    Settlement.relocate(e);
+    Settlement.relocate_(e);
     FPS.relocate_(e);
     ForbiddenZone.relocate_(e);
     Scoring.relocate_(e);
@@ -112,15 +106,24 @@ leafer.on(KeyEvent.HOLD, function (e) {
     e.code === "Semicolon" && FPS.toggle_();
 });
 leafer.on(KeyEvent.UP, function (e) {
-    if (e.code === "Space") {
-        if (GP.at("prepared")) {
-            GP.state("playing");
-            Timing.start_();
-            GP.start();
-        } else if (GP.at("over")) {
-            GP.reset();
-            GP.state("playing");
-            Timing.start_();
-        }
+    switch (e.code) {
+        case "Space":
+            if (GP.at("prepared")) {
+                GP.state("playing");
+                Timing.start_();
+                GP.start();
+            } else if (GP.at("over")) {
+                GP.resetMain();
+                GP.state("playing");
+                Timing.start_();
+            }
+            break;
+        case "Enter":
+            if (GP.at("over")) {
+                GP.state("prepared");
+                Settlement.hide_();
+                GP.menu();
+            }
+            break;
     }
 });

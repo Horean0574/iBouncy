@@ -18,7 +18,7 @@ export default class E_Ball extends Ellipse {
     }
 
     reset_() {
-        this.vx = (Math.random() * 2.7 + 0.8) * (Math.random() > 0.5 ? 1 : -1);
+        this.vx = (Math.random() * 1.9 + 1.6) * (Math.random() > 0.5 ? 1 : -1);
         this.vy = 3.5;
         this.ax = 1.27e-4;
         this.ay = 1.43e-4;
