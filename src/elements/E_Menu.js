@@ -87,9 +87,9 @@ export default class E_Menu extends Group {
     relocate_(e) {
         if (!this.visible) return;
         this.cx = e.width / 2;
-        this.Brand.cy = e.height * 2 / 7;
-        this.Hint1.cy = e.height * 4 / 7 - 12;
-        this.Hint2.cy = e.height * 4 / 7 + 12;
+        this.Brand.y = e.height * 2 / 7;
+        this.Hint1.y = e.height * 4 / 7 - 12;
+        this.Hint2.y = e.height * 4 / 7 + 12;
     }
 
     render_() {

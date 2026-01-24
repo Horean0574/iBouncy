@@ -29,8 +29,8 @@ export default class E_Settlement extends Text {
     }
 
     relocate(e) {
-        this.cx = e.width / 2;
-        this.cy = e.height / 2 - 64;
+        this.x = e.width / 2;
+        this.y = e.height / 2 - 64;
     }
 
     async init() {
