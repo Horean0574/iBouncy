@@ -9,7 +9,8 @@ import {
     GP,
     timer,
     Mask,
-    Menu,
+    MainMenu,
+    OptionsMenu,
     Settlement,
     FPS,
     ForbiddenZone,
@@ -28,12 +29,14 @@ loading.addEventListener("dragstart", e => e.preventDefault());
 
 let accumulated = 0;
 
-Mask.render_("#FFF", 1, 0.7, 0.4);
+Mask.render_();
+Mask.show_("#FFF", 1, 0.7, 0.4);
 beforeStart();
 GP.renderAll();
 requestAnimationFrame(firstFrame);
 timer.newInterval(() => FPS.assign_(timer.FPS), 400);
 GP.initializeAll()
+    .then(GP.secondRender)
     .then(() => GP.state("init1"))
     .catch(err => console.error("Initialization failed...\n", err));
 
@@ -61,7 +64,7 @@ function gameLoop(timeStamp) {
     } else if (GP.at("almost-prepared")) {
         GP.state("prepared");
         GP.loadingFadeOut();
-        GP.menu(false);
+        GP.mainMenu();
     }
 
     let steps = 1;
@@ -88,15 +91,12 @@ function gameLoop(timeStamp) {
 }
 
 document.addEventListener("visibilitychange", function () {
-    if (document.hidden) {
-        GP.pause();
-    } else {
-        GP.resume();
-    }
+    document.hidden && GP.pause();
 });
 leafer.on(ResizeEvent.RESIZE, function (e) {
     Mask.relocate_(e);
-    Menu.relocate_(e);
+    MainMenu.relocate_(e);
+    OptionsMenu.relocate_(e);
     Settlement.relocate_(e);
     FPS.relocate_(e);
     ForbiddenZone.relocate_(e);
@@ -116,13 +116,19 @@ leafer.on(KeyEvent.UP, function (e) {
                 GP.resetMain();
                 GP.state("playing");
                 Timing.start_();
+            } else if (GP.at("paused")) {
+                GP.resume();
             }
             break;
         case "Enter":
             if (GP.at("over")) {
                 GP.state("prepared");
                 Settlement.hide_();
-                GP.menu();
+                GP.mainMenu();
+            } else if (GP.at("paused")) {
+                GP.state("prepared");
+                OptionsMenu.hide_();
+                GP.mainMenu();
             }
             break;
     }

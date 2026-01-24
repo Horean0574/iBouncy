@@ -5,13 +5,14 @@ import {
     ForbiddenZone,
     FPS,
     GP,
+    timer,
     leafer,
     Mask,
-    Menu,
+    MainMenu,
+    OptionsMenu,
     Scoring,
     Settlement,
     Tablet,
-    timer,
     Timing,
 } from "./instances";
 import { Platform, Resource } from "leafer-game";
@@ -45,13 +46,14 @@ export default class Processor {
 
     async initializeAll() {
         await Promise.all([
-            Menu.init(),
+            MainMenu.init(),
             Scoring.init_(),
             Settlement.init_(),
         ]);
     }
 
     renderAll() {
+        OptionsMenu.render_();
         Settlement.render_();
         ForbiddenZone.render_();
         Tablet.render_();
@@ -59,6 +61,10 @@ export default class Processor {
         Timing.render_();
         Scoring.render_();
         FPS.render_();
+    }
+
+    secondRender() {
+        MainMenu.render_();
     }
 
     measureRefreshRate(prog) {
@@ -111,7 +117,7 @@ export default class Processor {
     }
 
     resetMain(removeMask = true) {
-        removeMask && Mask.cull_();
+        removeMask && Mask.hide_();
         Settlement.hide_();
         Timing.reset_();
         Scoring.reset_();
@@ -119,29 +125,36 @@ export default class Processor {
         Ball.reset_();
     }
 
-    menu(existed = true) {
-        existed ? Menu.reset_() : Menu.render_();
+    mainMenu() {
+        MainMenu.reset_();
         this.resetMain(false);
         if (Mask.fill !== "#FFF" || Mask.opacity !== 0.4) {
-            Mask.animate([
-                { fill: "#FFF", opacity: 0.4 },
-            ], {
-                duration: 0.5,
-                join: true,
-            });
+            Mask.fill = "#FFF";
+            Mask.fadeTo_(0.4, 0.5);
         }
-        Menu.show_();
+        MainMenu.show_();
+    }
+
+    optionsMenu() {
+        OptionsMenu.reset_();
+        if (Mask.fill !== "#FFF" || Mask.opacity !== 0.4) {
+            Mask.fill = "#FFF";
+            Mask.fadeTo_(0.4, 0.5);
+        }
+        OptionsMenu.show_();
     }
 
     start() {
-        Mask.cull_();
-        Menu.hide_();
+        Mask.hide_();
+        MainMenu.hide_();
     }
 
     pause() {
         if (this.at("paused", "prepared", "over") || this.#SM.startsWith("init")) return;
         this.state("paused");
         timer.pauseAll();
+        Mask.show_("#FFF", 0, 0.4, 0.8);
+        this.optionsMenu();
     }
 
     resume() {
@@ -149,13 +162,15 @@ export default class Processor {
         this.state("playing");
         setPrevTimeStamp(performance.now());
         timer.resumeAll();
+        Mask.hide_();
+        OptionsMenu.hide_();
     }
 
     gameOver(win = false) {
         if (this.at("over")) return true;
         this.state("over");
         Timing.stop_();
-        Mask.render_("#FFF", 0, 0.4, 0.8);
+        Mask.show_("#FFF", 0, 0.4, 0.8);
         if (win) Settlement.win_();
         else Settlement.fail_();
         return true;

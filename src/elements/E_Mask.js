@@ -1,9 +1,9 @@
-import { Rect } from "leafer-game";
-import { GP, leafer } from "../core/instances";
+import { AnimateEvent, Rect } from "leafer-game";
+import { GP } from "../core/instances";
 
 export default class E_Mask extends Rect {
     #config = {
-        fill: "#666",
+        fill: "#FFF",
         opacity: 0.6,
         fadeInDuration: 0.8,
     };
@@ -15,12 +15,7 @@ export default class E_Mask extends Rect {
             width: GP.bw,
             height: GP.bh,
             fill: "#666",
-            opacity: 0,
-            animationOut: {
-                style: { opacity: 0 },
-                duration: 0.5,
-                join: true,
-            },
+            visible: false,
             zIndex: 990,
         });
         this.fill = this.#config.fill;
@@ -36,15 +31,14 @@ export default class E_Mask extends Rect {
         this.h = e.height;
     }
 
-    render_(fill = void 0, fromOpacity = void 0, toOpacity = void 0, duration = void 0) {
-        if (fill === void 0) this.fill = this.#config.fill;
-        else this.fill = fill;
-        if (fromOpacity === void 0) this.opacity = 0;
-        else this.opacity = fromOpacity;
-        if (toOpacity === void 0) this.animation.style.opacity = this.#config.opacity;
-        else this.animation.style.opacity = toOpacity;
-        if (duration === void 0) this.animation.duration = this.#config.fadeInDuration;
-        else this.animation.duration = duration;
-        leafer.add(this);
+    show_(fill = this.#config.fill, fromOpacity = 0, toOpacity = this.#config.opacity, duration = this.#config.fadeInDuration) {
+        this.visible = true;
+        this.relocate_({ width: GP.bw, height: GP.bh });
+        this.fill = fill;
+        this.fade_(fromOpacity, toOpacity, duration);
+    }
+
+    hide_() {
+        this.fadeOut_(0.5).once(AnimateEvent.COMPLETED, () => this.visible = false);
     }
 }

@@ -17,7 +17,7 @@ export default class E_Settlement extends Group {
             y: GP.bh * 2 / 7,
             around: "center",
             text: "",
-            fontSize: 128,
+            fontSize: 108,
             fontFamily: "HYBeiBingYang-W",
             scale: 0.5,
             opacity: 0,
@@ -27,10 +27,10 @@ export default class E_Settlement extends Group {
             .$append("空格键", 3, void 0, void 0, "bold")
             .$append("重新开始");
         this.Hint1.opacity = 0;
-        this.Hint2 = new TextLine(GP.bw / 2, GP.bh * 9 / 14 + 12, "center", "#444", 16)
+        this.Hint2 = new TextLine(GP.bw / 2, GP.bh * 9 / 14 + 12, "center", "#777", 12)
             .$append("按")
             .$append("回车键", 3, void 0, void 0, "bold")
-            .$append("返回菜单");
+            .$append("返回开始菜单");
         this.Hint2.opacity = 0;
         this.add([this.Title, this.Hint1, this.Hint2]);
 
@@ -69,20 +69,8 @@ export default class E_Settlement extends Group {
             duration: 0.4,
             join: true,
         });
-        this.Hint1.animate([
-            { opacity: 1 },
-        ], {
-            duration: 0.8,
-            delay: 0.2,
-            join: true,
-        });
-        this.Hint2.animate([
-            { opacity: 1 },
-        ], {
-            duration: 0.8,
-            delay: 0.4,
-            join: true,
-        });
+        this.Hint1.fadeIn_(0.8, 0.2);
+        this.Hint2.fadeIn_(0.8, 0.4);
     }
 
     hide_() {
@@ -92,16 +80,8 @@ export default class E_Settlement extends Group {
             duration: 0.3,
             join: true,
         });
-        const aniConfig = [
-            [
-                { opacity: 0 },
-            ], {
-                duration: 0.5,
-                join: true,
-            },
-        ];
-        this.Hint1.animate(...aniConfig);
-        this.Hint2.animate(...aniConfig)
+        this.Hint1.fadeOut_(0.5);
+        this.Hint2.fadeOut_(0.5)
             .once(AnimateEvent.COMPLETED, () => this.visible = false);
     }
 

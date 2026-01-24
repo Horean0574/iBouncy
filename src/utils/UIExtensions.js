@@ -1,8 +1,14 @@
 import { UI } from "leafer-game";
-import { leafer } from "./instances";
+import { leafer } from "../core/instances";
 
 export default function extendUI() {
     const extensions = {
+        rendered_: {
+            value: false,
+            writable: true,
+            enumerable: true,
+            configurable: true,
+        },
         w: {
             get() {
                 return this.width;
@@ -105,7 +111,9 @@ export default function extendUI() {
         },
         render_: {
             value: function () {
+                if (this.rendered_) return;
                 leafer.add(this);
+                this.rendered_ = true;
             },
             writable: true,
             enumerable: false,
@@ -113,7 +121,9 @@ export default function extendUI() {
         },
         cull_: {
             value: function () {
+                if (!this.rendered_) return;
                 leafer.remove(this);
+                this.rendered_ = false;
             },
             writable: true,
             enumerable: false,
@@ -138,6 +148,47 @@ export default function extendUI() {
         toggle_: {
             value: function () {
                 this.visible = !this.visible;
+            },
+            writable: true,
+            enumerable: false,
+            configurable: true,
+        },
+        fade_: {
+            value: function (original, target, dur, dly = 0) {
+                return this.animate([
+                    { opacity: original },
+                    { opacity: target },
+                ], {
+                    duration: dur,
+                    delay: dly,
+                });
+            },
+        },
+        fadeTo_: {
+            value: function (target, dur, dly = 0) {
+                return this.animate([
+                    { opacity: target },
+                ], {
+                    duration: dur,
+                    delay: dly,
+                    join: true,
+                });
+            },
+            writable: true,
+            enumerable: false,
+            configurable: true,
+        },
+        fadeIn_: {
+            value: function (dur, dly = 0) {
+                return this.fadeTo_(1, dur, dly);
+            },
+            writable: true,
+            enumerable: false,
+            configurable: true,
+        },
+        fadeOut_: {
+            value: function (dur, dly = 0) {
+                return this.fadeTo_(0, dur, dly);
             },
             writable: true,
             enumerable: false,

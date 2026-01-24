@@ -2,13 +2,14 @@ import { AnimateEvent, Group, Image } from "leafer-game";
 import { GP } from "../core/instances";
 import TextLine from "../utils/TextLine";
 
-export default class E_Menu extends Group {
+export default class E_MainMenu extends Group {
     constructor() {
         super({
             x: 0,
             y: 0,
             width: GP.bw,
             height: GP.bh,
+            visible: false,
             zIndex: 991,
         });
         this.Brand = new Image({
@@ -58,7 +59,6 @@ export default class E_Menu extends Group {
 
     reset_() {
         this.opacity = 1;
-        this.x = this.y = 0;
         this.Brand.opacity = 0;
         this.Brand.scale = 0;
         this.Brand.offsetY = -300;
@@ -85,28 +85,11 @@ export default class E_Menu extends Group {
                 },
             };
         });
-        this.Hint1.animate([
-            { opacity: 1 },
-        ], {
-            duration: 0.8,
-            delay: 0.2,
-            join: true,
-        });
-        this.Hint2.animate([
-            { opacity: 1 },
-        ], {
-            duration: 0.8,
-            delay: 0.4,
-            join: true,
-        });
+        this.Hint1.fadeIn_(0.8, 0.2);
+        this.Hint2.fadeIn_(0.8, 0.4);
     }
 
     hide_() {
-        this.animate([
-            { opacity: 0 },
-        ], {
-            duration: 0.5,
-            join: true,
-        }).once(AnimateEvent.COMPLETED, () => this.visible = false);
+        this.fadeOut_(0.5).once(AnimateEvent.COMPLETED, () => this.visible = false);
     }
 }
