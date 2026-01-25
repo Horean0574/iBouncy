@@ -3,6 +3,8 @@ import { GP } from "../core/instances";
 import TextLine from "../utils/TextLine";
 
 export default class E_OptionsMenu extends Group {
+    $vis = false;
+
     constructor() {
         super({
             x: 0,
@@ -47,14 +49,17 @@ export default class E_OptionsMenu extends Group {
     }
 
     show_() {
+        this.$vis = true;
         this.visible = true;
         this.relocate_({ width: GP.bw, height: GP.bh });
+        this.fadeIn_(0);
         this.Title.fadeIn_(0.4);
         this.Hint1.fadeIn_(0.8, 0.2);
         this.Hint2.fadeIn_(0.8, 0.4);
     }
 
     hide_() {
+        this.$vis = false;
         this.fadeOut_(0.5).once(AnimateEvent.COMPLETED, () => this.visible = false);
     }
 }

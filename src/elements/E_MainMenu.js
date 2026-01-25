@@ -90,6 +90,7 @@ export default class E_MainMenu extends Group {
     }
 
     hide_() {
+        this.Brand.hoverStyle = false;
         this.fadeOut_(0.5).once(AnimateEvent.COMPLETED, () => this.visible = false);
     }
 }

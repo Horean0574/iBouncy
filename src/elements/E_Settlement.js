@@ -38,8 +38,10 @@ export default class E_Settlement extends Group {
     }
 
     relocate_(e) {
-        this.Title.x = e.width / 2;
+        this.cx = e.width / 2;
         this.Title.y = e.height * 2 / 7;
+        this.Hint1.y = e.height * 9 / 14 - 12;
+        this.Hint2.y = e.height * 9 / 14 + 12;
     }
 
     async init_() {
