@@ -9,6 +9,7 @@ export default class E_FPS extends Text {
             fontSize: 12,
             fill: "#777",
             text: "FPS: --",
+            zIndex: 1001,
         });
     }
 
