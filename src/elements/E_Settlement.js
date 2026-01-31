@@ -1,6 +1,7 @@
 import { AnimateEvent, Group, Text } from "leafer-game";
 import { GP } from "../core/instances";
 import TextLine from "../utils/TextLine";
+import { UIConf } from "../config";
 
 export default class E_Settlement extends Group {
     constructor() {
@@ -17,17 +18,17 @@ export default class E_Settlement extends Group {
             y: GP.bh * 2 / 7,
             around: "center",
             text: "",
-            fontSize: 108,
-            fontFamily: "HYBeiBingYang-W",
+            fontSize: UIConf.Settlement.Title.FONT_SIZE,
+            fontFamily: UIConf.Settlement.Title.FONT_FAMILY,
             scale: 0.5,
             opacity: 0,
         });
-        this.Hint1 = new TextLine(GP.bw / 2, GP.bh * 9 / 14 - 12, "center", "#444", 16)
+        this.Hint1 = new TextLine(GP.bw / 2, GP.bh * 9 / 14 - 12, "center", UIConf.Settlement.Hint1.FILL, UIConf.Settlement.Hint1.FONT_SIZE)
             .$append("按")
             .$append("空格键", 3, void 0, void 0, "bold")
             .$append("重新开始");
         this.Hint1.opacity = 0;
-        this.Hint2 = new TextLine(GP.bw / 2, GP.bh * 9 / 14 + 12, "center", "#777", 12)
+        this.Hint2 = new TextLine(GP.bw / 2, GP.bh * 9 / 14 + 12, "center", UIConf.Settlement.Hint2.FILL, UIConf.Settlement.Hint2.FONT_SIZE)
             .$append("按")
             .$append("回车键", 3, void 0, void 0, "bold")
             .$append("返回开始菜单");

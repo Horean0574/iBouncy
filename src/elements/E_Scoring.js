@@ -1,5 +1,6 @@
 import { Group, Path, Text } from "leafer-game";
 import { Ball, F, GP, timer } from "../core/instances";
+import { UIConf } from "../config";
 
 export default class E_Scoring extends Group {
     v = 0;
@@ -23,23 +24,23 @@ export default class E_Scoring extends Group {
                 "  Z",
             x: 120,
             y: 0,
-            fill: "#777A",
+            fill: UIConf.Scoring.Panel.FILL,
         });
         this.Integer = new Text({
             x: -GP.bw,
             y: 7,
-            fontSize: 40,
-            fill: "#FFF",
+            fontSize: UIConf.Scoring.Integer.FONT_SIZE,
+            fill: UIConf.Scoring.Integer.FILL,
             text: "-",
-            fontFamily: "HYDiSiKe-U",
+            fontFamily: UIConf.Scoring.Integer.FONT_FAMILY,
         });
         this.Decimal = new Text({
             x: -GP.bw,
             y: 15,
-            fontSize: 32,
-            fill: "#DDD",
+            fontSize: UIConf.Scoring.Decimal.FONT_SIZE,
+            fill: UIConf.Scoring.Decimal.FILL,
             text: "--",
-            fontFamily: "HYDiSiKe-U",
+            fontFamily: UIConf.Scoring.Decimal.FONT_FAMILY,
         });
         this.add([this.Panel, this.Integer, this.Decimal]);
 
@@ -85,10 +86,10 @@ export default class E_Scoring extends Group {
             y: Ball.oy,
             around: "center",
             text: "+" + delta,
-            fill: "#FFEF00",
-            stroke: "#33333333",
-            fontSize: 20,
-            fontFamily: "HYDiSiKe-U",
+            fill: UIConf.Scoring.tip.FILL,
+            stroke: UIConf.Scoring.tip.STROKE,
+            fontSize: UIConf.Scoring.tip.FONT_SIZE,
+            fontFamily: UIConf.Scoring.tip.FONT_FAMILY,
             opacity: 0.9,
             shadow: {
                 x: 1,

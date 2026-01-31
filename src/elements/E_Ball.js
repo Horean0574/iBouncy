@@ -1,6 +1,7 @@
 import { Ellipse } from "leafer-game";
 import X_BallTrailing from "../elements_extensions/X_BallTrailing";
 import { GI, GP, leafer, Timing } from "../core/instances";
+import { UIConf } from "../config";
 
 export default class E_Ball extends Ellipse {
     vx;
@@ -10,9 +11,9 @@ export default class E_Ball extends Ellipse {
 
     constructor() {
         super({
-            width: 20,
-            height: 20,
-            fill: "#20A8D7",
+            width: UIConf.Ball.RADIUS * 2,
+            height: UIConf.Ball.RADIUS * 2,
+            fill: UIConf.Ball.FILL,
         });
         this.trailing = new X_BallTrailing();
     }

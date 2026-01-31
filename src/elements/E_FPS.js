@@ -1,13 +1,14 @@
 import { Text } from "leafer-game";
 import { GP } from "../core/instances";
+import { UIConf } from "../config";
 
 export default class E_FPS extends Text {
     constructor() {
         super({
             x: 12,
             y: GP.bh - 24,
-            fontSize: 12,
-            fill: "#777",
+            fontSize: UIConf.FPS.FONT_SIZE,
+            fill: UIConf.FPS.FILL,
             text: "FPS: --",
             zIndex: 1001,
         });

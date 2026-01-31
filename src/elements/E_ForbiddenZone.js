@@ -1,5 +1,6 @@
 import { Polygon } from "leafer-game";
 import { GP } from "../core/instances";
+import { UIConf } from "../config";
 
 export default class E_ForbiddenZone extends Polygon {
     constructor() {
@@ -14,7 +15,7 @@ export default class E_ForbiddenZone extends Polygon {
                 GP.ENV.paddingSide, GP.ENV.paddingTop,
                 GP.ENV.paddingSide, GP.bh,
             ],
-            fill: "#E85B5B87",
+            fill: UIConf.ForbiddenZone.FILL,
         });
     }
 

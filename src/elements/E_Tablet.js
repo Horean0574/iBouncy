@@ -1,5 +1,6 @@
 import { Rect, Keyboard } from "leafer-game";
 import { GI, GP, Tablet } from "../core/instances";
+import { UIConf } from "../config";
 
 export default class E_Tablet extends Rect {
     vxMax;
@@ -10,9 +11,9 @@ export default class E_Tablet extends Rect {
 
     constructor() {
         super({
-            width: 120, // 120
-            height: 21,
-            fill: "#32CD79",
+            width: UIConf.Tablet.WIDTH,
+            height: UIConf.Tablet.HEIGHT,
+            fill: UIConf.Tablet.FILL,
         });
     }
 

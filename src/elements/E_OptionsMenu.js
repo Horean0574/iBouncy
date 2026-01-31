@@ -1,6 +1,7 @@
 import { AnimateEvent, Group, Text } from "leafer-game";
 import { GP } from "../core/instances";
 import TextLine from "../utils/TextLine";
+import { UIConf } from "../config";
 
 export default class E_OptionsMenu extends Group {
     $vis = false;
@@ -19,15 +20,15 @@ export default class E_OptionsMenu extends Group {
             y: GP.bh * 2 / 7,
             around: "center",
             text: "游戏已暂停",
-            fontSize: 32,
-            fontWeight: "bold",
+            fontSize: UIConf.OptionsMenu.Title.FONT_SIZE,
+            fontWeight: UIConf.OptionsMenu.Title.FONT_WEIGHT,
         });
-        this.Hint1 = new TextLine(GP.bw / 2, GP.bh * 4 / 7 - 12, "center", "#444", 16)
+        this.Hint1 = new TextLine(GP.bw / 2, GP.bh * 4 / 7 - 12, "center", UIConf.OptionsMenu.Hint1.FILL, UIConf.OptionsMenu.Hint1.FONT_SIZE)
             .$append("按")
             .$append("空格键", 3, void 0, void 0, "bold")
             .$append("继续游戏");
         this.Hint1.opacity = 0;
-        this.Hint2 = new TextLine(GP.bw / 2, GP.bh * 4 / 7 + 12, "center", "#777", 12)
+        this.Hint2 = new TextLine(GP.bw / 2, GP.bh * 4 / 7 + 12, "center", UIConf.OptionsMenu.Hint2.FILL, UIConf.OptionsMenu.Hint2.FONT_SIZE)
             .$append("按")
             .$append("回车键", 3, void 0, void 0, "bold")
             .$append("结束游戏并返回开始菜单");

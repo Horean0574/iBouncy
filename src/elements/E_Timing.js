@@ -1,5 +1,6 @@
 import { Group, Path, Text } from "leafer-game";
 import { F, GP, timer } from "../core/instances";
+import { UIConf } from "../config";
 
 export default class E_Timing extends Group {
     alarm;
@@ -16,23 +17,23 @@ export default class E_Timing extends Group {
             x: 0,
             y: 0,
             scale: 0.015625, // 16 / 1024
-            fill: "#262626",
+            fill: UIConf.Timing.FILL,
         });
         this.IconG = new Group({
             x: 0,
             y: 0,
-            width: 16,
-            height: 16,
+            width: UIConf.Timing.IconG.DIAMETER,
+            height: UIConf.Timing.IconG.DIAMETER,
             origin: "center",
             children: [this.Icon],
         });
         this.Text = new Text({
             x: 20,
             y: 0,
-            fontSize: 16,
-            lineHeight: 16,
-            text: "3:00",
-            fill: "#262626",
+            fontSize: UIConf.Timing.Text.FONT_SIZE,
+            lineHeight: UIConf.Timing.Text.LINE_HEIGHT,
+            text: "2:00",
+            fill: UIConf.Timing.FILL,
         });
         this.add([this.IconG, this.Text]);
     }
@@ -42,7 +43,7 @@ export default class E_Timing extends Group {
         this.animatingFlag = false;
         this.Text.text = E_Timing.toMSString_(GP.ENV.timeLimit);
         this.Text.fontWeight = "normal";
-        this.Text.fill = this.Icon.fill = "#262626";
+        this.Text.fill = this.Icon.fill = UIConf.Timing.FILL;
     }
 
     start_() {
@@ -84,7 +85,7 @@ export default class E_Timing extends Group {
                     join: true,
                 },
             );
-            this.Icon.fill = this.Text.fill = "#44C2F1";
+            this.Icon.fill = this.Text.fill = UIConf.Timing.ALARM_FILL;
             this.Text.fontWeight = "bold";
         }
         if (this.remaining <= 0) GP.gameOver(true);

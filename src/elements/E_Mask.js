@@ -1,9 +1,10 @@
 import { AnimateEvent, Rect } from "leafer-game";
 import { GP } from "../core/instances";
+import { UIConf } from "../config";
 
 export default class E_Mask extends Rect {
     #config = {
-        fill: "#FFF",
+        fill: UIConf.Mask.FILL,
         opacity: 0.6,
         fadeInDuration: 0.8,
     };
@@ -14,11 +15,10 @@ export default class E_Mask extends Rect {
             y: 0,
             width: GP.bw,
             height: GP.bh,
-            fill: "#666",
+            fill: UIConf.Mask.FILL,
             visible: false,
             zIndex: 990,
         });
-        this.fill = this.#config.fill;
         this.animation = {
             style: { opacity: this.#config.opacity },
             duration: this.#config.fadeInDuration,
