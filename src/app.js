@@ -79,7 +79,7 @@ function gameLoop(timeStamp) {
             Tablet.frameLoop(unitProg);
             if (GI.collisionDetect() && Ball.vy < 0) {
                 const bv = Math.sqrt(Ball.vx ** 2 + Ball.vy ** 2);
-                const bvP = Math.log2(bv) + 1 / Math.cos(Math.PI / 20 * bv);
+                const bvP = Math.log2(bv) + 1 / Math.cos(Math.PI / 30 * bv);
                 const d = D(Tablet.cx - Ball.cx);
                 const dP = Math.cos(Math.PI / Tablet.w * 2 * d) + 0.5;
                 Scoring.tip_(Scoring.delta_(0.4 * bvP + 0.16 * dP));

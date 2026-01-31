@@ -88,7 +88,7 @@ iBouncy/
 反弹加分公式：
 
 $$
-\Delta s=\frac{7}{10}(log_{2}v+\sec\frac{\pi v}{20})+\frac{3}{10}(\cos\frac{2\pi|x_2-x_1|}{w}+\frac{1}{2})
+\Delta s=\frac{7}{10}(log_{2}v+\sec\frac{\pi v}{30})+\frac{3}{10}(\cos\frac{2\pi|x_2-x_1|}{w}+\frac{1}{2})
 $$
 
 其中：
