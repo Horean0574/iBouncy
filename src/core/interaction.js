@@ -1,11 +1,12 @@
-import { Ball, GP, Tablet, timer } from "./instances";
+import { Ball, D, GP, Tablet, timer } from "./instances";
 
 export default class Interaction {
     collisionStat = 0;
     accelerateCD = 50;
-    prevAccelerateTime;
+    prevXAccTime;
+    prevYAccTime;
 
-    borderDetect(ge, {
+    boundaryDetect(ge, {
         bounce = false,
         paddings = [0, 0, 0, 0], // Top, Right, Bottom, Left
         callbacks = [null, null, null, null],
@@ -49,16 +50,18 @@ export default class Interaction {
         if (sameXDirection && sameYDirection) {
             Ball.x += Ball.vx * 1.5;
             Ball.y += Ball.vy * 1.5;
-            Ball.vx *= this.tempAccelerate("x");
-            Ball.vy *= this.tempAccelerate("y");
+            Ball.vx += Math.sign(Ball.vx) * this.tempAccelerate("x");
+            Ball.vy += Math.sign(Ball.vy) * this.tempAccelerate("y");
         } else if (sameYDirection || (overlapX < overlapY && !sameXDirection)) {
             if (Ball.cx < Tablet.cx) Ball.ox = Tablet.x;
             else Ball.x = Tablet.ox;
-            Ball.vx *= -this.tempAccelerate("x");
+            Ball.vx += Math.sign(Ball.vx) * this.tempAccelerate("x");
+            Ball.vx *= -1;
         } else {
             if (Ball.cy < Tablet.cy) Ball.oy = Tablet.y;
             else Ball.y = Tablet.oy;
-            Ball.vy *= -this.tempAccelerate("y");
+            Ball.vy += Math.sign(Ball.vy) * this.tempAccelerate("y");
+            Ball.vy *= -1;
         }
         return true;
     }
@@ -66,16 +69,18 @@ export default class Interaction {
     tempAccelerate(direction) {
         if (direction !== "x" && direction !== "y") return 0;
         const now = performance.now();
-        if (this.prevAccelerateTime !== void 0 && now - this.prevAccelerateTime < this.accelerateCD) return 1;
-        this.prevAccelerateTime = now;
+        const prevAccTimeName = `prev${direction.toUpperCase()}AccTime`;
+        if (this[prevAccTimeName] !== void 0 && now - this[prevAccTimeName] < this.accelerateCD) return 0;
+        this[prevAccTimeName] = now;
         const vName = "v" + direction;
         const ratio1 = direction === "x" ? 1.5 : 1.2;
         const ratio2 = direction === "x" ? 0.6 : 0.25;
-        const vBuff = ratio1 - Math.sign(Ball[vName]) * Tablet[vName] * ratio2 / Tablet[vName + "Max"];
-        const vUnitNerf = vBuff ** (1 / 6);
+        const vBuffRatio = ratio1 - Math.sign(Ball[vName]) * Tablet[vName] * ratio2 / Tablet[vName + "Max"];
+        const vBuff = D(Ball[vName] * (vBuffRatio - 1));
+        const vUnitNerf = vBuff / 6;
         timer.newInterval(() => {
-            Ball[vName] /= vUnitNerf;
-        }, 16.7, {
+            Ball[vName] -= Math.sign(Ball[vName]) * vUnitNerf;
+        }, 0, {
             delay: 200,
             executeTimes: 6,
         });

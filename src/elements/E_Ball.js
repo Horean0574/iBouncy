@@ -20,8 +20,8 @@ export default class E_Ball extends Ellipse {
     reset_() {
         this.vx = (Math.random() * 1.9 + 1.6) * (Math.random() > 0.5 ? 1 : -1);
         this.vy = 3.5;
-        this.ax = 1.27e-4;
-        this.ay = 1.43e-4;
+        this.ax = 8.2e-4;
+        this.ay = 4.5e-4;
         this.cx = GP.bw / 2;
         this.cy = GP.bh / 4;
     }
@@ -36,15 +36,13 @@ export default class E_Ball extends Ellipse {
     }
 
     frameLoop_(prog) {
-        if (Timing.remaining >= 70 && Timing.remaining < 160) {
-            this.vx *= (1 + this.ax) ** prog;
-            this.vy *= (1 + this.ay) ** prog;
-            this.ax *= 0.99987;
-            this.ay *= 0.99987;
+        if (Timing.remaining > 15 && Timing.remaining <= 105) {
+            this.vx += Math.sign(this.vx) * this.ax * prog;
+            this.vy += Math.sign(this.vy) * this.ay * prog;
         }
         this.x += this.vx * prog;
         this.y += this.vy * prog;
-        GI.borderDetect(this, {
+        GI.boundaryDetect(this, {
             bounce: true,
             paddings: [0, 0, -this.h * 3, 0],
             callbacks: [null, null, GP.gameOver/*null*/, null],

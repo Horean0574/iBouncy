@@ -11,7 +11,7 @@ export default class E_Tablet extends Rect {
     constructor() {
         super({
             width: 120, // 120
-            height: 25,
+            height: 21,
             fill: "#32CD79",
         });
     }
@@ -41,7 +41,7 @@ export default class E_Tablet extends Rect {
         }
         this.x += this.vx;
         this.y += this.vy;
-        GI.borderDetect(Tablet, {
+        GI.boundaryDetect(Tablet, {
             paddings: this.availZone,
         });
     }

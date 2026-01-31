@@ -44,7 +44,7 @@ export const GP = new Processor({
     maxStepPerFrame: 10,
     paddingTop: 80,
     paddingSide: 40,
-    timeLimit: 180,
+    timeLimit: 120,
 });
 
 export const GI = new Interaction();
