@@ -3,34 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>iBouncy - H</title>
+    <meta name="description" content="iBouncy - A fun bouncing ball game built with Vite and Leafer Game">
+    <meta name="keywords" content="iBouncy, game, bouncing ball, vite, leafer game">
+    <link rel="icon" href="./public/svg/brand.svg" type="image/svg+xml">
+    <title>iBouncy - Bouncing Ball Game</title>
     <style>
         * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             user-select: none;
             -webkit-user-drag: none;
         }
 
-        body {
+        html, body {
             width: 100vw;
             height: 100vh;
-            margin: 0;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #EEFFFF;
         }
 
         canvas {
             position: fixed;
             width: 100vw;
             height: 100vh;
+            touch-action: none;
         }
 
         #loading {
             position: fixed;
-            transform: translate(calc(50vw - 117px), calc(50vh - 50px)) scale(1.2);
+            width: 234px;
+            height: 100px;
+            transform: scale(1.2);
+        }
+
+        noscript {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            font-family: Arial, sans-serif;
+            color: #333;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 <canvas></canvas>
 <img id="loading" src="./src/assets/svg/loading.svg" alt="Loading..." draggable="false">
+<noscript>
+    <h2>JavaScript is required to play this game</h2>
+    <p>Please enable JavaScript in your browser to enjoy iBouncy.</p>
+</noscript>
 <script defer type="module" src="src/app.js"></script>
 </body>
 </html>

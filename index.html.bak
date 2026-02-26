@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>iBouncy - H</title>
+    <style>
+        * {
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+        }
+
+        canvas {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #loading {
+            position: fixed;
+            transform: translate(calc(50vw - 117px), calc(50vh - 50px)) scale(1.2);
+        }
+    </style>
+</head>
+<body>
+<canvas></canvas>
+<img id="loading" src="./src/assets/svg/loading.svg" alt="Loading..." draggable="false">
+<script defer type="module" src="src/app.js"></script>
+</body>
+</html>
