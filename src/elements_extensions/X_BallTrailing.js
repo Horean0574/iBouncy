@@ -43,7 +43,10 @@ export default class X_BallTrailing {
         if (this.loopIdx === 0) {
             const idx = this.dotIdx = (this.dotIdx + 1) % this.length;
             const dot = this.dots.get(idx);
-            dot.w = dot.h = UIConf.BallTrailing.RADIUS * 2;
+            const speed = Math.sqrt(Ball.vx ** 2 + Ball.vy ** 2);
+            const sizeFactor = Math.min(0.9 + speed / 7, 1.9);
+            const baseSize = UIConf.BallTrailing.RADIUS * 2 * sizeFactor;
+            dot.w = dot.h = baseSize;
             dot.opacity = 1;
             dot.x = Ball.cx;
             dot.y = Ball.cy;
@@ -56,8 +59,8 @@ export default class X_BallTrailing {
             }
             const ani = dot.animate(
                 [
-                    { opacity: 1, width: UIConf.BallTrailing.RADIUS * 2, height: UIConf.BallTrailing.RADIUS * 2 },
-                    { opacity: 0.3, width: 5, height: 5 },
+                    { opacity: 1, width: baseSize, height: baseSize },
+                    { opacity: 0.25, width: baseSize * 0.25, height: baseSize * 0.25 },
                 ],
                 {
                     duration: (GP.ENV.stdUnitInterval * this.framesInterval * this.length) / steps / 1000,

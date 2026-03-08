@@ -65,3 +65,14 @@ export function getBestScoreByDifficulty(difficultyKey) {
     if (records.length === 0) return null;
     return Math.max(...records.map((r) => r.score));
 }
+
+/**
+ * 清空所有历史分数记录
+ */
+export function clearHistory() {
+    try {
+        localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+        console.warn("scoreStorage: clear failed", e);
+    }
+}

@@ -1,5 +1,5 @@
 import { Rect, Keyboard } from "leafer-game";
-import { evBus, GEV, GI, GP, Tablet } from "../core/instances";
+import { evBus, GEV, GI, GP, Tablet, timer } from "../core/instances";
 import { GameConf, UIConf, getDifficulty } from "../config";
 
 export default class E_Tablet extends Rect {
@@ -39,6 +39,32 @@ export default class E_Tablet extends Rect {
         this.vy = 0;
         this.cx = GP.bw * this.confUI.X_RATIO;
         this.y = GP.bh * this.confUI.Y_RATIO + this.confUI.Y_OFFSET;
+    }
+
+    hitEffect_() {
+        const ui = this.confUI;
+        const scaleX = ui.HIT_SCALE_X ?? 1.05;
+        const scaleY = ui.HIT_SCALE_Y ?? 1.03;
+        this.animate(
+            [
+                { scaleX, scaleY },
+                { scaleX: 1, scaleY: 1 },
+            ],
+            {
+                duration: 0.18,
+                easing: "quad-out",
+                join: true,
+            },
+        );
+        this.shadow = {
+            x: 0,
+            y: 0,
+            blur: ui.HIT_SHADOW_BLUR ?? 22,
+            color: ui.HIT_SHADOW_COLOR ?? this.fill,
+        };
+        timer.newTimeout(() => {
+            this.shadow = null;
+        }, 140);
     }
 
     frameLoop(prog) {

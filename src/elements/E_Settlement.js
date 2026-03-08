@@ -1,8 +1,8 @@
 import { AnimateEvent, Group, Text } from "leafer-game";
-import { evBus, GEV, GP, Scoring } from "../core/instances";
+import { evBus, GEV, GP, Mask, Scoring, timer } from "../core/instances";
 import TextLine from "../utils/TextLine";
-import { UIConf, getDifficultyKey } from "../config";
-import { addScore } from "../utils/scoreStorage";
+import { FontConf, UIConf, getDifficultyKey } from "../config";
+import { addScore, getBestScoreByDifficulty } from "../utils/scoreStorage";
 
 export default class E_Settlement extends Group {
     confUI = UIConf.Settlement;
@@ -45,7 +45,18 @@ export default class E_Settlement extends Group {
             .$append("回车键", 3, void 0, void 0, "bold")
             .$append("返回开始菜单");
         this.Hint2.opacity = 0;
-        this.add([this.Title, this.Hint1, this.Hint2]);
+        this.RecordText = new Text({
+            x: GP.bw * this.confUI.X_RATIO,
+            y: GP.bh * this.confUI.Title.Y_RATIO + 80,
+            around: "center",
+            text: "新纪录！",
+            fontSize: 40,
+            fontFamily: FontConf.TITLE,
+            fill: this.confUI.Title.WIN_SHADOW_COLOR,
+            opacity: 0,
+            scale: 1.4,
+        });
+        this.add([this.Title, this.Hint1, this.Hint2, this.RecordText]);
 
         this.init_ = this.init_.bind(this);
         this.#$setupEventListeners();
@@ -56,7 +67,10 @@ export default class E_Settlement extends Group {
         evBus.on(GEV.RESIZE, (...args) => this.relocate_(args[0].data));
         evBus.on(GEV.GAME_OVER, (...args) => {
             const displayScore = Scoring.v / 10;
-            addScore(displayScore, getDifficultyKey());
+            const difficulty = getDifficultyKey();
+            const prevBest = getBestScoreByDifficulty(difficulty);
+            addScore(displayScore, difficulty);
+            this.isNewRecord = prevBest == null || displayScore > prevBest;
             if (args[0].win) this.win_();
             else this.fail_();
         });
@@ -67,6 +81,7 @@ export default class E_Settlement extends Group {
         this.Title.y = e.height * 2 / 7;
         this.Hint1.y = e.height * 9 / 14 - 12;
         this.Hint2.y = e.height * 9 / 14 + 12;
+        this.RecordText.y = this.Title.y + 80;
     }
 
     async init_() {
@@ -120,6 +135,7 @@ export default class E_Settlement extends Group {
         this.#setTextFill_("leafer://GL.jpg", this.confUI.Title.WIN_BG_Y_OFFSET);
         this.#setShadowColor_(this.confUI.Title.WIN_SHADOW_COLOR);
         this.show_();
+        this.isNewRecord && this.#celebrateRecord_();
     }
 
     fail_() {
@@ -145,5 +161,25 @@ export default class E_Settlement extends Group {
             spread: this.confUI.Title.SHADOW_SPREAD,
             color: color,
         };
+    }
+
+    #celebrateRecord_() {
+        Mask.show_("#FFD54F", 0, 0.55, 0.35);
+        timer.newTimeout(() => {
+            Mask.hide_();
+        }, 380);
+        this.RecordText.scale = 1.6;
+        this.RecordText.opacity = 0;
+        this.RecordText.animate(
+            [
+                { scale: 2, opacity: 1 },
+                { scale: 1.2, opacity: 0 },
+            ],
+            {
+                duration: 0.9,
+                easing: "quad-out",
+                join: true,
+            },
+        );
     }
 }

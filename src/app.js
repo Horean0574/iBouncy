@@ -20,6 +20,7 @@ import {
     Tablet,
     Ball,
 } from "./core/instances";
+import { playIntroScene, shakeScreen } from "./utils/screenEffects";
 
 evBridge.setup();
 loading.addEventListener("dragstart", e => e.preventDefault());
@@ -71,6 +72,14 @@ function gameLoop(timeStamp) {
                 const d = D(Tablet.cx - Ball.cx);
                 const dP = Math.cos(Math.PI / Tablet.w * 2 * d) + 0.5;
                 Scoring.tip_(Scoring.delta_(0.4 * bvP + 0.16 * dP));
+                Tablet.hitEffect_();
+                if (bv > 6.5) {
+                    shakeScreen(10, 260);
+                    Mask.show_("#00E5FF", 0, 0.16, 0.16);
+                    timer.newTimeout(() => {
+                        GP.at("playing") && Mask.hide_();
+                    }, 140);
+                }
             }
         }
     }
@@ -97,6 +106,7 @@ KS.whenUp(e => {
         case "Space":
             if (GP.at("prepared")) {
                 GP.start();
+                playIntroScene();
             } else if (GP.at("over")) {
                 GP.restart();
             } else if (GP.at("paused")) {

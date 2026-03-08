@@ -86,6 +86,7 @@ export default class E_Scoring extends Group {
         const prevV = this.v;
         this.v += Math.round(x * 10);
         this.#newScore_();
+        this.#bounce_();
         return E_Scoring.stringify_(this.v - prevV);
     }
 
@@ -172,6 +173,20 @@ export default class E_Scoring extends Group {
         this.Decimal.text = "." + this.v % 10;
         this.Integer.x = (240 - this.Integer.w - this.Decimal.w) / 2;
         this.Decimal.x = this.Integer.ox;
+    }
+
+    #bounce_() {
+        this.animate(
+            [
+                { scale: 1.06 },
+                { scale: 1 },
+            ],
+            {
+                duration: 0.18,
+                easing: "quad-out",
+                join: true,
+            },
+        );
     }
 
     static stringify_(v) {

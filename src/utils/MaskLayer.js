@@ -16,7 +16,7 @@ class MaskLayer {
             if (args[0].removeMask) this.$hide();
             else this.$show(0);
         });
-        evBus.on(GEV.GAME_START, () => this.$hide());
+        evBus.on(GEV.GAME_START, () => this.$hide(true));
         evBus.on(GEV.GAME_PAUSE, () => this.$show(1));
         evBus.on(GEV.GAME_RESUME, () => this.$hide());
         evBus.on(GEV.GAME_OVER, () => this.$show(2, false));
@@ -33,12 +33,12 @@ class MaskLayer {
         this.$showing = i;
     }
 
-    $hide() {
+    $hide(keepMask = false) {
         if (this.$showing >= 0) {
             this.$pages.get(this.$showing).hide_();
         }
         this.$showing = -1;
-        Mask.hide_();
+        if (!keepMask) Mask.hide_();
     }
 }
 

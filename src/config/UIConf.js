@@ -13,6 +13,10 @@ export const ColorConf = {
     LIGHTER_WHITE: "#DDDDDD",
     LIGHT_WHITE: "#EEFFFF",
     WHITE: "#FFFFFF",
+    BG_DARK: "#050814",
+    NEON_BLUE: "#00E5FF",
+    NEON_PURPLE: "#C158FF",
+    NEON_PINK: "#FF4FA3",
 };
 
 export const FontConf = {
@@ -32,11 +36,14 @@ export const UIConf = {
         X_RATIO: 1 / 2,
         Y_RATIO: 1 / 4,
         RADIUS: 10,
-        FILL: ColorConf.PRIMARY,
+        FILL: ColorConf.NEON_BLUE,
+        GLOW_MIN_BLUR: 6,
+        GLOW_MAX_BLUR: 26,
+        GLOW_MAX_SCALE: 1.25,
     },
     BallTrailing: {
-        RADIUS: 5.5,
-        FILL: ColorConf.SECONDARY + "BA",
+        RADIUS: 6.2,
+        FILL: ColorConf.NEON_PURPLE + "BA",
     },
     Tablet: {
         WIDTH: 120,
@@ -45,6 +52,10 @@ export const UIConf = {
         X_RATIO: 1 / 2,
         Y_RATIO: 1,
         Y_OFFSET: -140,
+        HIT_SHADOW_COLOR: ColorConf.NEON_PINK,
+        HIT_SHADOW_BLUR: 24,
+        HIT_SCALE_X: 1.08,
+        HIT_SCALE_Y: 1.04,
     },
     ForbiddenZone: {
         FILL: ColorConf.DANGER + "87",
@@ -60,6 +71,7 @@ export const UIConf = {
         OPACITY: 0.6,
         FADE_IN_DURATION: 0.8,
         FADE_TO_DURATION: 0.5,
+        ALERT_FILL: ColorConf.DANGER + "CC",
     },
     MainMenu: {
         X_RATIO: 1 / 2,

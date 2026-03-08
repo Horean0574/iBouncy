@@ -60,6 +60,23 @@ export default class E_Ball extends Ellipse {
             paddings: [0, 0, -this.h * 3, 0],
             callbacks: [null, null, GP.gameOver/*null*/, null],
         });
+        this.#updateVisual_();
         this.trailing.frameLoop(this.timeDivisor);
+    }
+
+    #updateVisual_() {
+        const speed = Math.sqrt(this.vx ** 2 + this.vy ** 2);
+        const baseSpeed = this.confGm.VY;
+        const maxSpeed = this.confGm.VY * 3;
+        const t = Math.max(0, Math.min((speed - baseSpeed) / (maxSpeed - baseSpeed || 1), 1));
+        const ui = this.confUI;
+        const scale = 1 + t * (ui.GLOW_MAX_SCALE - 1);
+        this.scaleX = this.scaleY = scale;
+        this.shadow = {
+            x: 0,
+            y: 0,
+            blur: ui.GLOW_MIN_BLUR + (ui.GLOW_MAX_BLUR - ui.GLOW_MIN_BLUR) * t,
+            color: ui.FILL,
+        };
     }
 }

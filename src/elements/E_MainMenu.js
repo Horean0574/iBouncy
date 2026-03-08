@@ -2,7 +2,7 @@ import { AnimateEvent, Group, Image, PointerEvent, Rect, Text } from "leafer-gam
 import { evBus, GEV, GP } from "../core/instances";
 import TextLine from "../utils/TextLine";
 import { UIConf, DIFFICULTY_LEVELS, setDifficulty, getDifficultyKey } from "../config";
-import { getBestScore, getHistory } from "../utils/scoreStorage";
+import { getBestScore, getHistory, clearHistory } from "../utils/scoreStorage";
 
 export default class E_MainMenu extends Group {
     confUI = UIConf.MainMenu;
@@ -129,9 +129,10 @@ export default class E_MainMenu extends Group {
         panel.add(title);
         this.HistoryRows = new Group({ x: GP.bw / 2, y: GP.bh * 0.32, around: "center" });
         panel.add(this.HistoryRows);
+        const buttonsY = GP.bh * 0.82;
         const closeBtn = new Text({
-            x: GP.bw / 2,
-            y: GP.bh * 0.82,
+            x: GP.bw / 2 + 80,
+            y: buttonsY,
             around: "center",
             text: "关闭",
             fontSize: conf.CLOSE_FONT_SIZE,
@@ -141,6 +142,18 @@ export default class E_MainMenu extends Group {
         closeBtn.on(PointerEvent.TAP, () => this.#hideHistory_());
         closeBtn.hoverStyle = { fill: this.confUI.HistoryButton.FILL_HOVER };
         panel.add(closeBtn);
+        const clearBtn = new Text({
+            x: GP.bw / 2 - 80,
+            y: buttonsY,
+            around: "center",
+            text: "清空记录",
+            fontSize: conf.CLOSE_FONT_SIZE,
+            fill: conf.CLOSE_FILL,
+            cursor: "pointer",
+        });
+        clearBtn.on(PointerEvent.TAP, () => this.#clearHistory_());
+        clearBtn.hoverStyle = { fill: this.confUI.HistoryButton.FILL_HOVER };
+        panel.add(clearBtn);
         return panel;
     }
 
@@ -154,40 +167,102 @@ export default class E_MainMenu extends Group {
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
     }
 
+    #clearHistory_() {
+        if (typeof window !== "undefined" && typeof window.confirm === "function") {
+            const ok = window.confirm("确认清空所有历史成绩吗？此操作不可撤销。");
+            if (!ok) return;
+        }
+        clearHistory();
+        this.#updateBestScore_();
+        this.#showHistory_();
+    }
+
     #showHistory_() {
         const conf = this.confUI.ScoreHistory;
         const records = getHistory().slice(0, conf.MAX_ROWS);
         this.HistoryRows.removeAll();
+
+        // 列相对中心的偏移（根据实际效果可微调）
+        const scoreX = -180;
+        const diffX = -40;
+        const timeX = 100;
+
         if (records.length === 0) {
             const empty = new Text({
-                x: 0, y: 0, around: "center",
+                x: 0,
+                y: 0,
+                around: "center",
                 text: "暂无记录",
                 fontSize: conf.ROW_FONT_SIZE,
                 fill: conf.ROW_FILL,
             });
             this.HistoryRows.add(empty);
         } else {
-            const header = new Text({
+            const header = new Group({
                 x: 0,
                 y: 0,
                 around: "center",
-                text: "分数　　难度　　时间",
+            });
+            header.add(new Text({
+                x: scoreX,
+                y: 0,
+                around: "center",
+                text: "分数",
                 fontSize: conf.ROW_FONT_SIZE,
                 fill: conf.HEADER_FILL,
-            });
+            }));
+            header.add(new Text({
+                x: diffX,
+                y: 0,
+                around: "center",
+                text: "难度",
+                fontSize: conf.ROW_FONT_SIZE,
+                fill: conf.HEADER_FILL,
+            }));
+            header.add(new Text({
+                x: timeX,
+                y: 0,
+                around: "center",
+                text: "时间",
+                fontSize: conf.ROW_FONT_SIZE,
+                fill: conf.HEADER_FILL,
+            }));
             this.HistoryRows.add(header);
+
             records.forEach((r, i) => {
-                const row = new Text({
+                const row = new Group({
                     x: 0,
                     y: (i + 1) * conf.ROW_HEIGHT,
                     around: "center",
-                    text: `${this.#formatScore_(r.score)}　　${DIFFICULTY_LEVELS[r.difficulty]?.name ?? r.difficulty}　　${this.#formatDate_(r.timestamp)}`,
+                });
+                row.add(new Text({
+                    x: scoreX,
+                    y: 0,
+                    around: "center",
+                    text: this.#formatScore_(r.score),
                     fontSize: conf.ROW_FONT_SIZE,
                     fill: conf.ROW_FILL,
-                });
+                }));
+                row.add(new Text({
+                    x: diffX,
+                    y: 0,
+                    around: "center",
+                    text: DIFFICULTY_LEVELS[r.difficulty]?.name ?? r.difficulty,
+                    fontSize: conf.ROW_FONT_SIZE,
+                    fill: conf.ROW_FILL,
+                }));
+                row.add(new Text({
+                    x: timeX,
+                    y: 0,
+                    around: "center",
+                    text: this.#formatDate_(r.timestamp),
+                    fontSize: conf.ROW_FONT_SIZE,
+                    fill: conf.ROW_FILL,
+                }));
                 this.HistoryRows.add(row);
             });
         }
+
         this.HistoryPanel.visible = true;
         this.HistoryPanel.opacity = 0;
         this.HistoryPanel.animate([{ opacity: 1 }], { duration: 0.25 });

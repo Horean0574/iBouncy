@@ -1,5 +1,5 @@
 import { Group, Path, Text } from "leafer-game";
-import { evBus, F, GEV, GP, timer } from "../core/instances";
+import { evBus, F, GEV, GP, Mask, timer } from "../core/instances";
 import { UIConf } from "../config";
 
 export default class E_Timing extends Group {
@@ -101,6 +101,16 @@ export default class E_Timing extends Group {
             this.Icon.fill = this.Text.fill = this.confUI.ALARM_FILL;
             this.Text.fontWeight = "bold";
         }
+        if (GP.at("playing") && this.remaining > 0 && this.remaining <= 5) {
+            this.#flashAlert_();
+        }
         if (this.remaining <= 0) GP.gameOver(true);
+    }
+
+    #flashAlert_() {
+        Mask.show_(UIConf.Mask.ALERT_FILL, 0, 0.28, 0.18);
+        timer.newTimeout(() => {
+            GP.at("playing") && Mask.hide_();
+        }, 150);
     }
 }
