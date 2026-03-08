@@ -14,12 +14,18 @@
             width: 100vw;
             height: 100vh;
             margin: 0;
+            background-color: #EEFFFF;
         }
 
         canvas {
             position: fixed;
             width: 100vw;
             height: 100vh;
+            /* GPU 加速：提升到独立合成层，减少重绘与闪烁 */
+            will-change: transform;
+            transform: translateZ(0);
+            contain: layout style paint;
+            image-rendering: auto;
         }
 
         #loading {
