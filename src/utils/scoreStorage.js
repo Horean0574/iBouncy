@@ -55,3 +55,28 @@ export function clearHistory() {
         console.warn("scoreStorage: clear failed", e);
     }
 }
+
+// 将服务器返回的成绩列表应用到本地，作为新的历史记录
+// 期望记录格式：{ score, difficulty, timestamp }
+export function setHistoryFromServer(records) {
+    if (!Array.isArray(records)) return [];
+    const normalized = records
+        .map((r) => {
+            const ts =
+                typeof r.timestamp === "number"
+                    ? r.timestamp
+                    : Date.parse(r.timestamp);
+            const s = Number(r.score);
+            if (Number.isNaN(ts) || Number.isNaN(s)) return null;
+            return {
+                score: s,
+                difficulty: r.difficulty,
+                timestamp: ts,
+            };
+        })
+        .filter(Boolean);
+    const trimmed = normalized.slice(0, MAX_RECORDS);
+    saveRecords(trimmed);
+    return trimmed;
+}
+

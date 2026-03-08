@@ -107,6 +107,14 @@ export const UIConf = {
             FILL: ColorConf.LIGHT_GRAY,
             FILL_HOVER: ColorConf.PRIMARY,
         },
+        AccountButton: {
+            X_RATIO: 0.87,
+            Y_RATIO: 0.12,
+            FONT_SIZE: 14,
+            FILL: ColorConf.GRAY,
+            FILL_LOGGED_IN: ColorConf.PRIMARY,
+            FILL_HOVER: ColorConf.PRIMARY,
+        },
         ScoreHistory: {
             TITLE_FONT_SIZE: 18,
             TITLE_FILL: ColorConf.GRAY,

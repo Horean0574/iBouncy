@@ -3,6 +3,7 @@ import { evBus, GEV, GP, Mask, Scoring, timer } from "../core/instances";
 import TextLine from "../utils/TextLine";
 import { UIConf, getDifficultyKey } from "../config";
 import { addScore, getBestScoreByDifficulty } from "../utils/scoreStorage";
+import { pushScoreForCurrentUser } from "../utils/auth";
 
 export default class E_Settlement extends Group {
     confUI = UIConf.Settlement;
@@ -70,6 +71,8 @@ export default class E_Settlement extends Group {
             const difficulty = getDifficultyKey();
             const prevBest = getBestScoreByDifficulty(difficulty);
             addScore(displayScore, difficulty);
+            // 尝试将本次成绩同步到服务器（如果已登录）
+            pushScoreForCurrentUser(displayScore, difficulty, Date.now());
             this.isNewRecord = prevBest == null || displayScore > prevBest;
             if (args[0].win) this.win_();
             else this.fail_();
