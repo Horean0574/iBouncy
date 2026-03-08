@@ -82,6 +82,10 @@ function gameLoop(timeStamp) {
                 }
             }
         }
+        if (GP.at("playing")) {
+            Ball.updateVisual_();
+            Ball.trailing.updateDots_();
+        }
     }
 
     requestAnimationFrame(gameLoop);

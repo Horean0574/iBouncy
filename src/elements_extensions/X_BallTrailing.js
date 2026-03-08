@@ -1,14 +1,17 @@
-import { Ellipse, AnimateEvent } from "leafer-game";
-import { Ball, C, F, GP, leafer } from "../core/instances";
+import { Ellipse } from "leafer-game";
+import { Ball, C, F, GP } from "../core/instances";
 import { UIConf } from "../config";
 
+/** 拖尾点数据：避免每帧创建动画对象，改用时间驱动的手动插值 */
+const DOT_FADE_DURATION = 0.4; // 秒
+
 export default class X_BallTrailing {
-    length = 8;
+    length = 6; // 减少点数以降低开销
     loopIdx = 0;
     dotIdx = -1;
     dots = new Map();
-    activeAnimations = new Map();
-    framesInterval = 5; // based on 60Hz
+    dotData = []; // { birthTime, baseSize, x, y }
+    framesInterval = 5;
 
     constructor() {
         for (let i = 0; i < this.length; ++i) {
@@ -21,6 +24,7 @@ export default class X_BallTrailing {
                 fill: UIConf.BallTrailing.FILL,
                 visible: false,
             }));
+            this.dotData[i] = { birthTime: 0, baseSize: 0, x: 0, y: 0 };
         }
     }
 
@@ -51,29 +55,28 @@ export default class X_BallTrailing {
             dot.x = Ball.cx;
             dot.y = Ball.cy;
             dot.visible = true;
-            if (this.activeAnimations.has(idx)) {
-                const oldAni = this.activeAnimations.get(idx);
-                oldAni.off(AnimateEvent.COMPLETED);
-                leafer.killAnimate(oldAni);
-                this.activeAnimations.delete(idx);
-            }
-            const ani = dot.animate(
-                [
-                    { opacity: 1, width: baseSize, height: baseSize },
-                    { opacity: 0.25, width: baseSize * 0.25, height: baseSize * 0.25 },
-                ],
-                {
-                    duration: (GP.ENV.stdUnitInterval * this.framesInterval * this.length) / steps / 1000,
-                    easing: "linear",
-                },
-            );
-            ani.on(AnimateEvent.COMPLETED, () => {
-                this.activeAnimations.delete(idx);
+            this.dotData[idx] = { birthTime: performance.now() / 1000, baseSize };
+        }
+    }
+
+    /** 每帧调用一次，更新拖尾淡出效果 */
+    updateDots_() {
+        const now = performance.now() / 1000;
+        for (let i = 0; i < this.length; ++i) {
+            const data = this.dotData[i];
+            if (data.birthTime <= 0) continue;
+            const dot = this.dots.get(i);
+            const elapsed = now - data.birthTime;
+            if (elapsed >= DOT_FADE_DURATION) {
                 dot.visible = false;
+                data.birthTime = 0;
                 dot.w = dot.h = UIConf.BallTrailing.RADIUS * 2;
                 dot.opacity = 1;
-            });
-            this.activeAnimations.set(idx, ani);
+            } else {
+                const t = elapsed / DOT_FADE_DURATION;
+                dot.opacity = 1 - t * 0.75;
+                dot.w = dot.h = data.baseSize * (1 - t * 0.75);
+            }
         }
     }
 }
