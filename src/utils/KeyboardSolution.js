@@ -14,8 +14,6 @@ export default class KeyboardSolution {
             evBus.emit(GEV.KEYBOARD_EVENT, {
                 type: t,
                 code: e.code,
-                // key: e.key,
-                // timestamp: performance.now(),
             });
         };
         leafer.on(KeyEvent.HOLD, e => KeyEventCallback(e, this.HOLD));

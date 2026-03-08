@@ -1,19 +1,14 @@
 import { Leafer } from "leafer-game";
 import { GameConf, UIConf } from "../config";
 
-// core
 export { eventBus as evBus } from "./EventBus";
 export { GEV as GEV } from "./EventTypes";
 import Processor from "./processor";
 import Interaction from "./interaction";
-
-// utils
 import KeyboardSolution from "../utils/KeyboardSolution";
 import extendUI from "../utils/UIExtensions";
 import EmbeddedTimer from "../utils/EmbeddedTimer";
 import ML from "../utils/MaskLayer";
-
-// elements
 import E_Mask from "../elements/E_Mask";
 import E_MainMenu from "../elements/E_MainMenu";
 import E_OptionsMenu from "../elements/E_OptionsMenu";

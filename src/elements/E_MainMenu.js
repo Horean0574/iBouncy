@@ -182,7 +182,6 @@ export default class E_MainMenu extends Group {
         const records = getHistory().slice(0, conf.MAX_ROWS);
         this.HistoryRows.removeAll();
 
-        // 列相对中心的偏移（根据实际效果可微调）
         const scoreX = -180;
         const diffX = -40;
         const timeX = 100;

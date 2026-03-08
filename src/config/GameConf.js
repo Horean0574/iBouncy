@@ -1,13 +1,6 @@
-/*
-Units:
-    size: pixel (px)
-    time: second (s)
-    velocity: pixel per frame (px/f)
-    acceleration: pixel per frame^2 (px/f/f)
- */
 export const GameConf = {
     TIME_LIMIT: 120,
-    MAX_ACCUMULATED: 0.5, // can redisplay frames of up to 0.5s
+    MAX_ACCUMULATED: 0.5,
     MAX_STEP_PER_FRAME: 10,
     DEFAULT_REFRESH_RATE: 60,
     FPS_DETECT_INTERVAL: 0.4,
