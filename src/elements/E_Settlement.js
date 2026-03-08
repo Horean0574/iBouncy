@@ -1,7 +1,7 @@
 import { AnimateEvent, Group, Text } from "leafer-game";
 import { evBus, GEV, GP, Mask, Scoring, timer } from "../core/instances";
 import TextLine from "../utils/TextLine";
-import { FontConf, UIConf, getDifficultyKey } from "../config";
+import { UIConf, getDifficultyKey } from "../config";
 import { addScore, getBestScoreByDifficulty } from "../utils/scoreStorage";
 
 export default class E_Settlement extends Group {
@@ -51,7 +51,7 @@ export default class E_Settlement extends Group {
             around: "center",
             text: "新纪录！",
             fontSize: 40,
-            fontFamily: FontConf.TITLE,
+            fontFamily: this.confUI.Title.FONT_FAMILY,
             fill: this.confUI.Title.WIN_SHADOW_COLOR,
             opacity: 0,
             scale: 1.4,
@@ -143,6 +143,7 @@ export default class E_Settlement extends Group {
         this.#setTextFill_("leafer://DL.jpg", this.confUI.Title.FAIL_BG_Y_OFFSET);
         this.#setShadowColor_(this.confUI.Title.FAIL_SHADOW_COLOR);
         this.show_();
+        this.isNewRecord && this.#celebrateRecord_();
     }
 
     #setTextFill_(src, offsetY) {

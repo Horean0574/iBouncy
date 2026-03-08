@@ -2,12 +2,9 @@ import { Group, Path, Text } from "leafer-game";
 import { Ball, evBus, F, GEV, GP, timer } from "../core/instances";
 import { UIConf } from "../config";
 
-const MAX_CONCURRENT_TIPS = 5; // 限制同时显示的加分提示数量，避免性能下降
-
 export default class E_Scoring extends Group {
     confUI = UIConf.Scoring;
     v = 0;
-    #activeTips = 0;
 
     constructor() {
         super({
@@ -60,7 +57,6 @@ export default class E_Scoring extends Group {
     }
 
     reset_() {
-        this.#activeTips = 0;
         this.assign_(0);
     }
 
@@ -95,8 +91,6 @@ export default class E_Scoring extends Group {
     }
 
     tip_(delta) {
-        if (this.#activeTips >= MAX_CONCURRENT_TIPS) return;
-        this.#activeTips++;
         const tipConf = this.confUI.tip;
         const aniConf = tipConf.ANIMATION;
         const [initialOffsetX, transitionX, transitionY] = this.#getTipData_();
@@ -152,9 +146,8 @@ export default class E_Scoring extends Group {
         ], {
             join: true,
         });
-        timer.newTimeout(() => {
+        timer.newTimeout(function () {
             tip.destroy();
-            this.#activeTips--;
         }, tipConf.DURATION * 1000);
     }
 
