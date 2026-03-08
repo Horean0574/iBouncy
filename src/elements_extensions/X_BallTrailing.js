@@ -62,20 +62,25 @@ export default class X_BallTrailing {
     /** 每帧调用一次，更新拖尾淡出效果 */
     updateDots_() {
         const now = performance.now() / 1000;
+        const baseRadius = UIConf.BallTrailing.RADIUS * 2;
         for (let i = 0; i < this.length; ++i) {
             const data = this.dotData[i];
             if (data.birthTime <= 0) continue;
             const dot = this.dots.get(i);
             const elapsed = now - data.birthTime;
             if (elapsed >= DOT_FADE_DURATION) {
-                dot.visible = false;
+                if (dot.visible) {
+                    dot.visible = false;
+                    dot.w = dot.h = baseRadius;
+                    dot.opacity = 1;
+                }
                 data.birthTime = 0;
-                dot.w = dot.h = UIConf.BallTrailing.RADIUS * 2;
-                dot.opacity = 1;
             } else {
                 const t = elapsed / DOT_FADE_DURATION;
-                dot.opacity = 1 - t * 0.75;
-                dot.w = dot.h = data.baseSize * (1 - t * 0.75);
+                const opacity = 1 - t * 0.75;
+                const size = data.baseSize * (1 - t * 0.75);
+                if (dot.opacity !== opacity) dot.opacity = opacity;
+                if (dot.w !== size) dot.w = dot.h = size;
             }
         }
     }

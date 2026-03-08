@@ -1,5 +1,6 @@
 export { GameConf } from "./GameConf";
 export { ColorConf, FontConf, UIConf } from "./UIConf";
+export { RenderConf, getPixelRatio } from "./RenderConf";
 export { DIFFICULTY_LEVELS, DEFAULT_DIFFICULTY } from "./DifficultyConf";
 
 import { DIFFICULTY_LEVELS, DEFAULT_DIFFICULTY } from "./DifficultyConf";
