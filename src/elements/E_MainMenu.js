@@ -2,7 +2,8 @@ import { AnimateEvent, Group, Image, PointerEvent, Rect, Text } from "leafer-gam
 import { evBus, GEV, GP } from "../core/instances";
 import TextLine from "../utils/TextLine";
 import { UIConf, DIFFICULTY_LEVELS, setDifficulty, getDifficultyKey } from "../config";
-import { getBestScore, getHistory, clearHistory } from "../utils/scoreStorage";
+import { getBestScore, getHistory, clearHistory, setHistoryFromServer } from "../utils/scoreStorage";
+import { getCurrentUser, login, logout, register, fetchScoresForCurrentUser } from "../utils/auth";
 
 export default class E_MainMenu extends Group {
     confUI = UIConf.MainMenu;
@@ -97,8 +98,31 @@ export default class E_MainMenu extends Group {
         this.HistoryButton.opacity = 0;
         this.HistoryButton.on(PointerEvent.TAP, () => this.#showHistory_());
         this.HistoryButton.hoverStyle = { fill: histBtnConf.FILL_HOVER };
+
+        const accBtnConf = this.confUI.AccountButton;
+        this.AccountButton = new Text({
+            x: GP.bw * accBtnConf.X_RATIO,
+            y: GP.bh * accBtnConf.Y_RATIO,
+            around: "center",
+            text: "",
+            fontSize: accBtnConf.FONT_SIZE,
+            fill: accBtnConf.FILL,
+            cursor: "pointer",
+        });
+        this.AccountButton.on(PointerEvent.TAP, () => this.#onAccountTap_());
+        this.AccountButton.hoverStyle = { fill: accBtnConf.FILL_HOVER };
+
         this.HistoryPanel = this.#createHistoryPanel_();
-        this.add([this.Brand, this.DifficultyGroup, this.BestScoreText, this.Hint1, this.Hint2, this.HistoryButton, this.HistoryPanel]);
+        this.add([
+            this.Brand,
+            this.DifficultyGroup,
+            this.BestScoreText,
+            this.Hint1,
+            this.Hint2,
+            this.HistoryButton,
+            this.AccountButton,
+            this.HistoryPanel,
+        ]);
         this.#$setupEventListeners();
     }
 
@@ -175,6 +199,46 @@ export default class E_MainMenu extends Group {
         clearHistory();
         this.#updateBestScore_();
         this.#showHistory_();
+    }
+
+    async #onAccountTap_() {
+        const user = getCurrentUser();
+        if (user) {
+            if (typeof window !== "undefined" && typeof window.confirm === "function") {
+                const ok = window.confirm(`当前已登录：${user.username}\n是否退出登录？`);
+                if (!ok) return;
+            }
+            logout();
+            this.#updateAccountText_();
+            return;
+        }
+
+        if (typeof window === "undefined") return;
+        const mode = window.prompt("输入 1 登录，输入 2 注册：", "1");
+        if (mode !== "1" && mode !== "2") return;
+        const username = window.prompt("请输入用户名（至少 3 位）：");
+        if (!username || username.length < 3) return;
+        const password = window.prompt("请输入密码（至少 3 位）：");
+        if (!password || password.length < 3) return;
+
+        try {
+            if (mode === "1") {
+                await login(username, password);
+            } else {
+                await register(username, password);
+            }
+            this.#updateAccountText_();
+            // 登录 / 注册成功后，从服务器拉取历史成绩并覆盖本地
+            const remoteRecords = await fetchScoresForCurrentUser();
+            if (remoteRecords && remoteRecords.length) {
+                setHistoryFromServer(remoteRecords);
+                this.#updateBestScore_();
+            }
+        } catch (e) {
+            if (typeof window !== "undefined" && typeof window.alert === "function") {
+                window.alert(String(e.message || e));
+            }
+        }
     }
 
     #showHistory_() {
@@ -282,6 +346,18 @@ export default class E_MainMenu extends Group {
         }
     }
 
+    #updateAccountText_() {
+        const user = getCurrentUser();
+        const accBtnConf = this.confUI.AccountButton;
+        if (user) {
+            this.AccountButton.text = `已登录：${user.username}`;
+            this.AccountButton.fill = accBtnConf.FILL_LOGGED_IN;
+        } else {
+            this.AccountButton.text = "登录 / 注册";
+            this.AccountButton.fill = accBtnConf.FILL;
+        }
+    }
+
     #onDifficultyTap(key) {
         setDifficulty(key);
         this.#updateDifficultySelection();
@@ -316,6 +392,9 @@ export default class E_MainMenu extends Group {
         this.Hint1.y = e.height * this.confUI.Hint1.Y_RATIO + this.confUI.Hint1.Y_OFFSET;
         this.Hint2.y = e.height * this.confUI.Hint2.Y_RATIO + this.confUI.Hint2.Y_OFFSET;
         this.HistoryButton.y = e.height * this.confUI.HistoryButton.Y_RATIO + this.confUI.HistoryButton.Y_OFFSET;
+        const accBtnConf = this.confUI.AccountButton;
+        this.AccountButton.x = e.width * accBtnConf.X_RATIO;
+        this.AccountButton.y = e.height * accBtnConf.Y_RATIO;
         if (this.HistoryPanel.visible && this.HistoryPanel.children.length > 0) {
             this.HistoryPanel.width = e.width;
             this.HistoryPanel.height = e.height;
@@ -332,6 +411,7 @@ export default class E_MainMenu extends Group {
         this.DifficultyGroup.opacity = 0;
         this.#updateDifficultySelection();
         this.#updateBestScore_();
+        this.#updateAccountText_();
         this.Hint1.opacity = 0;
         this.Hint2.opacity = 0;
         this.HistoryButton.opacity = 0;
