@@ -1,5 +1,5 @@
 import { Leafer } from "leafer-game";
-import { GameConf, UIConf, getPixelRatio, RenderConf } from "../config";
+import { GameConf, UIConf } from "../config";
 
 // core
 export { eventBus as evBus } from "./EventBus";
@@ -43,9 +43,6 @@ extendUI();
 export const leafer = new Leafer({
     view: document.querySelector("canvas"),
     fill: UIConf.BACKGROUND_FILL,
-    pixelRatio: getPixelRatio(),
-    smooth: RenderConf.smooth,
-    contextSettings: RenderConf.contextSettings,
     pointer: {
         preventDefaultMenu: true,
     },
