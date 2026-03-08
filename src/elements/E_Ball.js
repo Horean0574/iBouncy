@@ -71,15 +71,12 @@ export default class E_Ball extends Ellipse {
         const t = Math.max(0, Math.min((speed - baseSpeed) / (maxSpeed - baseSpeed || 1), 1));
         const ui = this.confUI;
         const scale = 1 + t * (ui.GLOW_MAX_SCALE - 1);
-        const blur = ui.GLOW_MIN_BLUR + (ui.GLOW_MAX_BLUR - ui.GLOW_MIN_BLUR) * t;
-        if (this.scaleX !== scale) this.scaleX = this.scaleY = scale;
-        if (this.shadow?.blur !== blur || this.shadow?.color !== ui.FILL) {
-            this.shadow = {
-                x: 0,
-                y: 0,
-                blur,
-                color: ui.FILL,
-            };
-        }
+        this.scaleX = this.scaleY = scale;
+        this.shadow = {
+            x: 0,
+            y: 0,
+            blur: ui.GLOW_MIN_BLUR + (ui.GLOW_MAX_BLUR - ui.GLOW_MIN_BLUR) * t,
+            color: ui.FILL,
+        };
     }
 }
