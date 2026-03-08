@@ -60,7 +60,7 @@ function gameLoop(timeStamp) {
     if (GP.at("playing")) {
         accumulated += Math.min(deltaTime, GameConf.MAX_ACCUMULATED * 1000);
         Ball.timeDivisor = Math.min(F(accumulated / GP.ENV.fixedStep), GP.ENV.maxStepPerFrame);
-        while (accumulated >= GP.ENV.fixedStep && steps <= GP.ENV.maxStepPerFrame) { // sub-stepping loop
+        while (accumulated >= GP.ENV.fixedStep && steps <= GP.ENV.maxStepPerFrame) {
             accumulated -= GP.ENV.fixedStep;
             ++steps;
             const unitProg = GP.ENV.fixedStep / GP.ENV.stdUnitInterval;

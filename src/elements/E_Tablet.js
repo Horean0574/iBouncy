@@ -9,7 +9,7 @@ export default class E_Tablet extends Rect {
     vyMax;
     vx;
     vy;
-    availZone = [80, 40, 0, 40]; // Top, Right, Bottom, Left
+    availZone = [80, 40, 0, 40];
 
     constructor() {
         super({

@@ -2,15 +2,14 @@ import { Ellipse } from "leafer-game";
 import { Ball, C, F, GP } from "../core/instances";
 import { UIConf } from "../config";
 
-/** 拖尾点数据：避免每帧创建动画对象，改用时间驱动的手动插值 */
-const DOT_FADE_DURATION = 0.4; // 秒
+const DOT_FADE_DURATION = 0.4;
 
 export default class X_BallTrailing {
-    length = 6; // 减少点数以降低开销
+    length = 6;
     loopIdx = 0;
     dotIdx = -1;
     dots = new Map();
-    dotData = []; // { birthTime, baseSize, x, y }
+    dotData = [];
     framesInterval = 5;
 
     constructor() {
@@ -51,15 +50,16 @@ export default class X_BallTrailing {
             const sizeFactor = Math.min(0.9 + speed / 7, 1.9);
             const baseSize = UIConf.BallTrailing.RADIUS * 2 * sizeFactor;
             dot.w = dot.h = baseSize;
-            dot.opacity = 1;
+            dot.opacity = 0; // 从 0 开始，后面淡入
             dot.x = Ball.cx;
             dot.y = Ball.cy;
             dot.visible = true;
             this.dotData[idx] = { birthTime: performance.now() / 1000, baseSize };
         }
+        // 每帧更新所有拖尾点，实现淡入淡出效果
+        this.updateDots_();
     }
 
-    /** 每帧调用一次，更新拖尾淡出效果 */
     updateDots_() {
         const now = performance.now() / 1000;
         for (let i = 0; i < this.length; ++i) {

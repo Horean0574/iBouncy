@@ -69,7 +69,7 @@ export default function extendUI() {
             enumerable: true,
             configurable: true,
         },
-        lx: { // use in center positioning, the same effect as "x" in top-left positioning
+        lx: {
             get() {
                 return this.x - this.width / 2;
             },
@@ -79,7 +79,7 @@ export default function extendUI() {
             enumerable: true,
             configurable: true,
         },
-        rx: { // use in center positioning, the same effect as "ox" in top-left positioning
+        rx: {
             get() {
                 return this.x + this.width / 2;
             },
@@ -89,7 +89,7 @@ export default function extendUI() {
             enumerable: true,
             configurable: true,
         },
-        ty: { // use in center positioning, the same effect as "y" in top-left positioning
+        ty: {
             get() {
                 return this.y - this.height / 2;
             },
@@ -99,7 +99,7 @@ export default function extendUI() {
             enumerable: true,
             configurable: true,
         },
-        by: { // use in center positioning, the same effect as "oy" in top-left positioning
+        by: {
             get() {
                 return this.y + this.height / 2;
             },

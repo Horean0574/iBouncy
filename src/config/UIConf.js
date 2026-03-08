@@ -24,11 +24,6 @@ export const FontConf = {
     SCORE: "HYDiSiKe-U",
 };
 
-/*
-Units:
-    size: pixel (px)
-    time: second (s)
- */
 export const UIConf = {
     BACKGROUND_FILL: ColorConf.LIGHT_WHITE,
     LOADING_FADE_OUT_DURATION: 0.3,

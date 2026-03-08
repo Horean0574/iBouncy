@@ -58,12 +58,11 @@ export default class E_Ball extends Ellipse {
         GI.boundaryDetect(this, {
             bounce: true,
             paddings: [0, 0, -this.h * 3, 0],
-            callbacks: [null, null, GP.gameOver/*null*/, null],
+            callbacks: [null, null, GP.gameOver, null],
         });
         this.trailing.frameLoop(this.timeDivisor);
     }
 
-    /** 每帧调用一次，避免在物理子步中重复更新视觉 */
     updateVisual_() {
         const speed = Math.sqrt(this.vx ** 2 + this.vy ** 2);
         const baseSpeed = this.confGm.VY;
