@@ -28,11 +28,8 @@
     "@leafer-game/node": "^1.12.4",
     "leafer-game": "^1.12.4",
     "cors": "^2.8.6",
-<<<<<<< HEAD
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
-=======
->>>>>>> 7749419b9f87b4b535a6de7ad5c1daa56c67e426
     "express": "^5.2.1",
     "pg": "^8.20.0"
   }
