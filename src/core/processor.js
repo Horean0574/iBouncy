@@ -12,7 +12,7 @@ import { Platform, Resource } from "leafer-game";
 import { UIConf } from "../config";
 
 export default class Processor {
-    #SM = "init"; // state machine
+    #SM = "init";
     measured = 0;
     refreshRateBucket = new Map();
 

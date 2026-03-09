@@ -3,6 +3,7 @@ import { evBus, GEV, GP, Mask, Scoring, timer } from "../core/instances";
 import TextLine from "../utils/TextLine";
 import { UIConf, getDifficultyKey } from "../config";
 import { addScore, getBestScoreByDifficulty } from "../utils/scoreStorage";
+import { pushScoreForCurrentUser } from "../utils/auth";
 
 export default class E_Settlement extends Group {
     confUI = UIConf.Settlement;
@@ -51,7 +52,7 @@ export default class E_Settlement extends Group {
             around: "center",
             text: "新纪录！",
             fontSize: 40,
-            fontFamily: this.confUI.Title.FONT_FAMILY,
+            fontFamily: "HYBeiBingYang-W",
             fill: this.confUI.Title.WIN_SHADOW_COLOR,
             opacity: 0,
             scale: 1.4,
@@ -70,6 +71,8 @@ export default class E_Settlement extends Group {
             const difficulty = getDifficultyKey();
             const prevBest = getBestScoreByDifficulty(difficulty);
             addScore(displayScore, difficulty);
+            // 尝试将本次成绩同步到服务器（如果已登录）
+            pushScoreForCurrentUser(displayScore, difficulty, Date.now());
             this.isNewRecord = prevBest == null || displayScore > prevBest;
             if (args[0].win) this.win_();
             else this.fail_();
@@ -92,7 +95,7 @@ export default class E_Settlement extends Group {
     }
 
     async #loadFont_() {
-        const fontURL = new URL("/public/fonts/HYBeiBingYang-W.woff2", import.meta.url).href;
+        const fontURL = new URL("/dist/fonts/HYBeiBingYang-W.woff2", import.meta.url).href;
         await GP.fontInitializer("HYBeiBingYang-W", fontURL);
     }
 
@@ -143,7 +146,6 @@ export default class E_Settlement extends Group {
         this.#setTextFill_("leafer://DL.jpg", this.confUI.Title.FAIL_BG_Y_OFFSET);
         this.#setShadowColor_(this.confUI.Title.FAIL_SHADOW_COLOR);
         this.show_();
-        this.isNewRecord && this.#celebrateRecord_();
     }
 
     #setTextFill_(src, offsetY) {

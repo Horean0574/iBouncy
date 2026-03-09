@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,11 @@
   },
   "dependencies": {
     "@leafer-game/node": "^1.12.4",
-    "leafer-game": "^1.12.4"
+    "leafer-game": "^1.12.4",
+    "cors": "^2.8.6",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "express": "^5.2.1",
+    "pg": "^8.20.0"
   }
 }

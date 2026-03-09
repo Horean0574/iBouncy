@@ -8,7 +8,7 @@ export default class Interaction {
 
     boundaryDetect(ge, {
         bounce = false,
-        paddings = [0, 0, 0, 0], // Top, Right, Bottom, Left
+        paddings = [0, 0, 0, 0],
         callbacks = [null, null, null, null],
     } = {}) {
         const bounceRatio = bounce ? -1 : 0;

@@ -24,11 +24,6 @@ export const FontConf = {
     SCORE: "HYDiSiKe-U",
 };
 
-/*
-Units:
-    size: pixel (px)
-    time: second (s)
- */
 export const UIConf = {
     BACKGROUND_FILL: ColorConf.LIGHT_WHITE,
     LOADING_FADE_OUT_DURATION: 0.3,
@@ -110,6 +105,14 @@ export const UIConf = {
             Y_OFFSET: 48,
             FONT_SIZE: 14,
             FILL: ColorConf.LIGHT_GRAY,
+            FILL_HOVER: ColorConf.PRIMARY,
+        },
+        AccountButton: {
+            X_RATIO: 0.87,
+            Y_RATIO: 0.12,
+            FONT_SIZE: 14,
+            FILL: ColorConf.GRAY,
+            FILL_LOGGED_IN: ColorConf.PRIMARY,
             FILL_HOVER: ColorConf.PRIMARY,
         },
         ScoreHistory: {
