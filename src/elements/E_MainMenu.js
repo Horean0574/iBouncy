@@ -2,13 +2,8 @@ import { AnimateEvent, Group, Image, PointerEvent, Rect, Text } from "leafer-gam
 import { evBus, GEV, GP } from "../core/instances";
 import TextLine from "../utils/TextLine";
 import { UIConf, DIFFICULTY_LEVELS, setDifficulty, getDifficultyKey } from "../config";
-<<<<<<< HEAD
 import { getBestScore, getHistory, clearHistory } from "../utils/scoreStorage";
 import { getCurrentUser, login, logout, register, syncScoresWithServer } from "../utils/auth";
-=======
-import { getBestScore, getHistory, clearHistory, setHistoryFromServer } from "../utils/scoreStorage";
-import { getCurrentUser, login, logout, register, fetchScoresForCurrentUser } from "../utils/auth";
->>>>>>> 7749419b9f87b4b535a6de7ad5c1daa56c67e426
 
 export default class E_MainMenu extends Group {
     confUI = UIConf.MainMenu;
@@ -223,13 +218,8 @@ export default class E_MainMenu extends Group {
         if (mode !== "1" && mode !== "2") return;
         const username = window.prompt("请输入用户名（至少 3 位）：");
         if (!username || username.length < 3) return;
-<<<<<<< HEAD
         const password = window.prompt("请输入密码（至少 6 位）：");
         if (!password || password.length < 6) return;
-=======
-        const password = window.prompt("请输入密码（至少 3 位）：");
-        if (!password || password.length < 3) return;
->>>>>>> 7749419b9f87b4b535a6de7ad5c1daa56c67e426
 
         try {
             if (mode === "1") {
@@ -238,18 +228,9 @@ export default class E_MainMenu extends Group {
                 await register(username, password);
             }
             this.#updateAccountText_();
-<<<<<<< HEAD
             // 登录 / 注册成功后，同步本地与服务器成绩并刷新最佳成绩
             await syncScoresWithServer();
             this.#updateBestScore_();
-=======
-            // 登录 / 注册成功后，从服务器拉取历史成绩并覆盖本地
-            const remoteRecords = await fetchScoresForCurrentUser();
-            if (remoteRecords && remoteRecords.length) {
-                setHistoryFromServer(remoteRecords);
-                this.#updateBestScore_();
-            }
->>>>>>> 7749419b9f87b4b535a6de7ad5c1daa56c67e426
         } catch (e) {
             if (typeof window !== "undefined" && typeof window.alert === "function") {
                 window.alert(String(e.message || e));
