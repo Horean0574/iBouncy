@@ -6,6 +6,7 @@ const API_BASE = "/api";
 export interface User {
   id: number;
   username: string;
+  nickname?: string;
 }
 
 function loadStoredUser(): User | null {
@@ -70,10 +71,10 @@ export async function login(username: string, password: string) {
   return data.user as User;
 }
 
-export async function register(username: string, password: string) {
+export async function register(username: string, password: string, nickname: string) {
   const data = await requestJson("/register", {
     method: "POST",
-    body: JSON.stringify({ username, password })
+    body: JSON.stringify({ username, password, nickname })
   });
   if (data.user) {
     saveStoredUser(data.user);

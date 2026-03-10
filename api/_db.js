@@ -24,6 +24,11 @@ async function initDb() {
                 created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             );
         `);
+        // 确保存在昵称字段（旧表兼容）
+        await client.query(`
+            ALTER TABLE users
+            ADD COLUMN IF NOT EXISTS nickname TEXT;
+        `);
         await client.query(`
             CREATE TABLE IF NOT EXISTS scores (
                 id SERIAL PRIMARY KEY,

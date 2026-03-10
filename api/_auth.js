@@ -11,6 +11,7 @@ function signToken(user) {
         {
             id: user.id,
             username: user.username,
+            nickname: user.nickname,
         },
         JWT_SECRET,
         {

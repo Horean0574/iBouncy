@@ -4,6 +4,7 @@ import TextLine from "../utils/TextLine";
 import { UIConf, DIFFICULTY_LEVELS, setDifficulty, getDifficultyKey } from "../config";
 import { getBestScore, getHistory, clearHistory } from "../utils/scoreStorage";
 import { getCurrentUser, login, logout, register, syncScoresWithServer } from "../utils/auth";
+import { openAuthPanel } from "../ui/authPanel";
 
 type DifficultyKey = keyof typeof DIFFICULTY_LEVELS;
 
@@ -233,7 +234,7 @@ export default class E_MainMenu extends Group {
     const user = getCurrentUser();
     if (user) {
       if (typeof window !== "undefined" && typeof window.confirm === "function") {
-        const ok = window.confirm(`当前已登录：${user.username}\n是否退出登录？`);
+        const ok = window.confirm(`当前已登录：${user.nickname || user.username}\n是否退出登录？`);
         if (!ok) return;
       }
       logout();
@@ -242,27 +243,11 @@ export default class E_MainMenu extends Group {
     }
 
     if (typeof window === "undefined") return;
-    const mode = window.prompt("输入 1 登录，输入 2 注册：", "1");
-    if (mode !== "1" && mode !== "2") return;
-    const username = window.prompt("请输入用户名（至少 3 位）：");
-    if (!username || username.length < 3) return;
-    const password = window.prompt("请输入密码（至少 6 位）：");
-    if (!password || password.length < 6) return;
-
-    try {
-      if (mode === "1") {
-        await login(username, password);
-      } else {
-        await register(username, password);
-      }
+    openAuthPanel("login", async () => {
       this.updateAccountText_();
       await syncScoresWithServer();
       this.updateBestScore_();
-    } catch (e: any) {
-      if (typeof window !== "undefined" && typeof window.alert === "function") {
-        window.alert(String(e?.message ?? e));
-      }
-    }
+    });
   }
 
   private showHistory_() {
@@ -390,7 +375,7 @@ export default class E_MainMenu extends Group {
     const user = getCurrentUser();
     const accBtnConf = this.confUI.AccountButton;
     if (user) {
-      this.AccountButton.text = `已登录：${user.username}`;
+      this.AccountButton.text = `已登录：${user.nickname || user.username}`;
       this.AccountButton.fill = accBtnConf.FILL_LOGGED_IN;
     } else {
       this.AccountButton.text = "登录 / 注册";

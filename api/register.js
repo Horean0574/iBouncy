@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
 
     await initDb();
 
-    const { username, password } = await parseJsonBody(req);
+    const { username, password, nickname } = await parseJsonBody(req);
     if (!username || !password) {
         res.statusCode = 400;
         res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -42,13 +42,21 @@ module.exports = async (req, res) => {
         return;
     }
 
+    const nicknameStr = nickname == null ? "" : String(nickname).trim();
+    if (!nicknameStr) {
+        res.statusCode = 400;
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+        res.end(JSON.stringify({ error: "昵称不能为空" }));
+        return;
+    }
+
     const passwordHash = await bcrypt.hash(String(password), 10);
 
     const client = await pool.connect();
     try {
         const result = await client.query(
-            "INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING id, username",
-            [String(username), passwordHash]
+            "INSERT INTO users (username, password_hash, nickname) VALUES ($1, $2, $3) RETURNING id, username, nickname",
+            [String(username), passwordHash, nicknameStr]
         );
         const user = result.rows[0];
         const token = signToken(user);

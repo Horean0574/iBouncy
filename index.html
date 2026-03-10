@@ -32,11 +32,175 @@
             position: fixed;
             transform: translate(calc(50vw - 117px), calc(50vh - 50px)) scale(1.2);
         }
+
+        /* 账号登录/注册面板 */
+        #auth-panel {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 9999;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        #auth-panel-inner {
+            width: 320px;
+            max-width: 90vw;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.35);
+            padding: 20px 22px 18px;
+        }
+
+        #auth-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        #auth-desc {
+            font-size: 12px;
+            color: #6b7280;
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        .auth-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 8px;
+        }
+
+        .auth-row label {
+            flex: 0 0 64px;
+            font-size: 13px;
+            color: #374151;
+            text-align: right;
+        }
+
+        .auth-row input {
+            flex: 1;
+            padding: 6px 8px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .auth-row input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.25);
+        }
+
+        #auth-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px;
+            gap: 8px;
+        }
+
+        #auth-actions-left {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        #auth-toggle {
+            border: none;
+            background: none;
+            padding: 0;
+            font-size: 12px;
+            color: #4f46e5;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        #auth-toggle:hover {
+            text-decoration: underline;
+        }
+
+        #auth-actions-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        .auth-btn {
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.15s ease;
+            white-space: nowrap;
+        }
+
+        #auth-close {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        #auth-submit {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: #ffffff;
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .auth-btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
     </style>
 </head>
 <body>
 <canvas></canvas>
 <img id="loading" src="./src/assets/svg/loading.svg" alt="Loading..." draggable="false">
+
+<!-- 页面内登录 / 注册面板 -->
+<div id="auth-panel">
+  <div id="auth-panel-inner">
+    <div id="auth-title">登录账号</div>
+    <div id="auth-desc">登录后可云端同步你的历史成绩</div>
+
+    <div class="auth-row">
+      <label for="auth-username">用户名</label>
+      <input id="auth-username" type="text" placeholder="至少 3 位字母或数字">
+    </div>
+    <div class="auth-row" id="auth-nickname-row" style="display: none;">
+      <label for="auth-nickname">昵 称</label>
+      <input id="auth-nickname" type="text" placeholder="在游戏中显示的名字">
+    </div>
+    <div class="auth-row">
+      <label for="auth-password">密 码</label>
+      <input id="auth-password" type="password" placeholder="至少 6 位" autocomplete="new-password">
+    </div>
+    <div class="auth-row" id="auth-confirm-row" style="display: none;">
+      <label for="auth-confirm">确认密码</label>
+      <input id="auth-confirm" type="password" placeholder="再次输入密码" autocomplete="new-password">
+    </div>
+
+    <div id="auth-actions">
+      <div id="auth-actions-left">
+        <button id="auth-toggle" type="button">没有账号？去注册</button>
+      </div>
+      <div id="auth-actions-right">
+        <button id="auth-close" class="auth-btn" type="button">取 消</button>
+        <button id="auth-submit" class="auth-btn" type="button">登 录</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script defer type="module" src="src/app.ts"></script>
 </body>
 </html>
