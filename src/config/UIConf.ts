@@ -125,6 +125,20 @@ export const UIConf = {
       CLOSE_FILL: ColorConf.LIGHT_GRAY,
       MAX_ROWS: 20,
       ROW_HEIGHT: 22
+    },
+    UserPanel: {
+      TITLE_FONT_SIZE: 20,
+      TITLE_FILL: ColorConf.DARK_GRAY,
+      SUBTITLE_FONT_SIZE: 12,
+      SUBTITLE_FILL: ColorConf.LIGHT_GRAY,
+      LABEL_FONT_SIZE: 13,
+      LABEL_FILL: ColorConf.LIGHT_GRAY,
+      VALUE_FONT_SIZE: 14,
+      VALUE_FILL: ColorConf.DARK_GRAY,
+      HINT_FONT_SIZE: 12,
+      HINT_FILL: ColorConf.LIGHT_GRAY,
+      PRIMARY_BTN_FILL: ColorConf.PRIMARY,
+      DANGER_BTN_FILL: ColorConf.DANGER
     }
   },
   OptionsMenu: {

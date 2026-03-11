@@ -56,9 +56,22 @@ function setAuthCookie(res, token) {
     res.setHeader("Set-Cookie", cookie);
 }
 
+function clearAuthCookie(res) {
+    const cookie = [
+        "ibouncy_token=",
+        "Path=/",
+        "HttpOnly",
+        "SameSite=Lax",
+        "Secure",
+        "Max-Age=0",
+    ].join("; ");
+    res.setHeader("Set-Cookie", cookie);
+}
+
 module.exports = {
     signToken,
     getUserFromRequest,
     setAuthCookie,
+    clearAuthCookie,
 };
 

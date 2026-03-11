@@ -3,7 +3,15 @@ import { evBus, GEV, GP } from "../core/instances";
 import TextLine from "../utils/TextLine";
 import { UIConf, DIFFICULTY_LEVELS, setDifficulty, getDifficultyKey } from "../config";
 import { getBestScore, getHistory, clearHistory } from "../utils/scoreStorage";
-import { getCurrentUser, login, logout, register, syncScoresWithServer } from "../utils/auth";
+import {
+  getCurrentUser,
+  logout,
+  syncScoresWithServer,
+  fetchUserProfile,
+  updateNickname,
+  changePassword,
+  deleteAccount
+} from "../utils/auth";
 import { openAuthPanel } from "../ui/authPanel";
 
 type DifficultyKey = keyof typeof DIFFICULTY_LEVELS;
@@ -24,6 +32,16 @@ export default class E_MainMenu extends Group {
   AccountButton: Text;
   HistoryPanel: Group;
   HistoryRows!: Group;
+  UserPanel: Group;
+  UserPanelCard: Rect;
+  UserProfileTextLines: {
+    nickname: Text;
+    username: Text;
+    createdAt: Text;
+    totalGames: Text;
+    bestScore: Text;
+    lastPlayedAt: Text;
+  };
 
   constructor() {
     super({
@@ -135,6 +153,7 @@ export default class E_MainMenu extends Group {
     this.AccountButton.hoverStyle = { fill: accBtnConf.FILL_HOVER };
 
     this.HistoryPanel = this.createHistoryPanel_();
+    this.UserPanel = this.createUserPanel_();
     this.add([
       this.Brand,
       this.DifficultyGroup,
@@ -143,7 +162,8 @@ export default class E_MainMenu extends Group {
       this.Hint2,
       this.HistoryButton,
       this.AccountButton,
-      this.HistoryPanel
+      this.HistoryPanel,
+      this.UserPanel
     ]);
     this.setupEventListeners();
   }
@@ -206,6 +226,279 @@ export default class E_MainMenu extends Group {
     return panel;
   }
 
+  private createUserPanel_() {
+    const conf = this.confUI.UserPanel;
+    const panel = new Group({
+      x: 0,
+      y: 0,
+      width: GP.bw,
+      height: GP.bh,
+      visible: false,
+      opacity: 0,
+      zIndex: 992
+    });
+
+    const overlay = new Rect({
+      x: 0,
+      y: 0,
+      width: GP.bw,
+      height: GP.bh,
+      fill: "#000000",
+      opacity: 0.32
+    });
+    panel.add(overlay);
+
+    const cardWidth = GP.bw * 0.7;
+    const cardHeight = GP.bh * 0.55;
+
+    const card = new Rect({
+      x: GP.bw / 2,
+      y: GP.bh / 2,
+      around: "center",
+      width: cardWidth,
+      height: cardHeight,
+      radius: 16,
+      fill: "#FFFFFF",
+      shadow: {
+        x: 0,
+        y: 16,
+        blur: 40,
+        spread: 0,
+        color: "rgba(15,23,42,0.35)"
+      }
+    });
+    this.UserPanelCard = card;
+    panel.add(card);
+
+    const title = new Text({
+      x: card.x,
+      y: card.y - cardHeight / 2 + 40,
+      around: "center",
+      text: "用户信息",
+      fontSize: conf.TITLE_FONT_SIZE,
+      fill: conf.TITLE_FILL
+    });
+    panel.add(title);
+
+    const subtitle = new Text({
+      x: card.x,
+      y: title.y + 20,
+      around: "center",
+      text: "管理你的账号资料与云端记录",
+      fontSize: conf.SUBTITLE_FONT_SIZE,
+      fill: conf.SUBTITLE_FILL
+    });
+    panel.add(subtitle);
+
+    const leftX = card.x - cardWidth / 2 + 40;
+    const valueOffsetX = 90;
+    const baseY = subtitle.y + 40;
+    const lineGap = 22;
+
+    const nicknameLabel = new Text({
+      x: leftX,
+      y: baseY,
+      around: "left",
+      text: "昵称",
+      fontSize: conf.LABEL_FONT_SIZE,
+      fill: conf.LABEL_FILL
+    });
+    const nicknameValue = new Text({
+      x: leftX + valueOffsetX,
+      y: baseY,
+      around: "left",
+      text: "-",
+      fontSize: conf.VALUE_FONT_SIZE,
+      fill: conf.VALUE_FILL
+    });
+
+    const usernameLabel = new Text({
+      x: leftX,
+      y: baseY + lineGap,
+      around: "left",
+      text: "用户名",
+      fontSize: conf.LABEL_FONT_SIZE,
+      fill: conf.LABEL_FILL
+    });
+    const usernameValue = new Text({
+      x: leftX + valueOffsetX,
+      y: baseY + lineGap,
+      around: "left",
+      text: "-",
+      fontSize: conf.VALUE_FONT_SIZE,
+      fill: conf.VALUE_FILL
+    });
+
+    const createdLabel = new Text({
+      x: leftX,
+      y: baseY + lineGap * 2,
+      around: "left",
+      text: "注册时间",
+      fontSize: conf.LABEL_FONT_SIZE,
+      fill: conf.LABEL_FILL
+    });
+    const createdValue = new Text({
+      x: leftX + valueOffsetX,
+      y: baseY + lineGap * 2,
+      around: "left",
+      text: "-",
+      fontSize: conf.VALUE_FONT_SIZE,
+      fill: conf.VALUE_FILL
+    });
+
+    const totalLabel = new Text({
+      x: leftX,
+      y: baseY + lineGap * 3,
+      around: "left",
+      text: "游玩次数",
+      fontSize: conf.LABEL_FONT_SIZE,
+      fill: conf.LABEL_FILL
+    });
+    const totalValue = new Text({
+      x: leftX + valueOffsetX,
+      y: baseY + lineGap * 3,
+      around: "left",
+      text: "-",
+      fontSize: conf.VALUE_FONT_SIZE,
+      fill: conf.VALUE_FILL
+    });
+
+    const bestLabel = new Text({
+      x: leftX,
+      y: baseY + lineGap * 4,
+      around: "left",
+      text: "最佳成绩",
+      fontSize: conf.LABEL_FONT_SIZE,
+      fill: conf.LABEL_FILL
+    });
+    const bestValue = new Text({
+      x: leftX + valueOffsetX,
+      y: baseY + lineGap * 4,
+      around: "left",
+      text: "-",
+      fontSize: conf.VALUE_FONT_SIZE,
+      fill: conf.VALUE_FILL
+    });
+
+    const lastLabel = new Text({
+      x: leftX,
+      y: baseY + lineGap * 5,
+      around: "left",
+      text: "最近游玩",
+      fontSize: conf.LABEL_FONT_SIZE,
+      fill: conf.LABEL_FILL
+    });
+    const lastValue = new Text({
+      x: leftX + valueOffsetX,
+      y: baseY + lineGap * 5,
+      around: "left",
+      text: "-",
+      fontSize: conf.VALUE_FONT_SIZE,
+      fill: conf.VALUE_FILL
+    });
+
+    panel.addMany?.([
+      nicknameLabel,
+      nicknameValue,
+      usernameLabel,
+      usernameValue,
+      createdLabel,
+      createdValue,
+      totalLabel,
+      totalValue,
+      bestLabel,
+      bestValue,
+      lastLabel,
+      lastValue
+    ]);
+
+    this.UserProfileTextLines = {
+      nickname: nicknameValue,
+      username: usernameValue,
+      createdAt: createdValue,
+      totalGames: totalValue,
+      bestScore: bestValue,
+      lastPlayedAt: lastValue
+    };
+
+    const hint = new Text({
+      x: card.x,
+      y: card.y + cardHeight / 2 - 40,
+      around: "center",
+      text: "密码修改与账号注销操作不可撤销，请谨慎选择。",
+      fontSize: conf.HINT_FONT_SIZE,
+      fill: conf.HINT_FILL
+    });
+    panel.add(hint);
+
+    const btnY = card.y + cardHeight / 2 - 16;
+    const btnGapX = 90;
+
+    const nicknameBtn = new Text({
+      x: card.x - btnGapX,
+      y: btnY - 28,
+      around: "center",
+      text: "修改昵称",
+      fontSize: 13,
+      fill: conf.PRIMARY_BTN_FILL,
+      cursor: "pointer"
+    });
+    nicknameBtn.hoverStyle = { scale: 1.05 };
+    nicknameBtn.on(PointerEvent.TAP, () => this.handleChangeNickname_());
+
+    const passwordBtn = new Text({
+      x: card.x + btnGapX,
+      y: btnY - 28,
+      around: "center",
+      text: "修改密码",
+      fontSize: 13,
+      fill: conf.PRIMARY_BTN_FILL,
+      cursor: "pointer"
+    });
+    passwordBtn.hoverStyle = { scale: 1.05 };
+    passwordBtn.on(PointerEvent.TAP, () => this.handleChangePassword_());
+
+    const logoutBtn = new Text({
+      x: card.x - btnGapX,
+      y: btnY,
+      around: "center",
+      text: "退出登录",
+      fontSize: 13,
+      fill: conf.LABEL_FILL,
+      cursor: "pointer"
+    });
+    logoutBtn.hoverStyle = { scale: 1.05 };
+    logoutBtn.on(PointerEvent.TAP, () => this.handleLogout_());
+
+    const deleteBtn = new Text({
+      x: card.x + btnGapX,
+      y: btnY,
+      around: "center",
+      text: "注销账号",
+      fontSize: 13,
+      fill: conf.DANGER_BTN_FILL,
+      cursor: "pointer"
+    });
+    deleteBtn.hoverStyle = { scale: 1.05 };
+    deleteBtn.on(PointerEvent.TAP, () => this.handleDeleteAccount_());
+
+    const closeBtn = new Text({
+      x: card.x + cardWidth / 2 - 32,
+      y: card.y - cardHeight / 2 + 26,
+      around: "center",
+      text: "✕",
+      fontSize: 14,
+      fill: conf.LABEL_FILL,
+      cursor: "pointer"
+    });
+    closeBtn.hoverStyle = { scale: 1.1 };
+    closeBtn.on(PointerEvent.TAP, () => this.hideUserPanel_());
+
+    panel.addMany?.([nicknameBtn, passwordBtn, logoutBtn, deleteBtn, closeBtn]);
+
+    return panel;
+  }
+
   private formatScore_(score: number) {
     const v = Math.round(score * 10);
     return `${Math.floor(v / 10)}.${v % 10}`;
@@ -233,12 +526,7 @@ export default class E_MainMenu extends Group {
   private async onAccountTap_() {
     const user = getCurrentUser();
     if (user) {
-      if (typeof window !== "undefined" && typeof window.confirm === "function") {
-        const ok = window.confirm(`当前已登录：${user.nickname || user.username}\n是否退出登录？`);
-        if (!ok) return;
-      }
-      logout();
-      this.updateAccountText_();
+      await this.showUserPanel_();
       return;
     }
 
@@ -400,6 +688,134 @@ export default class E_MainMenu extends Group {
     evBus.on(GEV.RESIZE, (payload) => this.relocate_(payload.data));
   }
 
+  private formatDateTime_(iso: string | null) {
+    if (!iso) return "-";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "-";
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+      d.getDate()
+    ).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(
+      d.getMinutes()
+    ).padStart(2, "0")}`;
+  }
+
+  private async showUserPanel_() {
+    const user = getCurrentUser();
+    if (!user) return;
+    if (typeof window === "undefined") return;
+
+    try {
+      const profile = await fetchUserProfile();
+      if (!profile) return;
+
+      this.UserProfileTextLines.nickname.text = profile.nickname || "(未设置)";
+      this.UserProfileTextLines.username.text = profile.username;
+      this.UserProfileTextLines.createdAt.text = this.formatDateTime_(profile.createdAt);
+      this.UserProfileTextLines.totalGames.text = `${profile.totalGames}`;
+      this.UserProfileTextLines.bestScore.text =
+        profile.bestScore != null ? this.formatScore_(profile.bestScore) : "-";
+      this.UserProfileTextLines.lastPlayedAt.text = this.formatDateTime_(
+        profile.lastPlayedAt
+      );
+    } catch (e: any) {
+      if (typeof window !== "undefined" && typeof window.alert === "function") {
+        window.alert(String(e?.message ?? e));
+      }
+    }
+
+    this.UserPanel.visible = true;
+    this.UserPanel.opacity = 0;
+    this.UserPanelCard.scale = 0.9;
+    this.UserPanel.animate([{ opacity: 1 }], { duration: 0.22 });
+    this.UserPanelCard.animate(
+      [
+        { scale: 0.9, opacity: 0.9 },
+        { scale: 1, opacity: 1 }
+      ],
+      { duration: 0.24, join: true }
+    );
+  }
+
+  private hideUserPanel_() {
+    this.UserPanel.animate([{ opacity: 0 }], { duration: 0.18 }).once(
+      AnimateEvent.COMPLETED,
+      () => {
+        this.UserPanel.visible = false;
+      }
+    );
+  }
+
+  private async handleChangeNickname_() {
+    if (typeof window === "undefined") return;
+    const current = this.UserProfileTextLines.nickname.text || "";
+    const next = window.prompt("请输入新的昵称（最多 24 个字符）：", current === "(未设置)" ? "" : current);
+    if (!next) return;
+    const trimmed = next.trim();
+    if (!trimmed) return;
+    if (trimmed.length > 24) {
+      window.alert("昵称长度请控制在 24 个字符以内");
+      return;
+    }
+    try {
+      const profile = await updateNickname(trimmed);
+      this.UserProfileTextLines.nickname.text = profile.nickname || "(未设置)";
+      this.updateAccountText_();
+      window.alert("昵称已更新");
+    } catch (e: any) {
+      window.alert(String(e?.message ?? e));
+    }
+  }
+
+  private async handleChangePassword_() {
+    if (typeof window === "undefined") return;
+    const oldPwd = window.prompt("请输入当前密码：");
+    if (!oldPwd) return;
+    const newPwd = window.prompt("请输入新密码（至少 6 位）：");
+    if (!newPwd || newPwd.length < 6) {
+      window.alert("新密码至少 6 位");
+      return;
+    }
+    const confirmPwd = window.prompt("请再次输入新密码进行确认：");
+    if (!confirmPwd || confirmPwd !== newPwd) {
+      window.alert("两次输入的新密码不一致");
+      return;
+    }
+    try {
+      await changePassword(oldPwd, newPwd);
+      window.alert("密码修改成功");
+    } catch (e: any) {
+      window.alert(String(e?.message ?? e));
+    }
+  }
+
+  private async handleLogout_() {
+    if (typeof window !== "undefined" && typeof window.confirm === "function") {
+      const ok = window.confirm("确定要退出登录吗？");
+      if (!ok) return;
+    }
+    logout();
+    this.updateAccountText_();
+    this.hideUserPanel_();
+  }
+
+  private async handleDeleteAccount_() {
+    if (typeof window === "undefined") return;
+    const first = window.confirm(
+      "确定要注销账号吗？此操作会删除你的账号以及云端成绩记录，且无法恢复。"
+    );
+    if (!first) return;
+    const second = window.confirm("再次确认：真的要永久注销账号吗？");
+    if (!second) return;
+    try {
+      await deleteAccount();
+      this.updateAccountText_();
+      this.hideUserPanel_();
+      window.alert("账号已注销");
+    } catch (e: any) {
+      window.alert(String(e?.message ?? e));
+    }
+  }
+
   async init() {
     await this.preloadImage();
   }
@@ -427,6 +843,15 @@ export default class E_MainMenu extends Group {
       (this.HistoryPanel.children[0] as Rect).width = e.width;
       (this.HistoryPanel.children[0] as Rect).height = e.height;
     }
+    if (this.UserPanel) {
+      this.UserPanel.width = e.width;
+      this.UserPanel.height = e.height;
+      const overlay = this.UserPanel.children[0] as Rect;
+      overlay.width = e.width;
+      overlay.height = e.height;
+      this.UserPanelCard.x = e.width / 2;
+      this.UserPanelCard.y = e.height / 2;
+    }
   }
 
   reset_() {
@@ -443,6 +868,10 @@ export default class E_MainMenu extends Group {
     this.HistoryButton.opacity = 0;
     this.HistoryPanel.visible = false;
     this.HistoryPanel.opacity = 0;
+    if (this.UserPanel) {
+      this.UserPanel.visible = false;
+      this.UserPanel.opacity = 0;
+    }
   }
 
   show_() {

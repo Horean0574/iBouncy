@@ -9,6 +9,13 @@ export interface User {
   nickname?: string;
 }
 
+export interface UserProfile extends User {
+  createdAt: string;
+  totalGames: number;
+  bestScore: number | null;
+  lastPlayedAt: string | null;
+}
+
 function loadStoredUser(): User | null {
   try {
     const raw = localStorage.getItem(AUTH_STORAGE_KEY);
@@ -124,5 +131,44 @@ export async function syncScoresWithServer() {
   const merged = Array.isArray(data.records) ? data.records : [];
   setHistoryFromServer(merged);
   return merged;
+}
+
+export async function fetchUserProfile(): Promise<UserProfile | null> {
+  const user = getCurrentUser();
+  if (!user) return null;
+  const data = await requestJson("/user", {
+    method: "GET"
+  });
+  return data.user as UserProfile;
+}
+
+export async function updateNickname(nickname: string): Promise<UserProfile> {
+  const data = await requestJson("/user", {
+    method: "POST",
+    body: JSON.stringify({ nickname })
+  });
+  if (data.user) {
+    const basicUser: User = {
+      id: data.user.id,
+      username: data.user.username,
+      nickname: data.user.nickname
+    };
+    saveStoredUser(basicUser);
+  }
+  return data.user as UserProfile;
+}
+
+export async function changePassword(oldPassword: string, newPassword: string) {
+  await requestJson("/change-password", {
+    method: "POST",
+    body: JSON.stringify({ oldPassword, newPassword })
+  });
+}
+
+export async function deleteAccount() {
+  await requestJson("/delete-account", {
+    method: "POST"
+  });
+  logout();
 }
 
