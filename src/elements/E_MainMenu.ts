@@ -34,6 +34,10 @@ export default class E_MainMenu extends Group {
   HistoryRows!: Group;
   UserPanel: Group;
   UserPanelCard: Rect;
+  private UserPanelLoadingText?: Text;
+  private userPanelOpening = false;
+  private userPanelProfileCache: any = null;
+  private userPanelProfileCacheTime = 0;
   UserProfileTextLines: {
     nickname: Text;
     username: Text;
@@ -248,8 +252,8 @@ export default class E_MainMenu extends Group {
     });
     panel.add(overlay);
 
-    const cardWidth = GP.bw * 0.7;
-    const cardHeight = GP.bh * 0.55;
+    const cardWidth = Math.min(GP.bw * 0.78, 540);
+    const cardHeight = Math.min(GP.bh * 0.62, 420);
 
     const card = new Rect({
       x: GP.bw / 2,
@@ -290,10 +294,10 @@ export default class E_MainMenu extends Group {
     });
     panel.add(subtitle);
 
-    const leftX = card.x - cardWidth / 2 + 40;
-    const valueOffsetX = 90;
-    const baseY = subtitle.y + 40;
-    const lineGap = 22;
+    const leftX = card.x - cardWidth / 2 + 44;
+    const valueOffsetX = 96;
+    const baseY = subtitle.y + 32;
+    const lineGap = 24;
 
     const nicknameLabel = new Text({
       x: leftX,
@@ -380,9 +384,10 @@ export default class E_MainMenu extends Group {
       fill: conf.VALUE_FILL
     });
 
+    const lastLabelY = baseY + lineGap * 5;
     const lastLabel = new Text({
       x: leftX,
-      y: baseY + lineGap * 5,
+      y: lastLabelY,
       around: "left",
       text: "最近游玩",
       fontSize: conf.LABEL_FONT_SIZE,
@@ -390,7 +395,7 @@ export default class E_MainMenu extends Group {
     });
     const lastValue = new Text({
       x: leftX + valueOffsetX,
-      y: baseY + lineGap * 5,
+      y: lastLabelY,
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
@@ -421,9 +426,10 @@ export default class E_MainMenu extends Group {
       lastPlayedAt: lastValue
     };
 
+    const hintY = lastLabelY + 34;
     const hint = new Text({
       x: card.x,
-      y: card.y + cardHeight / 2 - 40,
+      y: hintY,
       around: "center",
       text: "密码修改与账号注销操作不可撤销，请谨慎选择。",
       fontSize: conf.HINT_FONT_SIZE,
@@ -431,7 +437,7 @@ export default class E_MainMenu extends Group {
     });
     panel.add(hint);
 
-    const btnY = card.y + cardHeight / 2 - 16;
+    const btnY = hintY + 28;
     const btnGapX = 90;
 
     const nicknameBtn = new Text({
@@ -495,6 +501,19 @@ export default class E_MainMenu extends Group {
     closeBtn.on(PointerEvent.TAP, () => this.hideUserPanel_());
 
     panel.addMany?.([nicknameBtn, passwordBtn, logoutBtn, deleteBtn, closeBtn]);
+
+    const loadingText = new Text({
+      x: card.x,
+      y: card.y,
+      around: "center",
+      text: "正在加载用户信息...",
+      fontSize: 14,
+      fill: "#6B7280",
+      visible: false,
+      opacity: 0
+    });
+    panel.add(loadingText);
+    this.UserPanelLoadingText = loadingText;
 
     return panel;
   }
@@ -700,12 +719,45 @@ export default class E_MainMenu extends Group {
   }
 
   private async showUserPanel_() {
+    if (this.userPanelOpening || (this.UserPanel && this.UserPanel.visible)) return;
     const user = getCurrentUser();
     if (!user) return;
     if (typeof window === "undefined") return;
 
+    this.userPanelOpening = true;
+    this.UserPanel.visible = true;
+    this.UserPanel.opacity = 0;
+    this.UserPanelCard.scale = 0.9;
+    this.UserPanel.animate([{ opacity: 1 }], { duration: 0.2 });
+    this.UserPanelCard.animate(
+      [
+        { scale: 0.9, opacity: 0.9 },
+        { scale: 1, opacity: 1 }
+      ],
+      { duration: 0.24, join: true }
+    );
+
+    if (this.UserPanelLoadingText) {
+      this.UserPanelLoadingText.visible = true;
+      this.UserPanelLoadingText.opacity = 0;
+      this.UserPanelLoadingText.animate(
+        [
+          { opacity: 0.2 },
+          { opacity: 1 },
+          { opacity: 0.2 }
+        ],
+        { duration: 1.2, loop: true }
+      );
+    }
+
     try {
-      const profile = await fetchUserProfile();
+      const now = Date.now();
+      let profile = this.userPanelProfileCache;
+      if (!profile || now - this.userPanelProfileCacheTime > 30000) {
+        profile = await fetchUserProfile();
+        this.userPanelProfileCache = profile;
+        this.userPanelProfileCacheTime = Date.now();
+      }
       if (!profile) return;
 
       this.UserProfileTextLines.nickname.text = profile.nickname || "(未设置)";
@@ -721,19 +773,13 @@ export default class E_MainMenu extends Group {
       if (typeof window !== "undefined" && typeof window.alert === "function") {
         window.alert(String(e?.message ?? e));
       }
+    } finally {
+      if (this.UserPanelLoadingText) {
+        this.UserPanelLoadingText.visible = false;
+        this.UserPanelLoadingText.opacity = 0;
+      }
+      this.userPanelOpening = false;
     }
-
-    this.UserPanel.visible = true;
-    this.UserPanel.opacity = 0;
-    this.UserPanelCard.scale = 0.9;
-    this.UserPanel.animate([{ opacity: 1 }], { duration: 0.22 });
-    this.UserPanelCard.animate(
-      [
-        { scale: 0.9, opacity: 0.9 },
-        { scale: 1, opacity: 1 }
-      ],
-      { duration: 0.24, join: true }
-    );
   }
 
   private hideUserPanel_() {
@@ -741,6 +787,11 @@ export default class E_MainMenu extends Group {
       AnimateEvent.COMPLETED,
       () => {
         this.UserPanel.visible = false;
+        this.userPanelOpening = false;
+        if (this.UserPanelLoadingText) {
+          this.UserPanelLoadingText.visible = false;
+          this.UserPanelLoadingText.opacity = 0;
+        }
       }
     );
   }
