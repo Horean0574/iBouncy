@@ -252,8 +252,8 @@ export default class E_MainMenu extends Group {
     });
     panel.add(overlay);
 
-    const cardWidth = Math.min(GP.bw * 0.78, 540);
-    const cardHeight = Math.min(GP.bh * 0.62, 420);
+    const cardWidth = Math.min(GP.bw * 0.8, 540);
+    const cardHeight = Math.min(GP.bh * 0.7, 420);
 
     const card = new Rect({
       x: GP.bw / 2,
@@ -294,14 +294,16 @@ export default class E_MainMenu extends Group {
     });
     panel.add(subtitle);
 
-    const leftX = card.x - cardWidth / 2 + 44;
-    const valueOffsetX = 96;
-    const baseY = subtitle.y + 32;
-    const lineGap = 24;
+    // 两列排版，避免在矮屏幕上发生文字堆叠
+    const leftX = card.x - cardWidth / 2 + 40;
+    const rightX = card.x + 20;
+    const valueOffsetX = 80;
+    const rowY1 = subtitle.y + 30;
+    const rowGap = 26;
 
     const nicknameLabel = new Text({
       x: leftX,
-      y: baseY,
+      y: rowY1,
       around: "left",
       text: "昵称",
       fontSize: conf.LABEL_FONT_SIZE,
@@ -309,7 +311,7 @@ export default class E_MainMenu extends Group {
     });
     const nicknameValue = new Text({
       x: leftX + valueOffsetX,
-      y: baseY,
+      y: rowY1,
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
@@ -318,7 +320,7 @@ export default class E_MainMenu extends Group {
 
     const usernameLabel = new Text({
       x: leftX,
-      y: baseY + lineGap,
+      y: rowY1 + rowGap,
       around: "left",
       text: "用户名",
       fontSize: conf.LABEL_FONT_SIZE,
@@ -326,7 +328,7 @@ export default class E_MainMenu extends Group {
     });
     const usernameValue = new Text({
       x: leftX + valueOffsetX,
-      y: baseY + lineGap,
+      y: rowY1 + rowGap,
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
@@ -335,7 +337,7 @@ export default class E_MainMenu extends Group {
 
     const createdLabel = new Text({
       x: leftX,
-      y: baseY + lineGap * 2,
+      y: rowY1 + rowGap * 2,
       around: "left",
       text: "注册时间",
       fontSize: conf.LABEL_FONT_SIZE,
@@ -343,7 +345,7 @@ export default class E_MainMenu extends Group {
     });
     const createdValue = new Text({
       x: leftX + valueOffsetX,
-      y: baseY + lineGap * 2,
+      y: rowY1 + rowGap * 2,
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
@@ -351,16 +353,16 @@ export default class E_MainMenu extends Group {
     });
 
     const totalLabel = new Text({
-      x: leftX,
-      y: baseY + lineGap * 3,
+      x: rightX,
+      y: rowY1,
       around: "left",
       text: "游玩次数",
       fontSize: conf.LABEL_FONT_SIZE,
       fill: conf.LABEL_FILL
     });
     const totalValue = new Text({
-      x: leftX + valueOffsetX,
-      y: baseY + lineGap * 3,
+      x: rightX + valueOffsetX,
+      y: rowY1,
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
@@ -368,25 +370,25 @@ export default class E_MainMenu extends Group {
     });
 
     const bestLabel = new Text({
-      x: leftX,
-      y: baseY + lineGap * 4,
+      x: rightX,
+      y: rowY1 + rowGap,
       around: "left",
       text: "最佳成绩",
       fontSize: conf.LABEL_FONT_SIZE,
       fill: conf.LABEL_FILL
     });
     const bestValue = new Text({
-      x: leftX + valueOffsetX,
-      y: baseY + lineGap * 4,
+      x: rightX + valueOffsetX,
+      y: rowY1 + rowGap,
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
       fill: conf.VALUE_FILL
     });
 
-    const lastLabelY = baseY + lineGap * 5;
+    const lastLabelY = rowY1 + rowGap * 2;
     const lastLabel = new Text({
-      x: leftX,
+      x: rightX,
       y: lastLabelY,
       around: "left",
       text: "最近游玩",
@@ -394,7 +396,7 @@ export default class E_MainMenu extends Group {
       fill: conf.LABEL_FILL
     });
     const lastValue = new Text({
-      x: leftX + valueOffsetX,
+      x: rightX + valueOffsetX,
       y: lastLabelY,
       around: "left",
       text: "-",
@@ -426,7 +428,7 @@ export default class E_MainMenu extends Group {
       lastPlayedAt: lastValue
     };
 
-    const hintY = lastLabelY + 34;
+    const hintY = lastLabelY + 32;
     const hint = new Text({
       x: card.x,
       y: hintY,
@@ -437,7 +439,7 @@ export default class E_MainMenu extends Group {
     });
     panel.add(hint);
 
-    const btnY = hintY + 28;
+    const btnY = hintY + 30;
     const btnGapX = 90;
 
     const nicknameBtn = new Text({
