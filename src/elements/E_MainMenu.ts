@@ -253,7 +253,8 @@ export default class E_MainMenu extends Group {
     panel.add(overlay);
 
     const cardWidth = Math.min(GP.bw * 0.8, 540);
-    const cardHeight = Math.min(GP.bh * 0.7, 420);
+    const cardHeight = Math.min(GP.bh * 0.7, 440);
+    const isNarrow = cardWidth < 460;
 
     const card = new Rect({
       x: GP.bw / 2,
@@ -261,7 +262,7 @@ export default class E_MainMenu extends Group {
       around: "center",
       width: cardWidth,
       height: cardHeight,
-      radius: 16,
+      radius: 20,
       fill: "#FFFFFF",
       shadow: {
         x: 0,
@@ -286,7 +287,7 @@ export default class E_MainMenu extends Group {
 
     const subtitle = new Text({
       x: card.x,
-      y: title.y + 20,
+      y: title.y + 24,
       around: "center",
       text: "管理你的账号资料与云端记录",
       fontSize: conf.SUBTITLE_FONT_SIZE,
@@ -294,16 +295,21 @@ export default class E_MainMenu extends Group {
     });
     panel.add(subtitle);
 
-    // 两列排版，避免在矮屏幕上发生文字堆叠
+    // 自适应排版：宽屏两列，窄屏单列，减少文字重叠风险
+    const contentTopY = subtitle.y + 32;
+    const contentBottomY = card.y + cardHeight / 2 - 112;
+    const availableHeight = Math.max(120, contentBottomY - contentTopY);
+
     const leftX = card.x - cardWidth / 2 + 40;
-    const rightX = card.x + 20;
-    const valueOffsetX = 80;
-    const rowY1 = subtitle.y + 30;
-    const rowGap = 26;
+    const rightX = isNarrow ? leftX : card.x + 20;
+    const valueOffsetX = 90;
+    const baseRowY = contentTopY;
+    const totalRows = isNarrow ? 6 : 3;
+    const rowGap = Math.min(28, Math.max(20, availableHeight / (totalRows + 1)));
 
     const nicknameLabel = new Text({
       x: leftX,
-      y: rowY1,
+      y: baseRowY,
       around: "left",
       text: "昵称",
       fontSize: conf.LABEL_FONT_SIZE,
@@ -311,7 +317,7 @@ export default class E_MainMenu extends Group {
     });
     const nicknameValue = new Text({
       x: leftX + valueOffsetX,
-      y: rowY1,
+      y: baseRowY,
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
@@ -320,7 +326,7 @@ export default class E_MainMenu extends Group {
 
     const usernameLabel = new Text({
       x: leftX,
-      y: rowY1 + rowGap,
+      y: baseRowY + rowGap,
       around: "left",
       text: "用户名",
       fontSize: conf.LABEL_FONT_SIZE,
@@ -328,7 +334,7 @@ export default class E_MainMenu extends Group {
     });
     const usernameValue = new Text({
       x: leftX + valueOffsetX,
-      y: rowY1 + rowGap,
+      y: baseRowY + rowGap,
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
@@ -337,7 +343,7 @@ export default class E_MainMenu extends Group {
 
     const createdLabel = new Text({
       x: leftX,
-      y: rowY1 + rowGap * 2,
+      y: baseRowY + rowGap * 2,
       around: "left",
       text: "注册时间",
       fontSize: conf.LABEL_FONT_SIZE,
@@ -345,7 +351,7 @@ export default class E_MainMenu extends Group {
     });
     const createdValue = new Text({
       x: leftX + valueOffsetX,
-      y: rowY1 + rowGap * 2,
+      y: baseRowY + rowGap * 2,
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
@@ -354,7 +360,7 @@ export default class E_MainMenu extends Group {
 
     const totalLabel = new Text({
       x: rightX,
-      y: rowY1,
+      y: isNarrow ? baseRowY + rowGap * 3 : baseRowY,
       around: "left",
       text: "游玩次数",
       fontSize: conf.LABEL_FONT_SIZE,
@@ -362,7 +368,7 @@ export default class E_MainMenu extends Group {
     });
     const totalValue = new Text({
       x: rightX + valueOffsetX,
-      y: rowY1,
+      y: isNarrow ? baseRowY + rowGap * 3 : baseRowY,
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
@@ -371,7 +377,7 @@ export default class E_MainMenu extends Group {
 
     const bestLabel = new Text({
       x: rightX,
-      y: rowY1 + rowGap,
+      y: isNarrow ? baseRowY + rowGap * 4 : baseRowY + rowGap,
       around: "left",
       text: "最佳成绩",
       fontSize: conf.LABEL_FONT_SIZE,
@@ -379,14 +385,14 @@ export default class E_MainMenu extends Group {
     });
     const bestValue = new Text({
       x: rightX + valueOffsetX,
-      y: rowY1 + rowGap,
+      y: isNarrow ? baseRowY + rowGap * 4 : baseRowY + rowGap,
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
       fill: conf.VALUE_FILL
     });
 
-    const lastLabelY = rowY1 + rowGap * 2;
+    const lastLabelY = isNarrow ? baseRowY + rowGap * 5 : baseRowY + rowGap * 2;
     const lastLabel = new Text({
       x: rightX,
       y: lastLabelY,
@@ -428,7 +434,10 @@ export default class E_MainMenu extends Group {
       lastPlayedAt: lastValue
     };
 
-    const hintY = lastLabelY + 32;
+    const hintY = Math.min(
+      card.y + cardHeight / 2 - 72,
+      lastLabelY + (isNarrow ? rowGap : 32)
+    );
     const hint = new Text({
       x: card.x,
       y: hintY,
@@ -439,7 +448,7 @@ export default class E_MainMenu extends Group {
     });
     panel.add(hint);
 
-    const btnY = hintY + 30;
+    const btnY = hintY + 28;
     const btnGapX = 90;
 
     const nicknameBtn = new Text({
