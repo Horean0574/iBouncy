@@ -247,8 +247,8 @@ export default class E_MainMenu extends Group {
       y: 0,
       width: GP.bw,
       height: GP.bh,
-      fill: "#000000",
-      opacity: 0.32
+      fill: "#020617E6",
+      opacity: 0.4
     });
     panel.add(overlay);
 
@@ -256,20 +256,59 @@ export default class E_MainMenu extends Group {
     const cardHeight = Math.min(GP.bh * 0.7, 440);
     const isNarrow = cardWidth < 460;
 
+    const centerX = GP.bw / 2;
+    const centerY = GP.bh / 2;
+
+    const glowBlue = new Rect({
+      x: centerX - cardWidth * 0.18,
+      y: centerY - cardHeight * 0.2,
+      around: "center",
+      width: cardWidth * 0.9,
+      height: cardHeight * 0.6,
+      radius: cardHeight,
+      fill: "#0EA5E933",
+      shadow: {
+        x: 0,
+        y: 0,
+        blur: 120,
+        spread: 0,
+        color: "#22D3EE77"
+      }
+    });
+    panel.add(glowBlue);
+
+    const glowPurple = new Rect({
+      x: centerX + cardWidth * 0.16,
+      y: centerY + cardHeight * 0.18,
+      around: "center",
+      width: cardWidth * 0.8,
+      height: cardHeight * 0.55,
+      radius: cardHeight,
+      fill: "#A855F733",
+      shadow: {
+        x: 0,
+        y: 0,
+        blur: 110,
+        spread: 0,
+        color: "#C084FC66"
+      }
+    });
+    panel.add(glowPurple);
+
     const card = new Rect({
-      x: GP.bw / 2,
-      y: GP.bh / 2,
+      x: centerX,
+      y: centerY,
       around: "center",
       width: cardWidth,
       height: cardHeight,
-      radius: 20,
-      fill: "#FFFFFF",
+      radius: 24,
+      fill: "#FFFFFF22",
       shadow: {
         x: 0,
-        y: 16,
-        blur: 40,
+        y: 18,
+        blur: 46,
         spread: 0,
-        color: "rgba(15,23,42,0.35)"
+        color: "rgba(15,23,42,0.55)"
       }
     });
     this.UserPanelCard = card;
@@ -755,13 +794,22 @@ export default class E_MainMenu extends Group {
     this.UserPanel.visible = true;
     this.UserPanel.opacity = 0;
     this.UserPanelCard.scale = 0.9;
-    this.UserPanel.animate([{ opacity: 1 }], { duration: 0.2 });
+    const baseCardY = this.UserPanelCard.y;
+    this.UserPanelCard.opacity = 0;
+    this.UserPanel.animate(
+      [
+        { opacity: 0 },
+        { opacity: 1 }
+      ],
+      { duration: 0.25 }
+    );
     this.UserPanelCard.animate(
       [
-        { scale: 0.9, opacity: 0.9 },
-        { scale: 1, opacity: 1 }
+        { scale: 0.9, opacity: 0, y: baseCardY + 18 },
+        { scale: 1.04, opacity: 1, y: baseCardY - 4 },
+        { scale: 1, opacity: 1, y: baseCardY }
       ],
-      { duration: 0.24, join: true }
+      { duration: 0.32, join: true }
     );
 
     if (this.UserPanelLoadingText) {
@@ -810,7 +858,15 @@ export default class E_MainMenu extends Group {
   }
 
   private hideUserPanel_() {
-    this.UserPanel.animate([{ opacity: 0 }], { duration: 0.18 }).once(
+    const baseCardY = this.UserPanelCard.y;
+    this.UserPanelCard.animate(
+      [
+        { scale: 1, opacity: 1, y: baseCardY },
+        { scale: 0.94, opacity: 0, y: baseCardY + 14 }
+      ],
+      { duration: 0.18, join: true }
+    );
+    this.UserPanel.animate([{ opacity: 0 }], { duration: 0.2 }).once(
       AnimateEvent.COMPLETED,
       () => {
         this.UserPanel.visible = false;
