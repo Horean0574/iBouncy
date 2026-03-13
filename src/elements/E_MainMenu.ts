@@ -297,11 +297,11 @@ export default class E_MainMenu extends Group {
 
     // 自适应排版：宽屏两列，窄屏单列，减少文字重叠风险
     const contentTopY = subtitle.y + 32;
-    const contentBottomY = card.y + cardHeight / 2 - 112;
+    const contentBottomY = card.y + cardHeight / 2 - 116;
     const availableHeight = Math.max(120, contentBottomY - contentTopY);
 
     const leftX = card.x - cardWidth / 2 + 40;
-    const rightX = isNarrow ? leftX : card.x + 20;
+    const rightX = isNarrow ? leftX : card.x + 40;
     const valueOffsetX = 90;
     const baseRowY = contentTopY;
     const totalRows = isNarrow ? 6 : 3;
@@ -371,7 +371,7 @@ export default class E_MainMenu extends Group {
       y: isNarrow ? baseRowY + rowGap * 3 : baseRowY,
       around: "left",
       text: "-",
-      fontSize: conf.VALUE_FONT_SIZE,
+      fontSize: conf.VALUE_FONT_SIZE + 1,
       fill: conf.VALUE_FILL
     });
 
@@ -388,7 +388,7 @@ export default class E_MainMenu extends Group {
       y: isNarrow ? baseRowY + rowGap * 4 : baseRowY + rowGap,
       around: "left",
       text: "-",
-      fontSize: conf.VALUE_FONT_SIZE,
+      fontSize: conf.VALUE_FONT_SIZE + 1,
       fill: conf.VALUE_FILL
     });
 
@@ -406,7 +406,7 @@ export default class E_MainMenu extends Group {
       y: lastLabelY,
       around: "left",
       text: "-",
-      fontSize: conf.VALUE_FONT_SIZE,
+      fontSize: conf.VALUE_FONT_SIZE + 1,
       fill: conf.VALUE_FILL
     });
 
@@ -443,7 +443,7 @@ export default class E_MainMenu extends Group {
       y: hintY,
       around: "center",
       text: "密码修改与账号注销操作不可撤销，请谨慎选择。",
-      fontSize: conf.HINT_FONT_SIZE,
+      fontSize: conf.HINT_FONT_SIZE - 1,
       fill: conf.HINT_FILL
     });
     panel.add(hint);
@@ -457,10 +457,14 @@ export default class E_MainMenu extends Group {
       around: "center",
       text: "修改昵称",
       fontSize: 13,
-      fill: conf.PRIMARY_BTN_FILL,
-      cursor: "pointer"
+      fill: "#FFFFFF",
+      cursor: "pointer",
+      paddingX: 14,
+      paddingY: 6,
+      radius: 999,
+      backgroundFill: conf.PRIMARY_BTN_FILL
     });
-    nicknameBtn.hoverStyle = { scale: 1.05 };
+    nicknameBtn.hoverStyle = { scale: 1.06, backgroundFill: "#27B2E3" };
     nicknameBtn.on(PointerEvent.TAP, () => this.handleChangeNickname_());
 
     const passwordBtn = new Text({
@@ -469,10 +473,14 @@ export default class E_MainMenu extends Group {
       around: "center",
       text: "修改密码",
       fontSize: 13,
-      fill: conf.PRIMARY_BTN_FILL,
-      cursor: "pointer"
+      fill: "#FFFFFF",
+      cursor: "pointer",
+      paddingX: 14,
+      paddingY: 6,
+      radius: 999,
+      backgroundFill: conf.PRIMARY_BTN_FILL
     });
-    passwordBtn.hoverStyle = { scale: 1.05 };
+    passwordBtn.hoverStyle = { scale: 1.06, backgroundFill: "#27B2E3" };
     passwordBtn.on(PointerEvent.TAP, () => this.handleChangePassword_());
 
     const logoutBtn = new Text({
@@ -482,9 +490,13 @@ export default class E_MainMenu extends Group {
       text: "退出登录",
       fontSize: 13,
       fill: conf.LABEL_FILL,
-      cursor: "pointer"
+      cursor: "pointer",
+      paddingX: 14,
+      paddingY: 6,
+      radius: 999,
+      backgroundFill: "#F3F4F6"
     });
-    logoutBtn.hoverStyle = { scale: 1.05 };
+    logoutBtn.hoverStyle = { scale: 1.06, backgroundFill: "#E5E7EB" };
     logoutBtn.on(PointerEvent.TAP, () => this.handleLogout_());
 
     const deleteBtn = new Text({
@@ -493,10 +505,14 @@ export default class E_MainMenu extends Group {
       around: "center",
       text: "注销账号",
       fontSize: 13,
-      fill: conf.DANGER_BTN_FILL,
-      cursor: "pointer"
+      fill: "#FFFFFF",
+      cursor: "pointer",
+      paddingX: 14,
+      paddingY: 6,
+      radius: 999,
+      backgroundFill: conf.DANGER_BTN_FILL
     });
-    deleteBtn.hoverStyle = { scale: 1.05 };
+    deleteBtn.hoverStyle = { scale: 1.06, backgroundFill: "#F87171" };
     deleteBtn.on(PointerEvent.TAP, () => this.handleDeleteAccount_());
 
     const closeBtn = new Text({
