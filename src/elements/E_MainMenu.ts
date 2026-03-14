@@ -462,8 +462,10 @@ export default class E_MainMenu extends Group {
     const btnGap = 12;
     const btnW = 100;
     const btnH = 36;
-    const firstRowX = -btnW - btnGap / 2;
-    const secondRowX = btnGap / 2;
+    // 两列按钮整体居中：左右列中心对称
+    const halfSpan = (btnW * 2 + btnGap) / 2;
+    const firstRowX = -halfSpan + btnW / 2;
+    const secondRowX = halfSpan - btnW / 2;
 
     const addButton = (
       cx: number,
@@ -486,7 +488,8 @@ export default class E_MainMenu extends Group {
         y: -btnH / 2,
         width: btnW,
         height: btnH,
-        radius: 8,
+        radius: 10,
+        cornerRadius: 10,
         fill: bgFill
       });
       const text = new Text({
