@@ -1,4 +1,5 @@
 import { login, register } from "../utils/auth";
+import { showAlert } from "./inPageModal";
 
 type Mode = "login" | "register";
 
@@ -55,25 +56,25 @@ async function handleSubmit() {
   const confirmPassword = confirmInput ? confirmInput.value : "";
 
   if (username.length < 3) {
-    window.alert("用户名至少 3 位");
+    await showAlert("用户名至少 3 位");
     return;
   }
   if (password.length < 6) {
-    window.alert("密码至少 6 位");
+    await showAlert("密码至少 6 位");
     return;
   }
 
   if (currentMode === "register") {
     if (!nickname) {
-      window.alert("请填写昵称");
+      await showAlert("请填写昵称");
       return;
     }
     if (!confirmPassword) {
-      window.alert("请再次输入密码进行确认");
+      await showAlert("请再次输入密码进行确认");
       return;
     }
     if (password !== confirmPassword) {
-      window.alert("两次输入的密码不一致");
+      await showAlert("两次输入的密码不一致");
       return;
     }
   }
@@ -89,7 +90,7 @@ async function handleSubmit() {
       await afterAuthCallback();
     }
   } catch (e: any) {
-    window.alert(String(e?.message ?? e));
+    await showAlert(String(e?.message ?? e));
   }
 }
 

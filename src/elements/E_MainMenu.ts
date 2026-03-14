@@ -13,6 +13,7 @@ import {
   deleteAccount
 } from "../utils/auth";
 import { openAuthPanel } from "../ui/authPanel";
+import { showAlert, showConfirm, showPrompt } from "../ui/inPageModal";
 
 type DifficultyKey = keyof typeof DIFFICULTY_LEVELS;
 
@@ -565,11 +566,10 @@ export default class E_MainMenu extends Group {
     ).padStart(2, "0")}`;
   }
 
-  private clearHistory_() {
-    if (typeof window !== "undefined" && typeof window.confirm === "function") {
-      const ok = window.confirm("确认清空所有历史成绩吗？此操作不可撤销。");
-      if (!ok) return;
-    }
+  private async clearHistory_() {
+    if (typeof window === "undefined") return;
+    const ok = await showConfirm("确认清空所有历史成绩吗？此操作不可撤销。");
+    if (!ok) return;
     clearHistory();
     this.updateBestScore_();
     this.showHistory_();
@@ -804,8 +804,8 @@ export default class E_MainMenu extends Group {
         profile.lastPlayedAt
       );
     } catch (e: any) {
-      if (typeof window !== "undefined" && typeof window.alert === "function") {
-        window.alert(String(e?.message ?? e));
+      if (typeof window !== "undefined") {
+        await showAlert(String(e?.message ?? e));
       }
     } finally {
       if (this.UserPanelLoadingText) {
@@ -834,51 +834,53 @@ export default class E_MainMenu extends Group {
   private async handleChangeNickname_() {
     if (typeof window === "undefined") return;
     const current = this.UserProfileTextLines.nickname.text || "";
-    const next = window.prompt("请输入新的昵称（最多 24 个字符）：", current === "(未设置)" ? "" : current);
-    if (!next) return;
+    const next = await showPrompt(
+      "请输入新的昵称（最多 24 个字符）：",
+      current === "(未设置)" ? "" : current
+    );
+    if (next == null) return;
     const trimmed = next.trim();
     if (!trimmed) return;
     if (trimmed.length > 24) {
-      window.alert("昵称长度请控制在 24 个字符以内");
+      await showAlert("昵称长度请控制在 24 个字符以内");
       return;
     }
     try {
       const profile = await updateNickname(trimmed);
       this.UserProfileTextLines.nickname.text = profile.nickname || "(未设置)";
       this.updateAccountText_();
-      window.alert("昵称已更新");
+      await showAlert("昵称已更新");
     } catch (e: any) {
-      window.alert(String(e?.message ?? e));
+      await showAlert(String(e?.message ?? e));
     }
   }
 
   private async handleChangePassword_() {
     if (typeof window === "undefined") return;
-    const oldPwd = window.prompt("请输入当前密码：");
+    const oldPwd = await showPrompt("请输入当前密码：", undefined, "password");
     if (!oldPwd) return;
-    const newPwd = window.prompt("请输入新密码（至少 6 位）：");
+    const newPwd = await showPrompt("请输入新密码（至少 6 位）：", undefined, "password");
     if (!newPwd || newPwd.length < 6) {
-      window.alert("新密码至少 6 位");
+      await showAlert("新密码至少 6 位");
       return;
     }
-    const confirmPwd = window.prompt("请再次输入新密码进行确认：");
+    const confirmPwd = await showPrompt("请再次输入新密码进行确认：", undefined, "password");
     if (!confirmPwd || confirmPwd !== newPwd) {
-      window.alert("两次输入的新密码不一致");
+      await showAlert("两次输入的新密码不一致");
       return;
     }
     try {
       await changePassword(oldPwd, newPwd);
-      window.alert("密码修改成功");
+      await showAlert("密码修改成功");
     } catch (e: any) {
-      window.alert(String(e?.message ?? e));
+      await showAlert(String(e?.message ?? e));
     }
   }
 
   private async handleLogout_() {
-    if (typeof window !== "undefined" && typeof window.confirm === "function") {
-      const ok = window.confirm("确定要退出登录吗？");
-      if (!ok) return;
-    }
+    if (typeof window === "undefined") return;
+    const ok = await showConfirm("确定要退出登录吗？");
+    if (!ok) return;
     logout();
     this.updateAccountText_();
     this.hideUserPanel_();
@@ -886,19 +888,19 @@ export default class E_MainMenu extends Group {
 
   private async handleDeleteAccount_() {
     if (typeof window === "undefined") return;
-    const first = window.confirm(
+    const first = await showConfirm(
       "确定要注销账号吗？此操作会删除你的账号以及云端成绩记录，且无法恢复。"
     );
     if (!first) return;
-    const second = window.confirm("再次确认：真的要永久注销账号吗？");
+    const second = await showConfirm("再次确认：真的要永久注销账号吗？");
     if (!second) return;
     try {
       await deleteAccount();
       this.updateAccountText_();
       this.hideUserPanel_();
-      window.alert("账号已注销");
+      await showAlert("账号已注销");
     } catch (e: any) {
-      window.alert(String(e?.message ?? e));
+      await showAlert(String(e?.message ?? e));
     }
   }
 

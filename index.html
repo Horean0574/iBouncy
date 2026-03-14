@@ -207,11 +207,105 @@
                 transform: translateY(0) scale(1);
             }
         }
+
+        /* 页面内弹窗：提示 / 确认 / 输入 */
+        #inpage-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.6);
+            z-index: 10000;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        #inpage-modal.show {
+            display: flex;
+            animation: inpage-modal-fade 0.2s ease-out;
+        }
+        #inpage-modal-inner {
+            min-width: 280px;
+            max-width: 90vw;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 20px 48px rgba(0,0,0,0.25);
+            padding: 20px 24px;
+        }
+        #inpage-modal-msg {
+            font-size: 15px;
+            color: #111827;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        #inpage-modal-input-wrap {
+            margin-bottom: 16px;
+            display: none;
+        }
+        #inpage-modal-input-wrap.show {
+            display: block;
+        }
+        #inpage-modal-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            outline: none;
+        }
+        #inpage-modal-input:focus {
+            border-color: #0EA5E9;
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+        }
+        #inpage-modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        #inpage-modal .modal-btn {
+            padding: 8px 18px;
+            font-size: 14px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: filter 0.15s, transform 0.1s;
+        }
+        #inpage-modal .modal-btn:hover {
+            filter: brightness(0.96);
+        }
+        #inpage-modal .modal-btn:active {
+            transform: scale(0.98);
+        }
+        #inpage-modal .modal-btn-primary {
+            background: #0EA5E9;
+            color: #fff;
+        }
+        #inpage-modal .modal-btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        @keyframes inpage-modal-fade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body>
 <canvas></canvas>
 <img id="loading" src="./src/assets/svg/loading.svg" alt="Loading..." draggable="false">
+
+<!-- 页面内弹窗（提示/确认/输入） -->
+<div id="inpage-modal">
+  <div id="inpage-modal-inner">
+    <div id="inpage-modal-msg"></div>
+    <div id="inpage-modal-input-wrap">
+      <input type="text" id="inpage-modal-input" autocomplete="off">
+    </div>
+    <div id="inpage-modal-buttons"></div>
+  </div>
+</div>
 
 <!-- 页面内登录 / 注册面板 -->
 <div id="auth-panel">
