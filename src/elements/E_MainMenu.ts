@@ -1,7 +1,7 @@
 import { AnimateEvent, Group, Image, PointerEvent, Rect, Text } from "leafer-game";
 import { evBus, GEV, GP } from "../core/instances";
 import TextLine from "../utils/TextLine";
-import { UIConf, DIFFICULTY_LEVELS, setDifficulty, getDifficultyKey } from "../config";
+import { UIConf, ColorConf, DIFFICULTY_LEVELS, setDifficulty, getDifficultyKey } from "../config";
 import { getBestScore, getHistory, clearHistory } from "../utils/scoreStorage";
 import {
   getCurrentUser,
@@ -245,14 +245,14 @@ export default class E_MainMenu extends Group {
       zIndex: 992
     });
 
-    // 遮罩：纯色半透明，不遮挡弹窗内容
+    // 遮罩：与登录/注册一致的主题色浅青蒙层
     const overlay = new Rect({
       x: 0,
       y: 0,
       width: GP.bw,
       height: GP.bh,
-      fill: "#1F2937",
-      opacity: 0.55
+      fill: ColorConf.LIGHT_WHITE,
+      opacity: 0.92
     });
     panel.add(overlay);
 
@@ -261,7 +261,7 @@ export default class E_MainMenu extends Group {
     const centerX = GP.bw / 2;
     const centerY = GP.bh / 2;
 
-    // 卡片：纯白底、清晰阴影，保证文字可读
+    // 卡片：与登录/注册一致的玻璃风格（浅青白底、青蓝描边与阴影）
     const card = new Rect({
       x: centerX,
       y: centerY,
@@ -269,13 +269,15 @@ export default class E_MainMenu extends Group {
       width: cardWidth,
       height: cardHeight,
       radius: 16,
-      fill: "#FFFFFF",
+      fill: "#F0FCFF",
+      stroke: "rgba(0,229,255,0.35)",
+      strokeWidth: 1,
       shadow: {
         x: 0,
-        y: 12,
-        blur: 32,
+        y: 20,
+        blur: 50,
         spread: 0,
-        color: "rgba(0,0,0,0.2)"
+        color: "rgba(32,168,215,0.2)"
       }
     });
     this.UserPanelCard = card;
@@ -296,13 +298,18 @@ export default class E_MainMenu extends Group {
     const rowH = 26;
     let rowY = -cardHeight / 2 + padT;
 
+    const titleFill = "#0F172A";
+    const labelFill = "#475569";
+    const valueFill = "#0F172A";
+    const hintFill = "#64748B";
+
     const title = new Text({
       x: 0,
       y: rowY,
       around: "center",
       text: "用户信息",
       fontSize: conf.TITLE_FONT_SIZE,
-      fill: "#111827"
+      fill: titleFill
     });
     contentGroup.add(title);
     rowY += 36;
@@ -313,7 +320,7 @@ export default class E_MainMenu extends Group {
       around: "center",
       text: "管理你的账号资料与云端记录",
       fontSize: conf.SUBTITLE_FONT_SIZE,
-      fill: "#6B7280"
+      fill: labelFill
     });
     contentGroup.add(subtitle);
     rowY += 32;
@@ -326,7 +333,7 @@ export default class E_MainMenu extends Group {
       around: "left",
       text: "昵称",
       fontSize: conf.LABEL_FONT_SIZE,
-      fill: "#4B5563"
+      fill: labelFill
     });
     const nicknameValue = new Text({
       x: valueX,
@@ -334,7 +341,7 @@ export default class E_MainMenu extends Group {
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
-      fill: "#111827"
+      fill: valueFill
     });
     contentGroup.add(nicknameLabel);
     contentGroup.add(nicknameValue);
@@ -346,7 +353,7 @@ export default class E_MainMenu extends Group {
       around: "left",
       text: "用户名",
       fontSize: conf.LABEL_FONT_SIZE,
-      fill: "#4B5563"
+      fill: labelFill
     });
     const usernameValue = new Text({
       x: valueX,
@@ -354,7 +361,7 @@ export default class E_MainMenu extends Group {
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
-      fill: "#111827"
+      fill: valueFill
     });
     contentGroup.add(usernameLabel);
     contentGroup.add(usernameValue);
@@ -366,7 +373,7 @@ export default class E_MainMenu extends Group {
       around: "left",
       text: "注册时间",
       fontSize: conf.LABEL_FONT_SIZE,
-      fill: "#4B5563"
+      fill: labelFill
     });
     const createdValue = new Text({
       x: valueX,
@@ -374,7 +381,7 @@ export default class E_MainMenu extends Group {
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
-      fill: "#111827"
+      fill: valueFill
     });
     contentGroup.add(createdLabel);
     contentGroup.add(createdValue);
@@ -386,7 +393,7 @@ export default class E_MainMenu extends Group {
       around: "left",
       text: "游玩次数",
       fontSize: conf.LABEL_FONT_SIZE,
-      fill: "#4B5563"
+      fill: labelFill
     });
     const totalValue = new Text({
       x: valueX,
@@ -394,7 +401,7 @@ export default class E_MainMenu extends Group {
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
-      fill: "#111827"
+      fill: valueFill
     });
     contentGroup.add(totalLabel);
     contentGroup.add(totalValue);
@@ -406,7 +413,7 @@ export default class E_MainMenu extends Group {
       around: "left",
       text: "最佳成绩",
       fontSize: conf.LABEL_FONT_SIZE,
-      fill: "#4B5563"
+      fill: labelFill
     });
     const bestValue = new Text({
       x: valueX,
@@ -414,7 +421,7 @@ export default class E_MainMenu extends Group {
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
-      fill: "#111827"
+      fill: valueFill
     });
     contentGroup.add(bestLabel);
     contentGroup.add(bestValue);
@@ -426,7 +433,7 @@ export default class E_MainMenu extends Group {
       around: "left",
       text: "最近游玩",
       fontSize: conf.LABEL_FONT_SIZE,
-      fill: "#4B5563"
+      fill: labelFill
     });
     const lastValue = new Text({
       x: valueX,
@@ -434,7 +441,7 @@ export default class E_MainMenu extends Group {
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
-      fill: "#111827"
+      fill: valueFill
     });
     contentGroup.add(lastLabel);
     contentGroup.add(lastValue);
@@ -455,7 +462,7 @@ export default class E_MainMenu extends Group {
       around: "center",
       text: "密码修改与账号注销不可撤销，请谨慎选择。",
       fontSize: conf.HINT_FONT_SIZE,
-      fill: "#9CA3AF"
+      fill: hintFill
     });
     contentGroup.add(hint);
     rowY += 36;
@@ -464,10 +471,14 @@ export default class E_MainMenu extends Group {
     const btnGap = 12;
     const btnW = 100;
     const btnH = 36;
-    // 两列按钮整体居中：左右列中心对称
     const halfSpan = (btnW * 2 + btnGap) / 2;
     const firstRowX = -halfSpan + btnW / 2;
     const secondRowX = halfSpan - btnW / 2;
+
+    // 与登录/注册一致：主按钮主题色、次按钮浅灰
+    const primaryBtnFill = ColorConf.PRIMARY;
+    const secondaryBtnFill = "#E2E8F0";
+    const secondaryBtnText = "#475569";
 
     const addButton = (
       cx: number,
@@ -509,13 +520,13 @@ export default class E_MainMenu extends Group {
       contentGroup.add(g);
     };
 
-    addButton(firstRowX, btnY, "修改昵称", conf.PRIMARY_BTN_FILL, "#FFFFFF", () =>
+    addButton(firstRowX, btnY, "修改昵称", primaryBtnFill, "#FFFFFF", () =>
       this.handleChangeNickname_()
     );
-    addButton(secondRowX, btnY, "修改密码", conf.PRIMARY_BTN_FILL, "#FFFFFF", () =>
+    addButton(secondRowX, btnY, "修改密码", primaryBtnFill, "#FFFFFF", () =>
       this.handleChangePassword_()
     );
-    addButton(firstRowX, btnY + 44, "退出登录", "#F3F4F6", "#374151", () =>
+    addButton(firstRowX, btnY + 44, "退出登录", secondaryBtnFill, secondaryBtnText, () =>
       this.handleLogout_()
     );
     addButton(secondRowX, btnY + 44, "注销账号", conf.DANGER_BTN_FILL, "#FFFFFF", () =>
@@ -528,10 +539,10 @@ export default class E_MainMenu extends Group {
       around: "center",
       text: "×",
       fontSize: 20,
-      fill: "#6B7280",
+      fill: labelFill,
       cursor: "pointer"
     });
-    closeBtn.hoverStyle = { fill: "#111827", scale: 1.1 };
+    closeBtn.hoverStyle = { fill: titleFill, scale: 1.1 };
     closeBtn.on(PointerEvent.TAP, () => this.hideUserPanel_());
     contentGroup.add(closeBtn);
 
@@ -543,7 +554,7 @@ export default class E_MainMenu extends Group {
       around: "center",
       text: "正在加载用户信息...",
       fontSize: 14,
-      fill: "#6B7280",
+      fill: hintFill,
       visible: false,
       opacity: 0
     });
