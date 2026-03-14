@@ -292,11 +292,51 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+
+        /* 接口请求加载层（如数据库连接较慢时） */
+        #api-loading {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.5);
+            z-index: 10001;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        #api-loading.show {
+            display: flex;
+        }
+        #api-loading .api-loading-spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid rgba(255,255,255,0.25);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: api-loading-spin 0.7s linear infinite;
+        }
+        #api-loading .api-loading-text {
+            position: absolute;
+            margin-top: 58px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.9);
+        }
+        @keyframes api-loading-spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
 <canvas></canvas>
 <img id="loading" src="./src/assets/svg/loading.svg" alt="Loading..." draggable="false">
+
+<!-- 接口请求加载（数据库等） -->
+<div id="api-loading">
+  <div style="display:flex;flex-direction:column;align-items:center;">
+    <div class="api-loading-spinner"></div>
+    <span class="api-loading-text">加载中…</span>
+  </div>
+</div>
 
 <!-- 页面内弹窗（提示/确认/输入） -->
 <div id="inpage-modal">

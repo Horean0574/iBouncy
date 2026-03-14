@@ -9,6 +9,7 @@ import {
   syncScoresWithServer,
   fetchUserProfile,
   updateNickname,
+  verifyPassword,
   changePassword,
   deleteAccount
 } from "../utils/auth";
@@ -859,13 +860,21 @@ export default class E_MainMenu extends Group {
     if (typeof window === "undefined") return;
     const oldPwd = await showPrompt("请输入当前密码：", undefined, "password");
     if (!oldPwd) return;
+    try {
+      await verifyPassword(oldPwd);
+    } catch (e: any) {
+      await showAlert(String(e?.message ?? e));
+      return;
+    }
     const newPwd = await showPrompt("请输入新密码（至少 6 位）：", undefined, "password");
-    if (!newPwd || newPwd.length < 6) {
+    if (!newPwd) return;
+    if (newPwd.length < 6) {
       await showAlert("新密码至少 6 位");
       return;
     }
     const confirmPwd = await showPrompt("请再次输入新密码进行确认：", undefined, "password");
-    if (!confirmPwd || confirmPwd !== newPwd) {
+    if (confirmPwd == null) return;
+    if (confirmPwd !== newPwd) {
       await showAlert("两次输入的新密码不一致");
       return;
     }

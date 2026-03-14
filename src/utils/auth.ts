@@ -1,4 +1,5 @@
 import { getHistory, setHistoryFromServer } from "./scoreStorage";
+import { showLoading, hideLoading } from "../ui/loadingOverlay";
 
 const AUTH_STORAGE_KEY = "iBouncy_user";
 const API_BASE = "/api";
@@ -51,20 +52,25 @@ export function logout() {
 }
 
 async function requestJson(path: string, options: RequestInit = {}) {
-  const res = await fetch(API_BASE + path, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {})
-    },
-    credentials: "include",
-    ...options
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const msg = (data && (data as any).error) || `请求失败：${res.status}`;
-    throw new Error(msg);
+  showLoading();
+  try {
+    const res = await fetch(API_BASE + path, {
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+      },
+      credentials: "include",
+      ...options
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const msg = (data && (data as any).error) || `请求失败：${res.status}`;
+      throw new Error(msg);
+    }
+    return data as any;
+  } finally {
+    hideLoading();
   }
-  return data as any;
 }
 
 export async function login(username: string, password: string) {
@@ -156,6 +162,14 @@ export async function updateNickname(nickname: string): Promise<UserProfile> {
     saveStoredUser(basicUser);
   }
   return data.user as UserProfile;
+}
+
+/** 仅验证当前密码是否正确（修改密码前先调用） */
+export async function verifyPassword(password: string): Promise<void> {
+  await requestJson("/verify-password", {
+    method: "POST",
+    body: JSON.stringify({ password })
+  });
 }
 
 export async function changePassword(oldPassword: string, newPassword: string) {
