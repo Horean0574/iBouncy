@@ -460,76 +460,62 @@ export default class E_MainMenu extends Group {
 
     const btnY = rowY;
     const btnGap = 12;
-    const firstRowX = -96 - btnGap / 2;
+    const btnW = 100;
+    const btnH = 36;
+    const firstRowX = -btnW - btnGap / 2;
     const secondRowX = btnGap / 2;
 
-    const nicknameBtn = new Text({
-      x: firstRowX,
-      y: btnY,
-      around: "center",
-      text: "修改昵称",
-      fontSize: 14,
-      fill: "#FFFFFF",
-      cursor: "pointer",
-      paddingX: 16,
-      paddingY: 8,
-      radius: 8,
-      backgroundFill: conf.PRIMARY_BTN_FILL
-    });
-    nicknameBtn.hoverStyle = { scale: 1.02, backgroundFill: "#1E88C7" };
-    nicknameBtn.on(PointerEvent.TAP, () => this.handleChangeNickname_());
-    contentGroup.add(nicknameBtn);
+    const addButton = (
+      cx: number,
+      cy: number,
+      label: string,
+      bgFill: string,
+      textFill: string,
+      onClick: () => void
+    ) => {
+      const g = new Group({
+        x: cx,
+        y: cy,
+        width: btnW,
+        height: btnH,
+        cursor: "pointer",
+        around: "center"
+      });
+      const bg = new Rect({
+        x: -btnW / 2,
+        y: -btnH / 2,
+        width: btnW,
+        height: btnH,
+        radius: 8,
+        fill: bgFill
+      });
+      const text = new Text({
+        x: 0,
+        y: 0,
+        around: "center",
+        text: label,
+        fontSize: 14,
+        fill: textFill
+      });
+      g.add(bg);
+      g.add(text);
+      g.on(PointerEvent.TAP, onClick);
+      g.hoverStyle = { scale: 1.02 };
+      contentGroup.add(g);
+    };
 
-    const passwordBtn = new Text({
-      x: secondRowX,
-      y: btnY,
-      around: "center",
-      text: "修改密码",
-      fontSize: 14,
-      fill: "#FFFFFF",
-      cursor: "pointer",
-      paddingX: 16,
-      paddingY: 8,
-      radius: 8,
-      backgroundFill: conf.PRIMARY_BTN_FILL
-    });
-    passwordBtn.hoverStyle = { scale: 1.02, backgroundFill: "#1E88C7" };
-    passwordBtn.on(PointerEvent.TAP, () => this.handleChangePassword_());
-    contentGroup.add(passwordBtn);
-
-    const logoutBtn = new Text({
-      x: firstRowX,
-      y: btnY + 40,
-      around: "center",
-      text: "退出登录",
-      fontSize: 14,
-      fill: "#374151",
-      cursor: "pointer",
-      paddingX: 16,
-      paddingY: 8,
-      radius: 8,
-      backgroundFill: "#F3F4F6"
-    });
-    logoutBtn.hoverStyle = { scale: 1.02, backgroundFill: "#E5E7EB" };
-    logoutBtn.on(PointerEvent.TAP, () => this.handleLogout_());
-    contentGroup.add(logoutBtn);
-
-    const deleteBtn = new Text({
-      x: secondRowX,
-      y: btnY + 40,
-      around: "center",
-      text: "注销账号",
-      fontSize: 14,
-      fill: "#FFFFFF",
-      cursor: "pointer",
-      paddingX: 16,
-      paddingY: 8,
-      radius: 8,
-      backgroundFill: conf.DANGER_BTN_FILL
-    });
-    deleteBtn.hoverStyle = { scale: 1.02, backgroundFill: "#C53030" };
-    deleteBtn.on(PointerEvent.TAP, () => this.handleDeleteAccount_());
-    contentGroup.add(deleteBtn);
+    addButton(firstRowX, btnY, "修改昵称", conf.PRIMARY_BTN_FILL, "#FFFFFF", () =>
+      this.handleChangeNickname_()
+    );
+    addButton(secondRowX, btnY, "修改密码", conf.PRIMARY_BTN_FILL, "#FFFFFF", () =>
+      this.handleChangePassword_()
+    );
+    addButton(firstRowX, btnY + 44, "退出登录", "#F3F4F6", "#374151", () =>
+      this.handleLogout_()
+    );
+    addButton(secondRowX, btnY + 44, "注销账号", conf.DANGER_BTN_FILL, "#FFFFFF", () =>
+      this.handleDeleteAccount_()
+    );
 
     const closeBtn = new Text({
       x: cardWidth / 2 - 28,
