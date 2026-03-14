@@ -585,7 +585,11 @@ export default class E_MainMenu extends Group {
     if (typeof window === "undefined") return;
     openAuthPanel("login", async () => {
       this.updateAccountText_();
-      await syncScoresWithServer();
+      try {
+        await syncScoresWithServer();
+      } catch (e) {
+        console.warn("登录后成绩同步失败，将使用本地记录：", e);
+      }
       this.updateBestScore_();
     });
   }

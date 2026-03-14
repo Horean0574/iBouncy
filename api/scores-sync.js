@@ -63,8 +63,7 @@ module.exports = async (req, res) => {
                 `
                 INSERT INTO scores (user_id, score, difficulty, played_at)
                 VALUES ($1, $2, $3, $4)
-                ON CONFLICT ON CONSTRAINT scores_user_id_difficulty_score_played_at_key
-                DO NOTHING
+                ON CONFLICT (user_id, difficulty, score, played_at) DO NOTHING
                 `,
                 [user.id, s, String(difficulty), ts]
             );
