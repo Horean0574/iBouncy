@@ -34,6 +34,7 @@ export default class E_MainMenu extends Group {
   HistoryRows!: Group;
   UserPanel: Group;
   UserPanelCard: Rect;
+  private UserPanelContentGroup!: Group;
   private UserPanelLoadingText?: Text;
   private userPanelOpening = false;
   private userPanelProfileCache: any = null;
@@ -242,227 +243,200 @@ export default class E_MainMenu extends Group {
       zIndex: 992
     });
 
+    // 遮罩：纯色半透明，不遮挡弹窗内容
     const overlay = new Rect({
       x: 0,
       y: 0,
       width: GP.bw,
       height: GP.bh,
-      fill: "#020617E6",
-      opacity: 0.4
+      fill: "#1F2937",
+      opacity: 0.55
     });
     panel.add(overlay);
 
-    const cardWidth = Math.min(GP.bw * 0.8, 540);
-    const cardHeight = Math.min(GP.bh * 0.7, 440);
-    const isNarrow = cardWidth < 460;
-
+    const cardWidth = Math.min(GP.bw * 0.82, 520);
+    const cardHeight = Math.min(GP.bh * 0.72, 460);
     const centerX = GP.bw / 2;
     const centerY = GP.bh / 2;
 
-    const glowBlue = new Rect({
-      x: centerX - cardWidth * 0.18,
-      y: centerY - cardHeight * 0.2,
-      around: "center",
-      width: cardWidth * 0.9,
-      height: cardHeight * 0.6,
-      radius: cardHeight,
-      fill: "#0EA5E933",
-      shadow: {
-        x: 0,
-        y: 0,
-        blur: 120,
-        spread: 0,
-        color: "#22D3EE77"
-      }
-    });
-    panel.add(glowBlue);
-
-    const glowPurple = new Rect({
-      x: centerX + cardWidth * 0.16,
-      y: centerY + cardHeight * 0.18,
-      around: "center",
-      width: cardWidth * 0.8,
-      height: cardHeight * 0.55,
-      radius: cardHeight,
-      fill: "#A855F733",
-      shadow: {
-        x: 0,
-        y: 0,
-        blur: 110,
-        spread: 0,
-        color: "#C084FC66"
-      }
-    });
-    panel.add(glowPurple);
-
+    // 卡片：纯白底、清晰阴影，保证文字可读
     const card = new Rect({
       x: centerX,
       y: centerY,
       around: "center",
       width: cardWidth,
       height: cardHeight,
-      radius: 24,
-      fill: "#FFFFFF22",
+      radius: 16,
+      fill: "#FFFFFF",
       shadow: {
         x: 0,
-        y: 18,
-        blur: 46,
+        y: 12,
+        blur: 32,
         spread: 0,
-        color: "rgba(15,23,42,0.55)"
+        color: "rgba(0,0,0,0.2)"
       }
     });
     this.UserPanelCard = card;
     panel.add(card);
 
+    const padH = 36;
+    const padT = 28;
+    const labelW = 72;
+    const contentGroup = new Group({
+      x: centerX,
+      y: centerY,
+      width: 0,
+      height: 0
+    });
+    this.UserPanelContentGroup = contentGroup;
+
+    const valueX = -cardWidth / 2 + padH + labelW;
+    const rowH = 26;
+    let rowY = -cardHeight / 2 + padT;
+
     const title = new Text({
-      x: card.x,
-      y: card.y - cardHeight / 2 + 40,
+      x: 0,
+      y: rowY,
       around: "center",
       text: "用户信息",
       fontSize: conf.TITLE_FONT_SIZE,
-      fill: conf.TITLE_FILL
+      fill: "#111827"
     });
-    panel.add(title);
+    contentGroup.add(title);
+    rowY += 36;
 
     const subtitle = new Text({
-      x: card.x,
-      y: title.y + 24,
+      x: 0,
+      y: rowY,
       around: "center",
       text: "管理你的账号资料与云端记录",
       fontSize: conf.SUBTITLE_FONT_SIZE,
-      fill: conf.SUBTITLE_FILL
+      fill: "#6B7280"
     });
-    panel.add(subtitle);
+    contentGroup.add(subtitle);
+    rowY += 32;
 
-    // 自适应排版：宽屏两列，窄屏单列，减少文字重叠风险
-    const contentTopY = subtitle.y + 32;
-    const contentBottomY = card.y + cardHeight / 2 - 116;
-    const availableHeight = Math.max(120, contentBottomY - contentTopY);
-
-    const leftX = card.x - cardWidth / 2 + 40;
-    const rightX = isNarrow ? leftX : card.x + 40;
-    const valueOffsetX = 90;
-    const baseRowY = contentTopY;
-    const totalRows = isNarrow ? 6 : 3;
-    const rowGap = Math.min(28, Math.max(20, availableHeight / (totalRows + 1)));
+    const leftX = -cardWidth / 2 + padH;
 
     const nicknameLabel = new Text({
       x: leftX,
-      y: baseRowY,
+      y: rowY,
       around: "left",
       text: "昵称",
       fontSize: conf.LABEL_FONT_SIZE,
-      fill: conf.LABEL_FILL
+      fill: "#4B5563"
     });
     const nicknameValue = new Text({
-      x: leftX + valueOffsetX,
-      y: baseRowY,
+      x: valueX,
+      y: rowY,
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
-      fill: conf.VALUE_FILL
+      fill: "#111827"
     });
+    contentGroup.add(nicknameLabel);
+    contentGroup.add(nicknameValue);
+    rowY += rowH;
 
     const usernameLabel = new Text({
       x: leftX,
-      y: baseRowY + rowGap,
+      y: rowY,
       around: "left",
       text: "用户名",
       fontSize: conf.LABEL_FONT_SIZE,
-      fill: conf.LABEL_FILL
+      fill: "#4B5563"
     });
     const usernameValue = new Text({
-      x: leftX + valueOffsetX,
-      y: baseRowY + rowGap,
+      x: valueX,
+      y: rowY,
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
-      fill: conf.VALUE_FILL
+      fill: "#111827"
     });
+    contentGroup.add(usernameLabel);
+    contentGroup.add(usernameValue);
+    rowY += rowH;
 
     const createdLabel = new Text({
       x: leftX,
-      y: baseRowY + rowGap * 2,
+      y: rowY,
       around: "left",
       text: "注册时间",
       fontSize: conf.LABEL_FONT_SIZE,
-      fill: conf.LABEL_FILL
+      fill: "#4B5563"
     });
     const createdValue = new Text({
-      x: leftX + valueOffsetX,
-      y: baseRowY + rowGap * 2,
+      x: valueX,
+      y: rowY,
       around: "left",
       text: "-",
       fontSize: conf.VALUE_FONT_SIZE,
-      fill: conf.VALUE_FILL
+      fill: "#111827"
     });
+    contentGroup.add(createdLabel);
+    contentGroup.add(createdValue);
+    rowY += rowH;
 
     const totalLabel = new Text({
-      x: rightX,
-      y: isNarrow ? baseRowY + rowGap * 3 : baseRowY,
+      x: leftX,
+      y: rowY,
       around: "left",
       text: "游玩次数",
       fontSize: conf.LABEL_FONT_SIZE,
-      fill: conf.LABEL_FILL
+      fill: "#4B5563"
     });
     const totalValue = new Text({
-      x: rightX + valueOffsetX,
-      y: isNarrow ? baseRowY + rowGap * 3 : baseRowY,
+      x: valueX,
+      y: rowY,
       around: "left",
       text: "-",
-      fontSize: conf.VALUE_FONT_SIZE + 1,
-      fill: conf.VALUE_FILL
+      fontSize: conf.VALUE_FONT_SIZE,
+      fill: "#111827"
     });
+    contentGroup.add(totalLabel);
+    contentGroup.add(totalValue);
+    rowY += rowH;
 
     const bestLabel = new Text({
-      x: rightX,
-      y: isNarrow ? baseRowY + rowGap * 4 : baseRowY + rowGap,
+      x: leftX,
+      y: rowY,
       around: "left",
       text: "最佳成绩",
       fontSize: conf.LABEL_FONT_SIZE,
-      fill: conf.LABEL_FILL
+      fill: "#4B5563"
     });
     const bestValue = new Text({
-      x: rightX + valueOffsetX,
-      y: isNarrow ? baseRowY + rowGap * 4 : baseRowY + rowGap,
+      x: valueX,
+      y: rowY,
       around: "left",
       text: "-",
-      fontSize: conf.VALUE_FONT_SIZE + 1,
-      fill: conf.VALUE_FILL
+      fontSize: conf.VALUE_FONT_SIZE,
+      fill: "#111827"
     });
+    contentGroup.add(bestLabel);
+    contentGroup.add(bestValue);
+    rowY += rowH;
 
-    const lastLabelY = isNarrow ? baseRowY + rowGap * 5 : baseRowY + rowGap * 2;
     const lastLabel = new Text({
-      x: rightX,
-      y: lastLabelY,
+      x: leftX,
+      y: rowY,
       around: "left",
       text: "最近游玩",
       fontSize: conf.LABEL_FONT_SIZE,
-      fill: conf.LABEL_FILL
+      fill: "#4B5563"
     });
     const lastValue = new Text({
-      x: rightX + valueOffsetX,
-      y: lastLabelY,
+      x: valueX,
+      y: rowY,
       around: "left",
       text: "-",
-      fontSize: conf.VALUE_FONT_SIZE + 1,
-      fill: conf.VALUE_FILL
+      fontSize: conf.VALUE_FONT_SIZE,
+      fill: "#111827"
     });
-
-    panel.addMany?.([
-      nicknameLabel,
-      nicknameValue,
-      usernameLabel,
-      usernameValue,
-      createdLabel,
-      createdValue,
-      totalLabel,
-      totalValue,
-      bestLabel,
-      bestValue,
-      lastLabel,
-      lastValue
-    ]);
+    contentGroup.add(lastLabel);
+    contentGroup.add(lastValue);
+    rowY += 28;
 
     this.UserProfileTextLines = {
       nickname: nicknameValue,
@@ -473,104 +447,108 @@ export default class E_MainMenu extends Group {
       lastPlayedAt: lastValue
     };
 
-    const hintY = Math.min(
-      card.y + cardHeight / 2 - 72,
-      lastLabelY + (isNarrow ? rowGap : 32)
-    );
     const hint = new Text({
-      x: card.x,
-      y: hintY,
+      x: 0,
+      y: rowY,
       around: "center",
-      text: "密码修改与账号注销操作不可撤销，请谨慎选择。",
-      fontSize: conf.HINT_FONT_SIZE - 1,
-      fill: conf.HINT_FILL
+      text: "密码修改与账号注销不可撤销，请谨慎选择。",
+      fontSize: conf.HINT_FONT_SIZE,
+      fill: "#9CA3AF"
     });
-    panel.add(hint);
+    contentGroup.add(hint);
+    rowY += 36;
 
-    const btnY = hintY + 28;
-    const btnGapX = 90;
+    const btnY = rowY;
+    const btnGap = 12;
+    const firstRowX = -96 - btnGap / 2;
+    const secondRowX = btnGap / 2;
 
     const nicknameBtn = new Text({
-      x: card.x - btnGapX,
-      y: btnY - 28,
+      x: firstRowX,
+      y: btnY,
       around: "center",
       text: "修改昵称",
-      fontSize: 13,
+      fontSize: 14,
       fill: "#FFFFFF",
       cursor: "pointer",
-      paddingX: 14,
-      paddingY: 6,
-      radius: 999,
+      paddingX: 16,
+      paddingY: 8,
+      radius: 8,
       backgroundFill: conf.PRIMARY_BTN_FILL
     });
-    nicknameBtn.hoverStyle = { scale: 1.06, backgroundFill: "#27B2E3" };
+    nicknameBtn.hoverStyle = { scale: 1.02, backgroundFill: "#1E88C7" };
     nicknameBtn.on(PointerEvent.TAP, () => this.handleChangeNickname_());
+    contentGroup.add(nicknameBtn);
 
     const passwordBtn = new Text({
-      x: card.x + btnGapX,
-      y: btnY - 28,
+      x: secondRowX,
+      y: btnY,
       around: "center",
       text: "修改密码",
-      fontSize: 13,
+      fontSize: 14,
       fill: "#FFFFFF",
       cursor: "pointer",
-      paddingX: 14,
-      paddingY: 6,
-      radius: 999,
+      paddingX: 16,
+      paddingY: 8,
+      radius: 8,
       backgroundFill: conf.PRIMARY_BTN_FILL
     });
-    passwordBtn.hoverStyle = { scale: 1.06, backgroundFill: "#27B2E3" };
+    passwordBtn.hoverStyle = { scale: 1.02, backgroundFill: "#1E88C7" };
     passwordBtn.on(PointerEvent.TAP, () => this.handleChangePassword_());
+    contentGroup.add(passwordBtn);
 
     const logoutBtn = new Text({
-      x: card.x - btnGapX,
-      y: btnY,
+      x: firstRowX,
+      y: btnY + 40,
       around: "center",
       text: "退出登录",
-      fontSize: 13,
-      fill: conf.LABEL_FILL,
+      fontSize: 14,
+      fill: "#374151",
       cursor: "pointer",
-      paddingX: 14,
-      paddingY: 6,
-      radius: 999,
+      paddingX: 16,
+      paddingY: 8,
+      radius: 8,
       backgroundFill: "#F3F4F6"
     });
-    logoutBtn.hoverStyle = { scale: 1.06, backgroundFill: "#E5E7EB" };
+    logoutBtn.hoverStyle = { scale: 1.02, backgroundFill: "#E5E7EB" };
     logoutBtn.on(PointerEvent.TAP, () => this.handleLogout_());
+    contentGroup.add(logoutBtn);
 
     const deleteBtn = new Text({
-      x: card.x + btnGapX,
-      y: btnY,
+      x: secondRowX,
+      y: btnY + 40,
       around: "center",
       text: "注销账号",
-      fontSize: 13,
+      fontSize: 14,
       fill: "#FFFFFF",
       cursor: "pointer",
-      paddingX: 14,
-      paddingY: 6,
-      radius: 999,
+      paddingX: 16,
+      paddingY: 8,
+      radius: 8,
       backgroundFill: conf.DANGER_BTN_FILL
     });
-    deleteBtn.hoverStyle = { scale: 1.06, backgroundFill: "#F87171" };
+    deleteBtn.hoverStyle = { scale: 1.02, backgroundFill: "#C53030" };
     deleteBtn.on(PointerEvent.TAP, () => this.handleDeleteAccount_());
+    contentGroup.add(deleteBtn);
 
     const closeBtn = new Text({
-      x: card.x + cardWidth / 2 - 32,
-      y: card.y - cardHeight / 2 + 26,
+      x: cardWidth / 2 - 28,
+      y: -cardHeight / 2 + 28,
       around: "center",
-      text: "✕",
-      fontSize: 14,
-      fill: conf.LABEL_FILL,
+      text: "×",
+      fontSize: 20,
+      fill: "#6B7280",
       cursor: "pointer"
     });
-    closeBtn.hoverStyle = { scale: 1.1 };
+    closeBtn.hoverStyle = { fill: "#111827", scale: 1.1 };
     closeBtn.on(PointerEvent.TAP, () => this.hideUserPanel_());
+    contentGroup.add(closeBtn);
 
-    panel.addMany?.([nicknameBtn, passwordBtn, logoutBtn, deleteBtn, closeBtn]);
+    panel.add(contentGroup);
 
     const loadingText = new Text({
-      x: card.x,
-      y: card.y,
+      x: 0,
+      y: 0,
       around: "center",
       text: "正在加载用户信息...",
       fontSize: 14,
@@ -578,7 +556,7 @@ export default class E_MainMenu extends Group {
       visible: false,
       opacity: 0
     });
-    panel.add(loadingText);
+    contentGroup.add(loadingText);
     this.UserPanelLoadingText = loadingText;
 
     return panel;
@@ -793,23 +771,11 @@ export default class E_MainMenu extends Group {
     this.userPanelOpening = true;
     this.UserPanel.visible = true;
     this.UserPanel.opacity = 0;
-    this.UserPanelCard.scale = 0.9;
-    const baseCardY = this.UserPanelCard.y;
-    this.UserPanelCard.opacity = 0;
-    this.UserPanel.animate(
-      [
-        { opacity: 0 },
-        { opacity: 1 }
-      ],
-      { duration: 0.25 }
-    );
+    this.UserPanelCard.scale = 0.96;
+    this.UserPanel.animate([{ opacity: 1 }], { duration: 0.2 });
     this.UserPanelCard.animate(
-      [
-        { scale: 0.9, opacity: 0, y: baseCardY + 18 },
-        { scale: 1.04, opacity: 1, y: baseCardY - 4 },
-        { scale: 1, opacity: 1, y: baseCardY }
-      ],
-      { duration: 0.32, join: true }
+      [{ scale: 0.96 }, { scale: 1 }],
+      { duration: 0.22, join: true }
     );
 
     if (this.UserPanelLoadingText) {
@@ -858,15 +824,8 @@ export default class E_MainMenu extends Group {
   }
 
   private hideUserPanel_() {
-    const baseCardY = this.UserPanelCard.y;
-    this.UserPanelCard.animate(
-      [
-        { scale: 1, opacity: 1, y: baseCardY },
-        { scale: 0.94, opacity: 0, y: baseCardY + 14 }
-      ],
-      { duration: 0.18, join: true }
-    );
-    this.UserPanel.animate([{ opacity: 0 }], { duration: 0.2 }).once(
+    this.UserPanelCard.animate([{ scale: 0.98 }], { duration: 0.12 });
+    this.UserPanel.animate([{ opacity: 0 }], { duration: 0.18 }).once(
       AnimateEvent.COMPLETED,
       () => {
         this.UserPanel.visible = false;
@@ -985,6 +944,10 @@ export default class E_MainMenu extends Group {
       overlay.height = e.height;
       this.UserPanelCard.x = e.width / 2;
       this.UserPanelCard.y = e.height / 2;
+      if (this.UserPanelContentGroup) {
+        this.UserPanelContentGroup.x = e.width / 2;
+        this.UserPanelContentGroup.y = e.height / 2;
+      }
     }
   }
 
