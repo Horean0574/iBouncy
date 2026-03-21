@@ -1,6 +1,6 @@
 {
   "name": "ibouncy",
-  "version": "2.6.8",
+  "version": "2.8.0",
   "description": "Brand font: Akaya Telivigala",
   "main": "src/app.js",
   "scripts": {

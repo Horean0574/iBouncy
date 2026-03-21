@@ -1,5 +1,5 @@
 import { AnimateEvent, Group, Text } from "leafer-game";
-import { evBus, GEV, GP, Mask, Scoring, timer } from "../core/instances";
+import { evBus, GEV, GP, Mask, Scoring, Timing, timer } from "../core/instances";
 import TextLine from "../utils/TextLine";
 import { UIConf, getDifficultyKey } from "../config";
 import { addScore, getBestScoreByDifficulty } from "../utils/scoreStorage";
@@ -80,7 +80,8 @@ export default class E_Settlement extends Group {
       const prevBest = getBestScoreByDifficulty(difficulty);
       addScore(displayScore, difficulty);
       // 尝试将本次成绩同步到服务器（如果已登录）
-      pushScoreForCurrentUser(displayScore, difficulty, Date.now());
+      const durationSec = Math.max(0, GP.ENV.timeLimit - Timing.remaining);
+      pushScoreForCurrentUser(displayScore, difficulty, Date.now(), durationSec);
       this.isNewRecord = prevBest == null || displayScore > prevBest;
       if (payload.win) this.win_();
       else this.fail_();

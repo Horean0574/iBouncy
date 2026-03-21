@@ -3,6 +3,8 @@ import { showLoading, hideLoading } from "../ui/loadingOverlay";
 
 const AUTH_STORAGE_KEY = "iBouncy_user";
 const API_BASE = "/api";
+const LEADERBOARD_CACHE_KEY = "iBouncy_leaderboard_top20";
+const LEADERBOARD_CACHE_TTL_MS = 60 * 1000;
 
 export interface User {
   id: number;
@@ -15,6 +17,78 @@ export interface UserProfile extends User {
   totalGames: number;
   bestScore: number | null;
   lastPlayedAt: string | null;
+}
+
+export type LeaderboardType = "global" | "daily" | "weekly";
+export type LeaderboardScope = "global" | "friends";
+
+export interface LeaderboardEntry {
+  rank: number;
+  userId: number;
+  username: string;
+  displayName: string;
+  score: number;
+}
+
+export interface LeaderboardMe {
+  rank: number;
+  bestScore: number;
+  gapToNext: number;
+  gapToTop: number;
+}
+
+export interface LeaderboardResponse {
+  type: LeaderboardType;
+  scope: LeaderboardScope;
+  top: LeaderboardEntry[];
+  me: LeaderboardMe | null;
+}
+
+export interface DailyTask {
+  taskType: string;
+  title: string;
+  target: number;
+  progress: number;
+  rewardPoints: number;
+  status: "pending" | "completed" | "claimed";
+}
+
+export interface DailyTasksResponse {
+  date: string;
+  tasks: DailyTask[];
+  summary: {
+    points: number;
+    totalXp: number;
+    level: number;
+    checkinStreak: number;
+  };
+}
+
+export interface CheckinStatus {
+  today: string;
+  checkedInToday: boolean;
+  streak: number;
+  lastCheckinDate: string | null;
+  points: number;
+}
+
+export interface LevelUnlock {
+  level: number;
+  key: string;
+  name: string;
+}
+
+export interface LevelInfo {
+  level: number;
+  totalXp: number;
+  nextLevelXp: number;
+  progressToNextLevel: number;
+  points: number;
+  totalScore: number;
+  totalPlayTimeSec: number;
+  totalGames: number;
+  unlocked: LevelUnlock[];
+  upcomingUnlocks: LevelUnlock[];
 }
 
 function loadStoredUser(): User | null {
@@ -107,7 +181,8 @@ export async function fetchScoresForCurrentUser() {
 export async function pushScoreForCurrentUser(
   score: number,
   difficulty: string,
-  timestamp: number
+  timestamp: number,
+  durationSec = 0
 ) {
   const user = getCurrentUser();
   if (!user) return;
@@ -117,7 +192,8 @@ export async function pushScoreForCurrentUser(
       body: JSON.stringify({
         score,
         difficulty,
-        timestamp
+        timestamp,
+        durationSec
       })
     });
   } catch (e) {
@@ -184,5 +260,121 @@ export async function deleteAccount() {
     method: "POST"
   });
   logout();
+}
+
+function getLeaderboardCacheKey(type: LeaderboardType, scope: LeaderboardScope) {
+  return `${type}:${scope}`;
+}
+
+function loadLeaderboardCache(): Record<string, { ts: number; data: LeaderboardResponse }> {
+  try {
+    const raw = localStorage.getItem(LEADERBOARD_CACHE_KEY);
+    if (!raw) return {};
+    const data = JSON.parse(raw);
+    return data && typeof data === "object" ? data : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveLeaderboardCache(cache: Record<string, { ts: number; data: LeaderboardResponse }>) {
+  try {
+    localStorage.setItem(LEADERBOARD_CACHE_KEY, JSON.stringify(cache));
+  } catch {
+    // ignore
+  }
+}
+
+export async function fetchLeaderboard(
+  type: LeaderboardType,
+  scope: LeaderboardScope,
+  limit = 100
+): Promise<LeaderboardResponse> {
+  const safeLimit = Math.max(1, Math.min(100, Math.floor(limit)));
+  const key = getLeaderboardCacheKey(type, scope);
+  const shouldUseTop20Cache = safeLimit <= 20;
+
+  if (shouldUseTop20Cache) {
+    const cache = loadLeaderboardCache();
+    const item = cache[key];
+    if (item && Date.now() - Number(item.ts || 0) <= LEADERBOARD_CACHE_TTL_MS) {
+      return item.data;
+    }
+  }
+
+  const data = (await requestJson(
+    `/leaderboards?type=${encodeURIComponent(type)}&scope=${encodeURIComponent(
+      scope
+    )}&limit=${safeLimit}`,
+    { method: "GET" }
+  )) as LeaderboardResponse;
+
+  if (shouldUseTop20Cache) {
+    const cache = loadLeaderboardCache();
+    cache[key] = {
+      ts: Date.now(),
+      data
+    };
+    saveLeaderboardCache(cache);
+  }
+
+  return data;
+}
+
+export async function fetchDailyTasks(): Promise<DailyTasksResponse> {
+  return (await requestJson("/daily-tasks", { method: "GET" })) as DailyTasksResponse;
+}
+
+export async function claimDailyTask(taskType: string): Promise<{ rewardPoints: number }> {
+  return (await requestJson("/daily-tasks", {
+    method: "POST",
+    body: JSON.stringify({
+      action: "claim",
+      taskType
+    })
+  })) as { rewardPoints: number };
+}
+
+export async function markShareTaskCompleted(): Promise<void> {
+  await requestJson("/daily-tasks", {
+    method: "POST",
+    body: JSON.stringify({
+      action: "share-complete",
+      taskType: "share_once"
+    })
+  });
+}
+
+export async function claimShareReward(shareId: string): Promise<{
+  rewarded: boolean;
+  rewardPoints: number;
+  reason?: string;
+}> {
+  return (await requestJson("/share-reward", {
+    method: "POST",
+    body: JSON.stringify({ shareId })
+  })) as { rewarded: boolean; rewardPoints: number; reason?: string };
+}
+
+export async function fetchCheckinStatus(): Promise<CheckinStatus> {
+  return (await requestJson("/checkin", { method: "GET" })) as CheckinStatus;
+}
+
+export async function doCheckin(): Promise<{ streak: number; rewardPoints: number }> {
+  return (await requestJson("/checkin", {
+    method: "POST",
+    body: JSON.stringify({ action: "checkin" })
+  })) as { streak: number; rewardPoints: number };
+}
+
+export async function doMakeupCheckin(): Promise<{ makeupDate: string }> {
+  return (await requestJson("/checkin", {
+    method: "POST",
+    body: JSON.stringify({ action: "makeup" })
+  })) as { makeupDate: string };
+}
+
+export async function fetchLevelInfo(): Promise<LevelInfo> {
+  return (await requestJson("/level", { method: "GET" })) as LevelInfo;
 }
 
