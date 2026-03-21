@@ -1,5 +1,5 @@
-const { pool, initDb } = require("./_db");
-const { signToken, setAuthCookie } = require("./_auth");
+const { pool, initDb } = require("../server/db");
+const { signToken, setAuthCookie } = require("../server/auth");
 const bcrypt = require("bcryptjs");
 
 async function parseJsonBody(req) {

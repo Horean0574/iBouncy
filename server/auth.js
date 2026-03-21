@@ -44,7 +44,7 @@ function getUserFromRequest(req) {
 }
 
 function setAuthCookie(res, token) {
-    const maxAge = 30 * 24 * 60 * 60; // 30 days
+    const maxAge = 30 * 24 * 60 * 60;
     const cookie = [
         `ibouncy_token=${encodeURIComponent(token)}`,
         "Path=/",
@@ -74,4 +74,3 @@ module.exports = {
     setAuthCookie,
     clearAuthCookie,
 };
-

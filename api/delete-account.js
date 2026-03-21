@@ -1,5 +1,5 @@
-const { pool, initDb } = require("./_db");
-const { getUserFromRequest, clearAuthCookie } = require("./_auth");
+const { pool, initDb } = require("../server/db");
+const { getUserFromRequest, clearAuthCookie } = require("../server/auth");
 
 module.exports = async (req, res) => {
     if (req.method !== "POST") {

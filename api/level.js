@@ -1,11 +1,11 @@
-const { pool, initDb } = require("./_db");
-const { getUserFromRequest } = require("./_auth");
-const { sendJson, methodNotAllowed } = require("./_http");
+const { pool, initDb } = require("../server/db");
+const { getUserFromRequest } = require("../server/auth");
+const { sendJson, methodNotAllowed } = require("../server/http");
 const {
     LEVEL_UNLOCKS,
     getXpToNextLevel,
     ensureUserProgressRow,
-} = require("./_incentives");
+} = require("../server/incentives");
 
 module.exports = async (req, res) => {
     await initDb();

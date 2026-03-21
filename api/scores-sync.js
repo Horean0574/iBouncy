@@ -1,5 +1,5 @@
-const { pool, initDb } = require("./_db");
-const { getUserFromRequest } = require("./_auth");
+const { pool, initDb } = require("../server/db");
+const { getUserFromRequest } = require("../server/auth");
 
 async function parseJsonBody(req) {
     return new Promise((resolve) => {

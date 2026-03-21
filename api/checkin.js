@@ -1,7 +1,7 @@
-const { pool, initDb } = require("./_db");
-const { getUserFromRequest } = require("./_auth");
-const { sendJson, methodNotAllowed, parseJsonBody, toDateKey } = require("./_http");
-const { ensureUserProgressRow } = require("./_incentives");
+const { pool, initDb } = require("../server/db");
+const { getUserFromRequest } = require("../server/auth");
+const { sendJson, methodNotAllowed, parseJsonBody, toDateKey } = require("../server/http");
+const { ensureUserProgressRow } = require("../server/incentives");
 
 function getWeekKey(d = new Date()) {
     const date = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));

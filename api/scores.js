@@ -1,7 +1,7 @@
-const { pool, initDb } = require("./_db");
-const { getUserFromRequest } = require("./_auth");
-const { parseJsonBody, sendJson, methodNotAllowed } = require("./_http");
-const { applyGameIncentives } = require("./_incentives");
+const { pool, initDb } = require("../server/db");
+const { getUserFromRequest } = require("../server/auth");
+const { parseJsonBody, sendJson, methodNotAllowed } = require("../server/http");
+const { applyGameIncentives } = require("../server/incentives");
 
 module.exports = async (req, res) => {
     await initDb();

@@ -350,9 +350,9 @@ export async function claimShareReward(shareId: string): Promise<{
   rewardPoints: number;
   reason?: string;
 }> {
-  return (await requestJson("/share-reward", {
+  return (await requestJson("/daily-tasks", {
     method: "POST",
-    body: JSON.stringify({ shareId })
+    body: JSON.stringify({ action: "share-reward", taskType: "share_once", shareId })
   })) as { rewarded: boolean; rewardPoints: number; reason?: string };
 }
 

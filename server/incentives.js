@@ -1,24 +1,9 @@
-const { toDateKey } = require("./_http");
+const { toDateKey } = require("./http");
 
 const DAILY_TASK_DEFINITIONS = [
-    {
-        taskType: "play_3_games",
-        title: "玩 3 局游戏",
-        target: 3,
-        rewardPoints: 20,
-    },
-    {
-        taskType: "score_over_30",
-        title: "单次得分达到 30 分",
-        target: 1,
-        rewardPoints: 30,
-    },
-    {
-        taskType: "share_once",
-        title: "分享成绩 1 次",
-        target: 1,
-        rewardPoints: 25,
-    },
+    { taskType: "play_3_games", title: "玩 3 局游戏", target: 3, rewardPoints: 20 },
+    { taskType: "score_over_30", title: "单次得分达到 30 分", target: 1, rewardPoints: 30 },
+    { taskType: "share_once", title: "分享成绩 1 次", target: 1, rewardPoints: 25 },
 ];
 
 const LEVEL_UNLOCKS = [
@@ -40,11 +25,7 @@ function getXpToNextLevel(level) {
 
 async function ensureUserProgressRow(client, userId) {
     await client.query(
-        `
-        INSERT INTO user_progress (user_id)
-        VALUES ($1)
-        ON CONFLICT (user_id) DO NOTHING
-        `,
+        `INSERT INTO user_progress (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING`,
         [userId]
     );
 }
@@ -70,9 +51,7 @@ async function markShareTaskProgress(client, userId, dateKey = toDateKey()) {
         SET progress = target,
             status = CASE WHEN status = 'claimed' THEN status ELSE 'completed' END,
             updated_at = NOW()
-        WHERE user_id = $1
-          AND task_date = $2
-          AND task_type = 'share_once'
+        WHERE user_id = $1 AND task_date = $2 AND task_type = 'share_once'
         `,
         [userId, dateKey]
     );
@@ -105,14 +84,7 @@ async function applyGameIncentives(client, input) {
     );
     const totalXp = Number(progressRes.rows[0]?.total_xp || 0);
     const newLevel = getLevelFromXp(totalXp);
-    await client.query(
-        `
-        UPDATE user_progress
-        SET level = $2
-        WHERE user_id = $1
-        `,
-        [userId, newLevel]
-    );
+    await client.query(`UPDATE user_progress SET level = $2 WHERE user_id = $1`, [userId, newLevel]);
 
     await client.query(
         `
@@ -124,9 +96,7 @@ async function applyGameIncentives(client, input) {
                 ELSE status
             END,
             updated_at = NOW()
-        WHERE user_id = $1
-          AND task_date = $2
-          AND task_type = 'play_3_games'
+        WHERE user_id = $1 AND task_date = $2 AND task_type = 'play_3_games'
         `,
         [userId, dateKey]
     );
@@ -138,9 +108,7 @@ async function applyGameIncentives(client, input) {
             SET progress = target,
                 status = CASE WHEN status = 'claimed' THEN status ELSE 'completed' END,
                 updated_at = NOW()
-            WHERE user_id = $1
-              AND task_date = $2
-              AND task_type = 'score_over_30'
+            WHERE user_id = $1 AND task_date = $2 AND task_type = 'score_over_30'
             `,
             [userId, dateKey]
         );
@@ -161,19 +129,12 @@ async function claimDailyTaskReward(client, userId, taskType, dateKey = toDateKe
         [userId, dateKey, taskType]
     );
     const task = taskRes.rows[0];
-    if (!task) {
-        throw new Error("任务不存在");
-    }
-    if (task.status === "claimed") {
-        throw new Error("任务奖励已领取");
-    }
-    if (task.status !== "completed") {
-        throw new Error("任务尚未完成");
-    }
+    if (!task) throw new Error("任务不存在");
+    if (task.status === "claimed") throw new Error("任务奖励已领取");
+    if (task.status !== "completed") throw new Error("任务尚未完成");
 
     const reward = Number(task.reward_points || 0);
     await ensureUserProgressRow(client, userId);
-
     await client.query(
         `
         INSERT INTO user_points_ledger (user_id, source, delta, ref_type, ref_id)
@@ -182,26 +143,15 @@ async function claimDailyTaskReward(client, userId, taskType, dateKey = toDateKe
         `,
         [userId, reward, `${dateKey}:${taskType}`]
     );
-
     await client.query(
-        `
-        UPDATE user_progress
-        SET points = points + $2,
-            updated_at = NOW()
-        WHERE user_id = $1
-        `,
+        `UPDATE user_progress SET points = points + $2, updated_at = NOW() WHERE user_id = $1`,
         [userId, reward]
     );
-
     await client.query(
         `
         UPDATE user_daily_tasks
-        SET status = 'claimed',
-            claimed_at = NOW(),
-            updated_at = NOW()
-        WHERE user_id = $1
-          AND task_date = $2
-          AND task_type = $3
+        SET status = 'claimed', claimed_at = NOW(), updated_at = NOW()
+        WHERE user_id = $1 AND task_date = $2 AND task_type = $3
         `,
         [userId, dateKey, taskType]
     );

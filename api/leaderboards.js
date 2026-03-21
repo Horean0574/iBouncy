@@ -1,6 +1,6 @@
-const { pool, initDb } = require("./_db");
-const { getUserFromRequest } = require("./_auth");
-const { sendJson, methodNotAllowed } = require("./_http");
+const { pool, initDb } = require("../server/db");
+const { getUserFromRequest } = require("../server/auth");
+const { sendJson, methodNotAllowed } = require("../server/http");
 
 function getTimeCondition(type) {
     if (type === "daily") {
