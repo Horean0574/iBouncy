@@ -1,14 +1,57 @@
 import { Pool } from "pg";
 
-const POSTGRES_URL = process.env.POSTGRES_URL;
-
-if (!POSTGRES_URL) {
-  throw new Error("环境变量 POSTGRES_URL 未设置，请在 Vercel 项目中配置该环境变量。");
+function normalizeEnvValue(value: string | undefined): string {
+  const v = String(value || "").trim();
+  // Some dashboard copy/paste values may include wrapping quotes.
+  if (
+    (v.startsWith('"') && v.endsWith('"') && v.length >= 2) ||
+    (v.startsWith("'") && v.endsWith("'") && v.length >= 2)
+  ) {
+    return v.slice(1, -1).trim();
+  }
+  return v;
 }
 
-export const pool = new Pool({
-  connectionString: POSTGRES_URL
-});
+function readConnectionString(): string {
+  const conn = normalizeEnvValue(process.env.POSTGRES_URL || process.env.DATABASE_URL);
+  if (!conn) {
+    throw new Error("环境变量 POSTGRES_URL/DATABASE_URL 未设置，请在 Vercel 项目中配置数据库连接串。");
+  }
+  return conn;
+}
+
+function shouldForceSsl(connectionString: string): boolean {
+  const lower = connectionString.toLowerCase();
+  if (lower.includes("localhost") || lower.includes("127.0.0.1")) return false;
+  if (lower.includes("sslmode=disable")) return false;
+  return true;
+}
+
+let poolInstance: Pool | null = null;
+
+export const pool = new Proxy(
+  {} as Pool,
+  {
+    get(_target, prop, receiver) {
+      if (!poolInstance) {
+        const connectionString = readConnectionString();
+        poolInstance = new Pool({
+          connectionString,
+          ...(shouldForceSsl(connectionString)
+            ? {
+                ssl: {
+                  rejectUnauthorized: false
+                }
+              }
+            : {})
+        });
+      }
+      const value = Reflect.get(poolInstance, prop, receiver);
+      if (typeof value === "function") return value.bind(poolInstance);
+      return value;
+    }
+  }
+);
 
 let inited = false;
 

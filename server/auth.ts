@@ -1,11 +1,24 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 
-const rawJwtSecret = process.env.JWT_SECRET;
-if (!rawJwtSecret) {
-  throw new Error("环境变量 JWT_SECRET 未设置，请在 Vercel 项目中配置该环境变量。");
+function normalizeEnvValue(value: string | undefined): string {
+  const v = String(value || "").trim();
+  if (
+    (v.startsWith('"') && v.endsWith('"') && v.length >= 2) ||
+    (v.startsWith("'") && v.endsWith("'") && v.length >= 2)
+  ) {
+    return v.slice(1, -1).trim();
+  }
+  return v;
 }
-const JWT_SECRET: string = rawJwtSecret;
+
+function getJwtSecret(): string {
+  const secret = normalizeEnvValue(process.env.JWT_SECRET);
+  if (!secret) {
+    throw new Error("环境变量 JWT_SECRET 未设置，请在 Vercel 项目中配置该环境变量。");
+  }
+  return secret;
+}
 
 type TokenUser = {
   id: number;
@@ -16,13 +29,14 @@ type TokenUser = {
 type ParsedToken = TokenUser & JwtPayload;
 
 export function signToken(user: TokenUser): string {
+  const jwtSecret = getJwtSecret();
   return jwt.sign(
     {
       id: user.id,
       username: user.username,
       nickname: user.nickname
     },
-    JWT_SECRET,
+    jwtSecret,
     {
       expiresIn: "30d"
     }
@@ -45,7 +59,7 @@ export function getUserFromRequest(req: IncomingMessage): ParsedToken | null {
   const token = cookies.ibouncy_token;
   if (!token) return null;
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as JwtPayload | string;
+    const payload = jwt.verify(token, getJwtSecret()) as JwtPayload | string;
     if (!payload || typeof payload === "string") return null;
     return typeof payload.id === "number" ? (payload as ParsedToken) : null;
   } catch {
