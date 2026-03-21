@@ -71,22 +71,22 @@ npm run preview  # 预览构建结果
 iBouncy/
 ├── src/
 │   ├── core/              # 核心实例管理
-│   │   └── instances.js   # 中央实例管理器
+│   │   └── instances.ts   # 中央实例管理器
 │   ├── elements/          # 游戏元素组件
-│   │   ├── E_Ball.js      # 弹球类
-│   │   ├── E_Tablet.js    # 挡板类
-│   │   ├── E_Scoring.js   # 计分系统
+│   │   ├── E_Ball.ts      # 弹球类
+│   │   ├── E_Tablet.ts    # 挡板类
+│   │   ├── E_Scoring.ts   # 计分系统
 │   │   └── ...
 │   ├── utils/               # 工具类
-│   │   ├── EmbeddedTimer.js # 重制计时器
-│   │   ├── Queue.js         # 队列数据类型
+│   │   ├── EmbeddedTimer.ts # 重制计时器
+│   │   ├── Queue.ts         # 队列数据类型
 │   │   └── ...
-│   └── app.js            # 游戏主入口
+│   └── app.ts            # 游戏主入口
 ├── assets/               # 静态资源
 │   ├── fonts/           # 字体文件
 │   ├── img/             # 图片资源
 │   └── svg/             # SVG图标
-├── vite.config.js       # Vite 配置
+├── vite.config.ts       # Vite 配置
 └── package.json         # 项目依赖
 ```
 
@@ -121,7 +121,7 @@ $$
 |--------------------------------|----------|----------|
 | [LeaferJS](https://leaferjs.com) | Canvas 渲染引擎 | 1.12.0 |
 | [Vite](https://vite.dev)       | 构建工具与开发服务器 | 7.x |
-| Vanilla JavaScript             | 核心逻辑 | ES2022+ |
+| TypeScript                     | 核心逻辑 | 5.x |
 
 ## 🤝 贡献指南
 欢迎提交 Issue 和 Pull Request！

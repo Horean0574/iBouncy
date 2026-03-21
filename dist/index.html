@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>iBouncy - H</title>
+    <link rel="icon" type="image/png" href="/icon.png">
+    <link rel="apple-touch-icon" href="/icon.png">
     <style>
         * {
             user-select: none;
@@ -14,24 +16,380 @@
             width: 100vw;
             height: 100vh;
             margin: 0;
+            background-color: #EEFFFF;
         }
 
         canvas {
             position: fixed;
             width: 100vw;
             height: 100vh;
+            /* GPU 加速：提升到独立合成层，减少重绘与闪烁 */
+            will-change: transform;
+            transform: translateZ(0);
+            contain: layout style paint;
+            image-rendering: auto;
         }
 
         #loading {
             position: fixed;
             transform: translate(calc(50vw - 117px), calc(50vh - 50px)) scale(1.2);
         }
+
+        /* 账号登录/注册面板 - 贴合主题色（浅青/蓝） */
+        #auth-panel {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 20% 30%, rgba(0, 229, 255, 0.18), transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(32, 168, 215, 0.15), transparent 50%),
+                        rgba(238, 255, 255, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 9999;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            animation: auth-overlay-in 0.36s ease-out;
+        }
+
+        #auth-panel-inner {
+            width: 340px;
+            max-width: 90vw;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(240, 252, 255, 0.88));
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 229, 255, 0.35);
+            box-shadow: 0 20px 50px rgba(32, 168, 215, 0.2),
+                        0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+            padding: 22px 24px 20px;
+            transform-origin: center;
+            animation: auth-card-pop 0.40s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        #auth-title {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            color: #0F172A;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        #auth-desc {
+            font-size: 12px;
+            color: #475569;
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        .auth-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 8px;
+        }
+
+        .auth-row label {
+            flex: 0 0 64px;
+            font-size: 13px;
+            color: #475569;
+            text-align: right;
+        }
+
+        .auth-row input {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(32, 168, 215, 0.4);
+            font-size: 13px;
+            outline: none;
+            color: #0F172A;
+            background: rgba(238, 255, 255, 0.7);
+            transition: border-color 0.16s ease, box-shadow 0.16s ease, background 0.18s ease, transform 0.12s ease;
+        }
+
+        .auth-row input::placeholder {
+            color: #94A3B8;
+        }
+
+        .auth-row input:focus {
+            border-color: #20A8D7;
+            box-shadow: 0 0 0 2px rgba(32, 168, 215, 0.25);
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateY(-0.5px);
+        }
+
+        #auth-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px;
+            gap: 8px;
+        }
+
+        #auth-actions-left {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        #auth-toggle {
+            border: none;
+            background: none;
+            padding: 0;
+            font-size: 12px;
+            color: #20A8D7;
+            cursor: pointer;
+            text-align: left;
+            opacity: 0.95;
+        }
+
+        #auth-toggle:hover {
+            text-decoration: underline;
+            opacity: 1;
+        }
+
+        #auth-actions-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        .auth-btn {
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.15s ease, filter 0.15s ease;
+            white-space: nowrap;
+        }
+
+        #auth-close {
+            background: #E2E8F0;
+            color: #475569;
+        }
+
+        #auth-submit {
+            background: linear-gradient(135deg, #20A8D7, #44C2F1);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(32, 168, 215, 0.4);
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.05);
+        }
+
+        .auth-btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+            filter: brightness(0.96);
+        }
+
+        @keyframes auth-overlay-in {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes auth-card-pop {
+            0% {
+                opacity: 0;
+                transform: translateY(14px) scale(0.9);
+            }
+            60% {
+                opacity: 1;
+                transform: translateY(-4px) scale(1.03);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* 页面内弹窗：提示 / 确认 / 输入 */
+        #inpage-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.6);
+            z-index: 10000;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        #inpage-modal.show {
+            display: flex;
+            animation: inpage-modal-fade 0.2s ease-out;
+        }
+        #inpage-modal-inner {
+            min-width: 280px;
+            max-width: 90vw;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 20px 48px rgba(0,0,0,0.25);
+            padding: 20px 24px;
+        }
+        #inpage-modal-msg {
+            font-size: 15px;
+            color: #111827;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        #inpage-modal-input-wrap {
+            margin-bottom: 16px;
+            display: none;
+        }
+        #inpage-modal-input-wrap.show {
+            display: block;
+        }
+        #inpage-modal-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px 12px;
+            font-size: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            outline: none;
+        }
+        #inpage-modal-input:focus {
+            border-color: #0EA5E9;
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+        }
+        #inpage-modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        #inpage-modal .modal-btn {
+            padding: 8px 18px;
+            font-size: 14px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: filter 0.15s, transform 0.1s;
+        }
+        #inpage-modal .modal-btn:hover {
+            filter: brightness(0.96);
+        }
+        #inpage-modal .modal-btn:active {
+            transform: scale(0.98);
+        }
+        #inpage-modal .modal-btn-primary {
+            background: #0EA5E9;
+            color: #fff;
+        }
+        #inpage-modal .modal-btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        @keyframes inpage-modal-fade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 接口请求加载层（如数据库连接较慢时） */
+        #api-loading {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 20% 30%, rgba(0, 229, 255, 0.14), transparent 52%),
+                        radial-gradient(circle at 80% 70%, rgba(32, 168, 215, 0.12), transparent 52%),
+                        rgba(238, 255, 255, 0.72);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 10001;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        #api-loading.show {
+            display: flex;
+        }
+        #api-loading .api-loading-spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid rgba(32, 168, 215, 0.20);
+            border-top-color: #20A8D7;
+            border-radius: 50%;
+            animation: api-loading-spin 0.7s linear infinite;
+        }
+        #api-loading .api-loading-text {
+            position: absolute;
+            margin-top: 58px;
+            font-size: 13px;
+            color: #475569;
+        }
+        @keyframes api-loading-spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
-  <script type="module" crossorigin src="/assets/index-DMI8UeZN.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/leafer-BCB2pN9R.js">
+  <script type="module" crossorigin src="/assets/index-DuuICGm5.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/leafer-Dq4iu2xp.js">
 </head>
 <body>
 <canvas></canvas>
-<img id="loading" src="/assets/loading-D-prH_-Y.svg" alt="Loading..." draggable="false">
+<img id="loading" src="/assets/loading-D-prH_-Y.svg" alt="Loading..." draggable="false">
+
+<!-- 接口请求加载（数据库等） -->
+<div id="api-loading">
+  <div style="display:flex;flex-direction:column;align-items:center;">
+    <div class="api-loading-spinner"></div>
+    <span class="api-loading-text">加载中…</span>
+  </div>
+</div>
+
+<!-- 页面内弹窗（提示/确认/输入） -->
+<div id="inpage-modal">
+  <div id="inpage-modal-inner">
+    <div id="inpage-modal-msg"></div>
+    <div id="inpage-modal-input-wrap">
+      <input type="text" id="inpage-modal-input" autocomplete="off">
+    </div>
+    <div id="inpage-modal-buttons"></div>
+  </div>
+</div>
+
+<!-- 页面内登录 / 注册面板 -->
+<div id="auth-panel">
+  <div id="auth-panel-inner">
+    <div id="auth-title">登录账号</div>
+    <div id="auth-desc">登录后可云端同步你的历史成绩</div>
+
+    <div class="auth-row">
+      <label for="auth-username">用户名</label>
+      <input id="auth-username" type="text" placeholder="至少 3 位字母或数字">
+    </div>
+    <div class="auth-row" id="auth-nickname-row" style="display: none;">
+      <label for="auth-nickname">昵 称</label>
+      <input id="auth-nickname" type="text" placeholder="在游戏中显示的名字">
+    </div>
+    <div class="auth-row">
+      <label for="auth-password">密 码</label>
+      <input id="auth-password" type="password" placeholder="至少 6 位" autocomplete="new-password">
+    </div>
+    <div class="auth-row" id="auth-confirm-row" style="display: none;">
+      <label for="auth-confirm">确认密码</label>
+      <input id="auth-confirm" type="password" placeholder="再次输入密码" autocomplete="new-password">
+    </div>
+
+    <div id="auth-actions">
+      <div id="auth-actions-left">
+        <button id="auth-toggle" type="button">没有账号？去注册</button>
+      </div>
+      <div id="auth-actions-right">
+        <button id="auth-close" class="auth-btn" type="button">取 消</button>
+        <button id="auth-submit" class="auth-btn" type="button">登 录</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

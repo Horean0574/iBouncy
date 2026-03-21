@@ -1,22 +1,22 @@
-const { Pool } = require("pg");
+import { Pool } from "pg";
 
 const POSTGRES_URL = process.env.POSTGRES_URL;
 
 if (!POSTGRES_URL) {
-    throw new Error("环境变量 POSTGRES_URL 未设置，请在 Vercel 项目中配置该环境变量。");
+  throw new Error("环境变量 POSTGRES_URL 未设置，请在 Vercel 项目中配置该环境变量。");
 }
 
-const pool = new Pool({
-    connectionString: POSTGRES_URL,
+export const pool = new Pool({
+  connectionString: POSTGRES_URL
 });
 
 let inited = false;
 
-async function initDb() {
-    if (inited) return;
-    const client = await pool.connect();
-    try {
-        await client.query(`
+export async function initDb(): Promise<void> {
+  if (inited) return;
+  const client = await pool.connect();
+  try {
+    await client.query(`
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 username TEXT UNIQUE NOT NULL,
@@ -24,11 +24,11 @@ async function initDb() {
                 created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             );
         `);
-        await client.query(`
+    await client.query(`
             ALTER TABLE users
             ADD COLUMN IF NOT EXISTS nickname TEXT;
         `);
-        await client.query(`
+    await client.query(`
             CREATE TABLE IF NOT EXISTS scores (
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -38,23 +38,23 @@ async function initDb() {
                 played_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             );
         `);
-        await client.query(`
+    await client.query(`
             ALTER TABLE scores
             ADD COLUMN IF NOT EXISTS duration_sec INTEGER NOT NULL DEFAULT 0;
         `);
-        await client.query(`
+    await client.query(`
             CREATE UNIQUE INDEX IF NOT EXISTS scores_unique_idx
             ON scores(user_id, difficulty, score, played_at);
         `);
-        await client.query(`
+    await client.query(`
             CREATE INDEX IF NOT EXISTS scores_played_at_score_idx
             ON scores(played_at DESC, score DESC);
         `);
-        await client.query(`
+    await client.query(`
             CREATE INDEX IF NOT EXISTS scores_user_played_at_idx
             ON scores(user_id, played_at DESC);
         `);
-        await client.query(`
+    await client.query(`
             CREATE TABLE IF NOT EXISTS friendships (
                 user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 friend_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -63,11 +63,11 @@ async function initDb() {
                 PRIMARY KEY (user_id, friend_user_id)
             );
         `);
-        await client.query(`
+    await client.query(`
             CREATE INDEX IF NOT EXISTS friendships_user_status_idx
             ON friendships(user_id, status);
         `);
-        await client.query(`
+    await client.query(`
             CREATE TABLE IF NOT EXISTS user_progress (
                 user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
                 total_score NUMERIC NOT NULL DEFAULT 0,
@@ -81,7 +81,7 @@ async function initDb() {
                 updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             );
         `);
-        await client.query(`
+    await client.query(`
             CREATE TABLE IF NOT EXISTS user_daily_tasks (
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -97,11 +97,11 @@ async function initDb() {
                 UNIQUE (user_id, task_date, task_type)
             );
         `);
-        await client.query(`
+    await client.query(`
             CREATE INDEX IF NOT EXISTS user_daily_tasks_user_date_idx
             ON user_daily_tasks(user_id, task_date);
         `);
-        await client.query(`
+    await client.query(`
             CREATE TABLE IF NOT EXISTS user_points_ledger (
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -113,7 +113,7 @@ async function initDb() {
                 UNIQUE (user_id, source, ref_type, ref_id)
             );
         `);
-        await client.query(`
+    await client.query(`
             CREATE TABLE IF NOT EXISTS user_checkins (
                 user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 checkin_date DATE NOT NULL,
@@ -122,7 +122,7 @@ async function initDb() {
                 PRIMARY KEY (user_id, checkin_date)
             );
         `);
-        await client.query(`
+    await client.query(`
             CREATE TABLE IF NOT EXISTS user_makeup_limits (
                 user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 week_key TEXT NOT NULL,
@@ -130,10 +130,8 @@ async function initDb() {
                 PRIMARY KEY (user_id, week_key)
             );
         `);
-        inited = true;
-    } finally {
-        client.release();
-    }
+    inited = true;
+  } finally {
+    client.release();
+  }
 }
-
-module.exports = { pool, initDb };
