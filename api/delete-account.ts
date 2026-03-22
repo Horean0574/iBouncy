@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { clearAuthCookie, getUserFromRequest } from "../server/auth";
-import { initDb, pool } from "../server/db";
-import { sendJson } from "../server/http";
+import { clearAuthCookie, getUserFromRequest } from "../server/auth.js";
+import { initDb, pool } from "../server/db.js";
+import { sendJson } from "../server/http.js";
 
 export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
   if (req.method !== "POST") {

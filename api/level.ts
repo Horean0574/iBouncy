@@ -1,8 +1,8 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getUserFromRequest } from "../server/auth";
-import { initDb, pool } from "../server/db";
-import { ensureUserProgressRow, getXpToNextLevel, LEVEL_UNLOCKS } from "../server/incentives";
-import { methodNotAllowed, sendJson } from "../server/http";
+import { getUserFromRequest } from "../server/auth.js";
+import { initDb, pool } from "../server/db.js";
+import { ensureUserProgressRow, getXpToNextLevel, LEVEL_UNLOCKS } from "../server/incentives.js";
+import { methodNotAllowed, sendJson } from "../server/http.js";
 
 export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
   await initDb();

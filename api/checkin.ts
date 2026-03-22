@@ -1,8 +1,8 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getUserFromRequest } from "../server/auth";
-import { initDb, pool } from "../server/db";
-import { ensureUserProgressRow } from "../server/incentives";
-import { methodNotAllowed, parseJsonBody, sendJson, toDateKey } from "../server/http";
+import { getUserFromRequest } from "../server/auth.js";
+import { initDb, pool } from "../server/db.js";
+import { ensureUserProgressRow } from "../server/incentives.js";
+import { methodNotAllowed, parseJsonBody, sendJson, toDateKey } from "../server/http.js";
 
 function getWeekKey(d: Date = new Date()): string {
   const date = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));

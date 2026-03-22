@@ -1,8 +1,8 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import bcrypt from "bcryptjs";
-import { getUserFromRequest } from "../server/auth";
-import { initDb, pool } from "../server/db";
-import { parseJsonBody, sendJson } from "../server/http";
+import { getUserFromRequest } from "../server/auth.js";
+import { initDb, pool } from "../server/db.js";
+import { parseJsonBody, sendJson } from "../server/http.js";
 
 type ChangePwdBody = { oldPassword?: string; newPassword?: string };
 

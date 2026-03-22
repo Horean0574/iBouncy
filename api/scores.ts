@@ -1,8 +1,8 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getUserFromRequest } from "../server/auth";
-import { initDb, pool } from "../server/db";
-import { applyGameIncentives } from "../server/incentives";
-import { methodNotAllowed, parseJsonBody, sendJson } from "../server/http";
+import { getUserFromRequest } from "../server/auth.js";
+import { initDb, pool } from "../server/db.js";
+import { applyGameIncentives } from "../server/incentives.js";
+import { methodNotAllowed, parseJsonBody, sendJson } from "../server/http.js";
 
 type ScoreBody = { score?: number; difficulty?: string; timestamp?: number; durationSec?: number };
 

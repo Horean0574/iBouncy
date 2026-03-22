@@ -1,5 +1,5 @@
 import type { PoolClient } from "pg";
-import { toDateKey } from "./http";
+import { toDateKey } from "./http.js";
 
 type GameInput = {
   userId: number;

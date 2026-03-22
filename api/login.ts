@@ -1,8 +1,8 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import bcrypt from "bcryptjs";
-import { signToken, setAuthCookie } from "../server/auth";
-import { initDb, pool } from "../server/db";
-import { parseJsonBody, sendJson } from "../server/http";
+import { signToken, setAuthCookie } from "../server/auth.js";
+import { initDb, pool } from "../server/db.js";
+import { parseJsonBody, sendJson } from "../server/http.js";
 
 type LoginBody = { username?: string; password?: string };
 

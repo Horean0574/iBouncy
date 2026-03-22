@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getUserFromRequest } from "../server/auth";
-import { initDb, pool } from "../server/db";
-import { methodNotAllowed, parseJsonBody, sendJson } from "../server/http";
+import { getUserFromRequest } from "../server/auth.js";
+import { initDb, pool } from "../server/db.js";
+import { methodNotAllowed, parseJsonBody, sendJson } from "../server/http.js";
 
 type UserBody = { nickname?: string };
 

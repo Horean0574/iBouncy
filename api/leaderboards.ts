@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getUserFromRequest } from "../server/auth";
-import { initDb, pool } from "../server/db";
-import { methodNotAllowed, sendJson } from "../server/http";
+import { getUserFromRequest } from "../server/auth.js";
+import { initDb, pool } from "../server/db.js";
+import { methodNotAllowed, sendJson } from "../server/http.js";
 
 function getTimeCondition(type: string): string {
   if (type === "daily") return "AND s.played_at >= date_trunc('day', NOW())";

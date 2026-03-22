@@ -1,7 +1,7 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getUserFromRequest } from "../server/auth";
-import { initDb, pool } from "../server/db";
-import { parseJsonBody, sendJson } from "../server/http";
+import { getUserFromRequest } from "../server/auth.js";
+import { initDb, pool } from "../server/db.js";
+import { parseJsonBody, sendJson } from "../server/http.js";
 
 type SyncRecord = { score?: number; difficulty?: string; timestamp?: number | string };
 type SyncBody = { records?: SyncRecord[] };

@@ -1,8 +1,8 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { getUserFromRequest } from "../server/auth";
-import { initDb, pool } from "../server/db";
-import { claimDailyTaskReward, ensureDailyTasks, ensureUserProgressRow, markShareTaskProgress } from "../server/incentives";
-import { methodNotAllowed, parseJsonBody, sendJson, toDateKey } from "../server/http";
+import { getUserFromRequest } from "../server/auth.js";
+import { initDb, pool } from "../server/db.js";
+import { claimDailyTaskReward, ensureDailyTasks, ensureUserProgressRow, markShareTaskProgress } from "../server/incentives.js";
+import { methodNotAllowed, parseJsonBody, sendJson, toDateKey } from "../server/http.js";
 
 type DailyBody = { action?: string; taskType?: string; shareId?: string };
 
