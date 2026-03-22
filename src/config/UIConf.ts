@@ -142,6 +142,24 @@ export const UIConf = {
     },
     GrowthCenter: {
       BREAKPOINT: 768,
+      /** 8px 栅格基准 */
+      GRID: 8,
+      /** 卡片内边距（3×8） */
+      CARD_PAD: 24,
+      /** 卡片/区块间距（2×8） */
+      CARD_GAP: 16,
+      /** 文案与图标间距（1×8） */
+      TEXT_ICON_GAP: 8,
+      /** 按钮内边距 */
+      BTN_PAD_X: 12,
+      BTN_PAD_Y: 8,
+      /** 无障碍：辅助字最小字号 */
+      CAPTION_MIN_MOBILE: 12,
+      CAPTION_MIN_PC: 11,
+      /** 正文/弱文案（约 ≥4.5:1 对比白底） */
+      TEXT_BODY: "#1E293B",
+      TEXT_MUTED: "#475569",
+      TEXT_SUPPORT: "#64748B",
       /** PC 主卡片最大宽度，减少两侧留白 */
       CARD_FIXED_W_PC: 800,
       CARD_MAX_H: 680,
@@ -149,13 +167,14 @@ export const UIConf = {
       MOBILE_MARGIN: 16,
       /** 移动端卡片上下留白 */
       MOBILE_V_MARGIN: 12,
-      /** 移动端卡片纵向间距（快捷入口等） */
-      MOBILE_BLOCK_GAP: 20,
+      /** 移动端区块纵向间距（2×8） */
+      MOBILE_BLOCK_GAP: 16,
       /** 触屏最小点击区域 */
       MIN_TOUCH: 44,
       NAV_W: 112,
-      PAD: 20,
-      GAP: 14,
+      /** @deprecated 请用 CARD_PAD，值与 CARD_PAD 一致 */
+      PAD: 24,
+      GAP: 16,
       CARD_FILL: "#F5FCFF",
       CARD_STROKE: "rgba(32,168,215,0.25)",
       TITLE_SIZE: 20,

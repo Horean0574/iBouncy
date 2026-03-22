@@ -9,9 +9,9 @@ type GameInput = {
 };
 
 export const DAILY_TASK_DEFINITIONS = [
-  { taskType: "play_3_games", title: "玩 3 局游戏", target: 3, rewardPoints: 20 },
-  { taskType: "score_over_30", title: "单次得分达到 30 分", target: 1, rewardPoints: 30 },
-  { taskType: "share_once", title: "分享成绩 1 次", target: 1, rewardPoints: 25 }
+  { taskType: "play_3_games", title: "完成 3 局", target: 3, rewardPoints: 20 },
+  { taskType: "score_over_30", title: "单局 ≥30 分", target: 1, rewardPoints: 30 },
+  { taskType: "share_once", title: "分享 1 次", target: 1, rewardPoints: 25 }
 ] as const;
 
 export const LEVEL_UNLOCKS = [
