@@ -24,6 +24,11 @@ async function initDb() {
                 created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             );
         `);
+        // 确保存在昵称字段（旧表兼容）
+        await client.query(`
+            ALTER TABLE users
+            ADD COLUMN IF NOT EXISTS nickname TEXT;
+        `);
         await client.query(`
             CREATE TABLE IF NOT EXISTS scores (
                 id SERIAL PRIMARY KEY,
@@ -33,6 +38,10 @@ async function initDb() {
                 played_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             );
         `);
+        await client.query(`
+            CREATE UNIQUE INDEX IF NOT EXISTS scores_unique_idx
+            ON scores(user_id, difficulty, score, played_at);
+        `);
         inited = true;
     } finally {
         client.release();
@@ -40,4 +49,3 @@ async function initDb() {
 }
 
 module.exports = { pool, initDb };
-

@@ -1,4 +1,5 @@
 const { pool, initDb } = require("./_db");
+const { getUserFromRequest } = require("./_auth");
 
 async function parseJsonBody(req) {
     return new Promise((resolve) => {
@@ -19,21 +20,20 @@ async function parseJsonBody(req) {
 module.exports = async (req, res) => {
     await initDb();
 
-    if (req.method === "GET") {
-        const url = new URL(req.url, `http://${req.headers.host}`);
-        const userId = Number(url.searchParams.get("userId"));
-        if (!userId || Number.isNaN(userId)) {
-            res.statusCode = 400;
-            res.setHeader("Content-Type", "application/json; charset=utf-8");
-            res.end(JSON.stringify({ error: "缺少或非法的 userId" }));
-            return;
-        }
+    const user = getUserFromRequest(req);
+    if (!user) {
+        res.statusCode = 401;
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+        res.end(JSON.stringify({ error: "未登录或会话已失效" }));
+        return;
+    }
 
+    if (req.method === "GET") {
         const client = await pool.connect();
         try {
             const result = await client.query(
                 "SELECT score, difficulty, EXTRACT(EPOCH FROM played_at) * 1000 AS timestamp FROM scores WHERE user_id = $1 ORDER BY played_at DESC LIMIT 100",
-                [userId]
+                [user.id]
             );
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -50,16 +50,9 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === "POST") {
-        const { userId, score, difficulty, timestamp } = await parseJsonBody(req);
-        const uid = Number(userId);
+        const { score, difficulty, timestamp } = await parseJsonBody(req);
         const s = Number(score);
 
-        if (!uid || Number.isNaN(uid)) {
-            res.statusCode = 400;
-            res.setHeader("Content-Type", "application/json; charset=utf-8");
-            res.end(JSON.stringify({ error: "缺少或非法的 userId" }));
-            return;
-        }
         if (Number.isNaN(s)) {
             res.statusCode = 400;
             res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -85,7 +78,7 @@ module.exports = async (req, res) => {
         try {
             await client.query(
                 "INSERT INTO scores (user_id, score, difficulty, played_at) VALUES ($1, $2, $3, $4)",
-                [uid, s, String(difficulty), ts]
+                [user.id, s, String(difficulty), ts]
             );
             res.statusCode = 200;
             res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -105,4 +98,3 @@ module.exports = async (req, res) => {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.end(JSON.stringify({ error: "Method Not Allowed" }));
 };
-

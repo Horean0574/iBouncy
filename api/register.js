@@ -1,4 +1,6 @@
 const { pool, initDb } = require("./_db");
+const { signToken, setAuthCookie } = require("./_auth");
+const bcrypt = require("bcryptjs");
 
 async function parseJsonBody(req) {
     return new Promise((resolve) => {
@@ -26,27 +28,39 @@ module.exports = async (req, res) => {
 
     await initDb();
 
-    const { username, password } = await parseJsonBody(req);
+    const { username, password, nickname } = await parseJsonBody(req);
     if (!username || !password) {
         res.statusCode = 400;
         res.setHeader("Content-Type", "application/json; charset=utf-8");
         res.end(JSON.stringify({ error: "用户名和密码不能为空" }));
         return;
     }
-    if (String(username).length < 3 || String(password).length < 3) {
+    if (String(username).length < 3 || String(password).length < 6) {
         res.statusCode = 400;
         res.setHeader("Content-Type", "application/json; charset=utf-8");
-        res.end(JSON.stringify({ error: "用户名和密码长度至少为 3 位" }));
+        res.end(JSON.stringify({ error: "用户名至少 3 位，密码至少 6 位" }));
         return;
     }
+
+    const nicknameStr = nickname == null ? "" : String(nickname).trim();
+    if (!nicknameStr) {
+        res.statusCode = 400;
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+        res.end(JSON.stringify({ error: "昵称不能为空" }));
+        return;
+    }
+
+    const passwordHash = await bcrypt.hash(String(password), 10);
 
     const client = await pool.connect();
     try {
         const result = await client.query(
-            "INSERT INTO users (username, password_hash) VALUES ($1, $2) RETURNING id, username",
-            [String(username), String(password)]
+            "INSERT INTO users (username, password_hash, nickname) VALUES ($1, $2, $3) RETURNING id, username, nickname",
+            [String(username), passwordHash, nicknameStr]
         );
         const user = result.rows[0];
+        const token = signToken(user);
+        setAuthCookie(res, token);
         res.statusCode = 200;
         res.setHeader("Content-Type", "application/json; charset=utf-8");
         res.end(JSON.stringify({ user }));
@@ -65,4 +79,3 @@ module.exports = async (req, res) => {
         client.release();
     }
 };
-

@@ -53,6 +53,19 @@ npm run build
 npm run preview  # 预览构建结果
 ```
 
+### 环境变量（登录与成绩同步）
+
+启用「登录 / 注册」与「历史成绩云端同步」时，需配置以下环境变量（如使用 Vercel 部署，请在项目 Settings → Environment Variables 中设置）：
+
+| 变量名 | 说明 |
+|--------|------|
+| `POSTGRES_URL` | PostgreSQL 数据库连接串，例如：`postgres://用户:密码@主机:5432/数据库名` |
+| `JWT_SECRET` | 用于签发登录会话 Token 的密钥，建议使用较长随机字符串 |
+
+- **仅本地/前端**：不配置上述变量时，游戏可正常游玩，成绩仅保存在浏览器本地。
+- **本地跑后端**：在项目根目录执行 `npm run server` 前，需设置 `POSTGRES_URL` 和（若使用 token 登录）`JWT_SECRET`。
+- **Vercel 部署**：在 Vercel 控制台为项目配置 `POSTGRES_URL` 与 `JWT_SECRET` 后，前端请求会走 `/api` 云函数，实现登录与成绩同步。
+
 ## 📁 项目结构
 ```text
 iBouncy/
