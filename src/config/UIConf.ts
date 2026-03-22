@@ -142,8 +142,17 @@ export const UIConf = {
     },
     GrowthCenter: {
       BREAKPOINT: 768,
-      CARD_MAX_W: 940,
+      /** PC 主卡片最大宽度，减少两侧留白 */
+      CARD_FIXED_W_PC: 800,
       CARD_MAX_H: 680,
+      /** 移动端卡片距屏幕左右边距 */
+      MOBILE_MARGIN: 16,
+      /** 移动端卡片上下留白 */
+      MOBILE_V_MARGIN: 12,
+      /** 移动端卡片纵向间距（快捷入口等） */
+      MOBILE_BLOCK_GAP: 20,
+      /** 触屏最小点击区域 */
+      MIN_TOUCH: 44,
       NAV_W: 112,
       PAD: 20,
       GAP: 14,
@@ -155,8 +164,11 @@ export const UIConf = {
       CAPTION_SIZE: 12,
       PROGRESS_H: 8,
       NAV_ITEM_H: 44,
-      TAB_H: 44,
-      FOOTER_BTN_MIN_W: 88
+      TAB_H: 48,
+      FOOTER_BTN_MIN_W: 88,
+      /** 字号缩放参考宽度：PC / 移动 */
+      FONT_REF_W_PC: 1280,
+      FONT_REF_W_MOBILE: 390
     }
   },
   OptionsMenu: {

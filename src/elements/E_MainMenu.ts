@@ -67,11 +67,31 @@ export default class E_MainMenu extends Group {
   private growthShortcutTaskDot!: Text;
   private growthShortcutAchDot!: Text;
   private growthShortcutCheckinDot!: Text;
+  private growthOverviewTopCard!: Rect;
+  private growthOverviewAvatarRect!: Rect;
+  private growthShortcutTaskG!: Group;
+  private growthShortcutAchG!: Group;
+  private growthShortcutCheckG!: Group;
+  private growthShortcutTaskInner!: Rect;
+  private growthShortcutAchInner!: Rect;
+  private growthShortcutCheckInner!: Rect;
+  private growthTaskSectionTitle!: Text;
+  private growthSignBtn!: Text;
+  private growthMakeupBtn!: Text;
+  private growthClaimAllBtn!: Text;
+  private growthAchieveCardBg!: Rect;
+  private growthSkinsCardBg!: Rect;
+  private growthDataCardBg!: Rect;
+  private growthOpenRankBtn!: Text;
+  private growthDataRankBtn!: Text;
+  private growthDataAccountBtn!: Text;
+  private growthCloseHit!: Rect;
+  private growthLayoutMobile = false;
   private growthLeaderModal!: Group;
   private growthLeaderRowsText!: Text;
   private growthLeaderMeText!: Text;
   private growthNavEntries: Array<{ id: string; bg: Rect; label: Text }> = [];
-  private growthTabEntries: Array<{ id: string; label: Text }> = [];
+  private growthTabEntries: Array<{ id: string; label: Text; hit: Rect; wrap: Group }> = [];
   private growthActiveSection: "overview" | "tasks" | "achievements" | "skins" | "data" =
     "overview";
   private growthCached: {
@@ -80,7 +100,7 @@ export default class E_MainMenu extends Group {
     checkin: Awaited<ReturnType<typeof fetchCheckinStatus>>;
     level: Awaited<ReturnType<typeof fetchLevelInfo>>;
   } | null = null;
-  GrowthActionButtons: Array<{ action: string; button: Text }> = [];
+  GrowthActionButtons: Array<{ action: string; button: Group }> = [];
   GrowthTaskClaimButtons: Array<{ taskType: string; button: Text }> = [];
   growthTasksSnapshot: Array<{ taskType: string; title: string; status: string }> = [];
   growthBoardType: "global" | "daily" | "weekly" = "global";
@@ -327,7 +347,7 @@ export default class E_MainMenu extends Group {
       x: GP.bw / 2,
       y: GP.bh / 2,
       around: "center",
-      width: Math.min(GP.bw * 0.92, gc.CARD_MAX_W),
+      width: Math.min(GP.bw - 2 * gc.MOBILE_MARGIN, gc.CARD_FIXED_W_PC),
       height: Math.min(GP.bh * 0.86, gc.CARD_MAX_H),
       radius: 16,
       fill: gc.CARD_FILL,
@@ -373,6 +393,17 @@ export default class E_MainMenu extends Group {
     this.growthCloseBtn.hoverStyle = { fill: ColorConf.PRIMARY, scale: 1.08 };
     this.growthCloseBtn.on(PointerEvent.TAP, () => this.hideGrowthPanel_());
     rg.add(this.growthCloseBtn);
+
+    this.growthCloseHit = new Rect({
+      x: 0,
+      y: 0,
+      width: gc.MIN_TOUCH,
+      height: gc.MIN_TOUCH,
+      fill: "rgba(0,0,0,0.02)",
+      cursor: "pointer"
+    });
+    this.growthCloseHit.on(PointerEvent.TAP, () => this.hideGrowthPanel_());
+    rg.add(this.growthCloseHit);
 
     this.growthNavGroup = new Group({ x: 8, y: 50, width: gc.NAV_W, height: 520 });
     rg.add(this.growthNavGroup);
@@ -441,20 +472,32 @@ export default class E_MainMenu extends Group {
       { id: "data", label: "更多" }
     ];
     tabSpec.forEach((t, i) => {
-      const tx = i * 76;
+      const wrap = new Group({ x: i * 76, y: 0, cursor: "pointer" });
+      const hit = new Rect({
+        x: 0,
+        y: 0,
+        width: 72,
+        height: Math.max(gc.TAB_H, gc.MIN_TOUCH),
+        fill: "rgba(0,0,0,0.02)",
+        radius: 8
+      });
       const lab = new Text({
-        x: tx,
-        y: gc.TAB_H / 2,
-        around: "left",
+        x: 36,
+        y: hit.height / 2,
+        around: "center",
         text: t.label,
         fontSize: gc.CAPTION_SIZE + 1,
         fill: ColorConf.GRAY,
         cursor: "pointer"
       });
-      lab.on(PointerEvent.TAP, () => this.setGrowthSection_(t.id));
+      const go = () => this.setGrowthSection_(t.id);
+      hit.on(PointerEvent.TAP, go);
+      lab.on(PointerEvent.TAP, go);
       lab.hoverStyle = { fill: ColorConf.PRIMARY };
-      this.growthTabGroup.add(lab);
-      this.growthTabEntries.push({ id: t.id, label: lab });
+      wrap.add(hit);
+      wrap.add(lab);
+      this.growthTabGroup.add(wrap);
+      this.growthTabEntries.push({ id: t.id, label: lab, hit, wrap });
     });
 
     this.growthContentHost = new Group({ x: gc.NAV_W + 16, y: 48, width: 700, height: 520 });
@@ -466,7 +509,7 @@ export default class E_MainMenu extends Group {
     this.growthSectionSkins = new Group({ x: 0, y: 0, width: 700, height: 520, visible: false });
     this.growthSectionData = new Group({ x: 0, y: 0, width: 700, height: 520, visible: false });
 
-    const cardStyle = (y: number, h: number) =>
+    const cardStyle = (y: number, h: number, strokeW = 1) =>
       new Rect({
         x: 0,
         y,
@@ -475,22 +518,22 @@ export default class E_MainMenu extends Group {
         radius: 12,
         fill: ColorConf.WHITE,
         stroke: "rgba(15,23,42,0.08)",
-        strokeWidth: 1
+        strokeWidth: strokeW
       });
 
-    this.growthSectionOverview.add(cardStyle(0, 118));
-    this.growthSectionOverview.add(
-      new Rect({
-        x: 16,
-        y: 16,
-        width: 52,
-        height: 52,
-        radius: 26,
-        fill: "rgba(32,168,215,0.2)",
-        stroke: "rgba(32,168,215,0.35)",
-        strokeWidth: 1
-      })
-    );
+    this.growthOverviewTopCard = cardStyle(0, 118);
+    this.growthSectionOverview.add(this.growthOverviewTopCard);
+    this.growthOverviewAvatarRect = new Rect({
+      x: 16,
+      y: 16,
+      width: 52,
+      height: 52,
+      radius: 26,
+      fill: "rgba(32,168,215,0.2)",
+      stroke: "rgba(32,168,215,0.35)",
+      strokeWidth: 1
+    });
+    this.growthSectionOverview.add(this.growthOverviewAvatarRect);
     this.growthOverviewNick = new Text({
       x: 82,
       y: 22,
@@ -543,18 +586,17 @@ export default class E_MainMenu extends Group {
     const shortcutY = 168;
     const mkShortcut = (sx: number, title: string, dot: "task" | "ach" | "check") => {
       const g = new Group({ x: sx, y: shortcutY, cursor: "pointer" });
-      g.add(
-        new Rect({
-          x: 0,
-          y: 0,
-          width: 200,
-          height: 72,
-          radius: 10,
-          fill: "#F8FAFC",
-          stroke: "rgba(32,168,215,0.15)",
-          strokeWidth: 1
-        })
-      );
+      const inner = new Rect({
+        x: 0,
+        y: 0,
+        width: 200,
+        height: 72,
+        radius: 10,
+        fill: "#F8FAFC",
+        stroke: "rgba(32,168,215,0.15)",
+        strokeWidth: 1
+      });
+      g.add(inner);
       g.add(
         new Text({
           x: 12,
@@ -575,18 +617,33 @@ export default class E_MainMenu extends Group {
         visible: false
       });
       g.add(d);
-      if (dot === "task") this.growthShortcutTaskDot = d;
-      if (dot === "ach") this.growthShortcutAchDot = d;
-      if (dot === "check") this.growthShortcutCheckinDot = d;
+      if (dot === "task") {
+        this.growthShortcutTaskDot = d;
+        this.growthShortcutTaskG = g;
+        this.growthShortcutTaskInner = inner;
+      }
+      if (dot === "ach") {
+        this.growthShortcutAchDot = d;
+        this.growthShortcutAchG = g;
+        this.growthShortcutAchInner = inner;
+      }
+      if (dot === "check") {
+        this.growthShortcutCheckinDot = d;
+        this.growthShortcutCheckG = g;
+        this.growthShortcutCheckInner = inner;
+      }
       g.on(PointerEvent.TAP, () => {
         if (dot === "task" || dot === "check") this.setGrowthSection_("tasks");
         else this.setGrowthSection_("achievements");
       });
-      return g;
+      return { g, inner };
     };
-    this.growthSectionOverview.add(mkShortcut(0, "任务进度", "task"));
-    this.growthSectionOverview.add(mkShortcut(216, "成就（即将）", "ach"));
-    this.growthSectionOverview.add(mkShortcut(432, "签到奖励", "check"));
+    mkShortcut(0, "任务进度", "task");
+    mkShortcut(216, "成就（即将）", "ach");
+    mkShortcut(432, "签到奖励", "check");
+    this.growthSectionOverview.add(this.growthShortcutTaskG);
+    this.growthSectionOverview.add(this.growthShortcutAchG);
+    this.growthSectionOverview.add(this.growthShortcutCheckG);
 
     this.growthOverviewStats = new Text({
       x: 0,
@@ -612,7 +669,7 @@ export default class E_MainMenu extends Group {
     this.growthOverviewRankLine.on(PointerEvent.TAP, () => this.showGrowthLeaderModal_());
     this.growthSectionOverview.add(this.growthOverviewRankLine);
 
-    const openRankBtn = new Text({
+    this.growthOpenRankBtn = new Text({
       x: 0,
       y: 338,
       around: "left",
@@ -621,22 +678,21 @@ export default class E_MainMenu extends Group {
       fill: ColorConf.PRIMARY,
       cursor: "pointer"
     });
-    openRankBtn.hoverStyle = { scale: 1.03 };
-    openRankBtn.on(PointerEvent.TAP, () => this.showGrowthLeaderModal_());
-    this.growthSectionOverview.add(openRankBtn);
+    this.growthOpenRankBtn.hoverStyle = { scale: 1.03 };
+    this.growthOpenRankBtn.on(PointerEvent.TAP, () => this.showGrowthLeaderModal_());
+    this.growthSectionOverview.add(this.growthOpenRankBtn);
 
-    this.growthSectionTasks.add(
-      new Text({
-        x: 0,
-        y: 0,
-        around: "left",
-        text: "任务与签到",
-        fontSize: gc.SUBTITLE_SIZE,
-        fill: ColorConf.DARK_GRAY
-      })
-    );
+    this.growthTaskSectionTitle = new Text({
+      x: 0,
+      y: 0,
+      around: "left",
+      text: "任务与签到",
+      fontSize: gc.SUBTITLE_SIZE,
+      fill: ColorConf.DARK_GRAY
+    });
+    this.growthSectionTasks.add(this.growthTaskSectionTitle);
     const taskBarY = 36;
-    const signBtn = new Text({
+    this.growthSignBtn = new Text({
       x: 0,
       y: taskBarY,
       around: "left",
@@ -645,8 +701,8 @@ export default class E_MainMenu extends Group {
       fill: ColorConf.PRIMARY,
       cursor: "pointer"
     });
-    signBtn.on(PointerEvent.TAP, () => void this.handleGrowthAction_("checkin"));
-    const makeupBtn = new Text({
+    this.growthSignBtn.on(PointerEvent.TAP, () => void this.handleGrowthAction_("checkin"));
+    this.growthMakeupBtn = new Text({
       x: 64,
       y: taskBarY,
       around: "left",
@@ -655,8 +711,8 @@ export default class E_MainMenu extends Group {
       fill: ColorConf.PRIMARY,
       cursor: "pointer"
     });
-    makeupBtn.on(PointerEvent.TAP, () => void this.handleGrowthAction_("makeup"));
-    const claimAllBtn = new Text({
+    this.growthMakeupBtn.on(PointerEvent.TAP, () => void this.handleGrowthAction_("makeup"));
+    this.growthClaimAllBtn = new Text({
       x: 140,
       y: taskBarY,
       around: "left",
@@ -665,16 +721,17 @@ export default class E_MainMenu extends Group {
       fill: ColorConf.SUCCESS,
       cursor: "pointer"
     });
-    claimAllBtn.hoverStyle = { fill: ColorConf.PRIMARY };
-    claimAllBtn.on(PointerEvent.TAP, () => void this.claimAllGrowthTasks_());
-    this.growthSectionTasks.add(signBtn);
-    this.growthSectionTasks.add(makeupBtn);
-    this.growthSectionTasks.add(claimAllBtn);
+    this.growthClaimAllBtn.hoverStyle = { fill: ColorConf.PRIMARY };
+    this.growthClaimAllBtn.on(PointerEvent.TAP, () => void this.claimAllGrowthTasks_());
+    this.growthSectionTasks.add(this.growthSignBtn);
+    this.growthSectionTasks.add(this.growthMakeupBtn);
+    this.growthSectionTasks.add(this.growthClaimAllBtn);
 
     this.growthTaskListGroup = new Group({ x: 0, y: 72, width: 680, height: 420 });
     this.growthSectionTasks.add(this.growthTaskListGroup);
 
-    this.growthSectionAchievements.add(cardStyle(0, 200));
+    this.growthAchieveCardBg = cardStyle(0, 200);
+    this.growthSectionAchievements.add(this.growthAchieveCardBg);
     this.growthSectionAchievements.add(
       new Text({
         x: 20,
@@ -697,7 +754,8 @@ export default class E_MainMenu extends Group {
       })
     );
 
-    this.growthSectionSkins.add(cardStyle(0, 200));
+    this.growthSkinsCardBg = cardStyle(0, 200);
+    this.growthSectionSkins.add(this.growthSkinsCardBg);
     this.growthSectionSkins.add(
       new Text({
         x: 20,
@@ -720,7 +778,8 @@ export default class E_MainMenu extends Group {
       })
     );
 
-    this.growthSectionData.add(cardStyle(0, 240));
+    this.growthDataCardBg = cardStyle(0, 240);
+    this.growthSectionData.add(this.growthDataCardBg);
     this.growthSectionData.add(
       new Text({
         x: 20,
@@ -742,7 +801,7 @@ export default class E_MainMenu extends Group {
         lineHeight: 22
       })
     );
-    const dataRankBtn = new Text({
+    this.growthDataRankBtn = new Text({
       x: 20,
       y: 200,
       around: "left",
@@ -751,9 +810,9 @@ export default class E_MainMenu extends Group {
       fill: ColorConf.PRIMARY,
       cursor: "pointer"
     });
-    dataRankBtn.on(PointerEvent.TAP, () => this.showGrowthLeaderModal_());
-    this.growthSectionData.add(dataRankBtn);
-    const dataAccountBtn = new Text({
+    this.growthDataRankBtn.on(PointerEvent.TAP, () => this.showGrowthLeaderModal_());
+    this.growthSectionData.add(this.growthDataRankBtn);
+    this.growthDataAccountBtn = new Text({
       x: 20,
       y: 230,
       around: "left",
@@ -762,12 +821,12 @@ export default class E_MainMenu extends Group {
       fill: ColorConf.PRIMARY,
       cursor: "pointer"
     });
-    dataAccountBtn.hoverStyle = { fill: ColorConf.DARK_GRAY };
-    dataAccountBtn.on(PointerEvent.TAP, () => {
+    this.growthDataAccountBtn.hoverStyle = { fill: ColorConf.DARK_GRAY };
+    this.growthDataAccountBtn.on(PointerEvent.TAP, () => {
       this.hideGrowthPanel_();
       void this.showUserPanel_();
     });
-    this.growthSectionData.add(dataAccountBtn);
+    this.growthSectionData.add(this.growthDataAccountBtn);
 
     this.growthContentHost.add(this.growthSectionOverview);
     this.growthContentHost.add(this.growthSectionTasks);
@@ -777,25 +836,40 @@ export default class E_MainMenu extends Group {
 
     this.growthFooterGroup = new Group({ x: gc.PAD, y: 580, width: 800, height: 44 });
     rg.add(this.growthFooterGroup);
-    const addFoot = (x: number, label: string, action: string, primary = false) => {
-      const btn = new Text({
-        x,
-        y: 22,
+    const addFoot = (label: string, action: string, primary = false) => {
+      const g = new Group({ around: "center", cursor: "pointer" });
+      const hw = gc.FOOTER_BTN_MIN_W;
+      const hh = gc.MIN_TOUCH;
+      const hit = new Rect({
+        x: -hw / 2,
+        y: -hh / 2,
+        width: hw,
+        height: hh,
+        fill: "rgba(0,0,0,0.02)",
+        radius: 8
+      });
+      const lab = new Text({
+        x: 0,
+        y: 0,
         around: "center",
         text: label,
         fontSize: gc.BODY_SIZE,
         fill: primary ? ColorConf.PRIMARY : ColorConf.GRAY,
         cursor: "pointer"
       });
-      btn.hoverStyle = { fill: ColorConf.PRIMARY, scale: 1.03 };
-      btn.on(PointerEvent.TAP, () => void this.handleGrowthAction_(action));
-      this.GrowthActionButtons.push({ action, button: btn });
-      this.growthFooterGroup.add(btn);
+      lab.hoverStyle = { fill: ColorConf.PRIMARY, scale: 1.03 };
+      const fire = () => void this.handleGrowthAction_(action);
+      hit.on(PointerEvent.TAP, fire);
+      lab.on(PointerEvent.TAP, fire);
+      g.add(hit);
+      g.add(lab);
+      this.GrowthActionButtons.push({ action, button: g });
+      this.growthFooterGroup.add(g);
     };
-    addFoot(56, "刷新", "refresh", true);
-    addFoot(168, "榜单类型", "switch-type");
-    addFoot(280, "榜单范围", "switch-scope");
-    addFoot(420, "关闭", "close");
+    addFoot("刷新", "refresh", true);
+    addFoot("榜单类型", "switch-type");
+    addFoot("榜单范围", "switch-scope");
+    addFoot("关闭", "close");
 
     this.growthLeaderModal = new Group({
       x: 0,
@@ -1432,6 +1506,216 @@ export default class E_MainMenu extends Group {
     return width < this.confUI.GrowthCenter.BREAKPOINT;
   }
 
+  /** 视口宽度 → 字号缩放（Canvas 逻辑像素，对齐 rem/vw 思路） */
+  private growthFontScale_(viewportW: number, mobile: boolean) {
+    const gc = this.confUI.GrowthCenter;
+    const ref = mobile ? gc.FONT_REF_W_MOBILE : gc.FONT_REF_W_PC;
+    const s = viewportW / Math.max(320, ref);
+    if (mobile) return Math.min(1.12, Math.max(0.88, s));
+    return Math.min(1.04, Math.max(0.94, s));
+  }
+
+  private layoutGrowthResponsiveContent_(
+    contentW: number,
+    contentH: number,
+    mobile: boolean,
+    fs: (n: number) => number
+  ) {
+    const gc = this.confUI.GrowthCenter;
+    const padSections: Group[] = [
+      this.growthSectionOverview,
+      this.growthSectionTasks,
+      this.growthSectionAchievements,
+      this.growthSectionSkins,
+      this.growthSectionData
+    ];
+    padSections.forEach((g) => {
+      g.width = contentW;
+      g.height = contentH;
+    });
+
+    const scTitle = (grp: Group) => (grp.children[1] as Text | undefined);
+
+    if (mobile) {
+      this.growthOverviewTopCard.width = contentW;
+      this.growthOverviewTopCard.height = 128;
+      this.growthOverviewTopCard.strokeWidth = 0;
+
+      this.growthOverviewAvatarRect.x = 12;
+      this.growthOverviewAvatarRect.y = 12;
+      this.growthOverviewAvatarRect.width = 48;
+      this.growthOverviewAvatarRect.height = 48;
+      this.growthOverviewNick.x = 68;
+      this.growthOverviewNick.y = 18;
+      this.growthOverviewNick.fontSize = fs(gc.SUBTITLE_SIZE);
+      this.growthOverviewLevel.x = 68;
+      this.growthOverviewLevel.y = 46;
+      this.growthOverviewLevel.fontSize = fs(gc.BODY_SIZE);
+
+      const pw = Math.max(120, contentW - 24);
+      this.growthOverviewProgressTrack.x = 12;
+      this.growthOverviewProgressTrack.y = 84;
+      this.growthOverviewProgressTrack.width = pw;
+      this.growthOverviewProgressFill.x = 12;
+      this.growthOverviewProgressFill.y = 84;
+
+      this.growthOverviewTodo.x = 0;
+      this.growthOverviewTodo.y = 136;
+      this.growthOverviewTodo.fontSize = fs(gc.BODY_SIZE);
+
+      const gap = gc.MOBILE_BLOCK_GAP;
+      const sh = Math.max(64, gc.MIN_TOUCH + 14);
+      const yShortcuts = 136 + 44;
+      const order = [
+        this.growthShortcutTaskG,
+        this.growthShortcutAchG,
+        this.growthShortcutCheckG
+      ] as const;
+      const inners = [
+        this.growthShortcutTaskInner,
+        this.growthShortcutAchInner,
+        this.growthShortcutCheckInner
+      ] as const;
+      order.forEach((grp, i) => {
+        grp.x = 0;
+        grp.y = yShortcuts + i * (sh + gap);
+      });
+      inners.forEach((r) => {
+        r.width = contentW;
+        r.height = sh;
+        r.strokeWidth = 0;
+      });
+      [this.growthShortcutTaskDot, this.growthShortcutAchDot, this.growthShortcutCheckinDot].forEach(
+        (d) => {
+          if (d) d.x = contentW - 20;
+        }
+      );
+      order.forEach((grp) => {
+        const t = scTitle(grp);
+        if (t) t.fontSize = fs(gc.BODY_SIZE);
+      });
+
+      const afterSc = yShortcuts + order.length * sh + (order.length - 1) * gap + 16;
+      this.growthOverviewStats.x = 0;
+      this.growthOverviewStats.y = afterSc;
+      this.growthOverviewStats.fontSize = fs(gc.CAPTION_SIZE);
+      this.growthOverviewStats.lineHeight = fs(20);
+      this.growthOverviewRankLine.x = 0;
+      this.growthOverviewRankLine.y = afterSc + 42;
+      this.growthOverviewRankLine.fontSize = fs(gc.BODY_SIZE);
+      this.growthOpenRankBtn.x = 0;
+      this.growthOpenRankBtn.y = afterSc + 78;
+      this.growthOpenRankBtn.fontSize = fs(gc.BODY_SIZE);
+    } else {
+      this.growthOverviewTopCard.width = contentW;
+      this.growthOverviewTopCard.height = 118;
+      this.growthOverviewTopCard.strokeWidth = 1;
+
+      this.growthOverviewAvatarRect.x = 16;
+      this.growthOverviewAvatarRect.y = 16;
+      this.growthOverviewAvatarRect.width = 52;
+      this.growthOverviewAvatarRect.height = 52;
+      this.growthOverviewNick.x = 82;
+      this.growthOverviewNick.y = 22;
+      this.growthOverviewNick.fontSize = fs(gc.SUBTITLE_SIZE);
+      this.growthOverviewLevel.x = 82;
+      this.growthOverviewLevel.y = 50;
+      this.growthOverviewLevel.fontSize = fs(gc.BODY_SIZE);
+
+      const tw = Math.min(420, Math.max(180, contentW - 100));
+      this.growthOverviewProgressTrack.x = 82;
+      this.growthOverviewProgressTrack.y = 78;
+      this.growthOverviewProgressTrack.width = tw;
+      this.growthOverviewProgressFill.x = 82;
+      this.growthOverviewProgressFill.y = 78;
+
+      this.growthOverviewTodo.x = 0;
+      this.growthOverviewTodo.y = 132;
+      this.growthOverviewTodo.fontSize = fs(gc.BODY_SIZE);
+
+      const colGap = 12;
+      const sw = Math.max(168, Math.floor((contentW - colGap * 2) / 3));
+      const rowH = 72;
+      this.growthShortcutTaskG.x = 0;
+      this.growthShortcutTaskG.y = 168;
+      this.growthShortcutAchG.x = sw + colGap;
+      this.growthShortcutAchG.y = 168;
+      this.growthShortcutCheckG.x = 2 * (sw + colGap);
+      this.growthShortcutCheckG.y = 168;
+      this.growthShortcutTaskInner.width = sw;
+      this.growthShortcutTaskInner.height = rowH;
+      this.growthShortcutTaskInner.strokeWidth = 1;
+      this.growthShortcutAchInner.width = sw;
+      this.growthShortcutAchInner.height = rowH;
+      this.growthShortcutAchInner.strokeWidth = 1;
+      this.growthShortcutCheckInner.width = sw;
+      this.growthShortcutCheckInner.height = rowH;
+      this.growthShortcutCheckInner.strokeWidth = 1;
+      if (this.growthShortcutTaskDot) this.growthShortcutTaskDot.x = sw - 16;
+      if (this.growthShortcutAchDot) this.growthShortcutAchDot.x = sw - 16;
+      if (this.growthShortcutCheckinDot) this.growthShortcutCheckinDot.x = sw - 16;
+      [this.growthShortcutTaskG, this.growthShortcutAchG, this.growthShortcutCheckG].forEach((grp) => {
+        const t = scTitle(grp);
+        if (t) t.fontSize = fs(gc.BODY_SIZE);
+      });
+
+      this.growthOverviewStats.x = 0;
+      this.growthOverviewStats.y = 258;
+      this.growthOverviewStats.fontSize = fs(gc.CAPTION_SIZE);
+      this.growthOverviewStats.lineHeight = 20;
+      this.growthOverviewRankLine.x = 0;
+      this.growthOverviewRankLine.y = 300;
+      this.growthOverviewRankLine.fontSize = fs(gc.BODY_SIZE);
+      this.growthOpenRankBtn.x = 0;
+      this.growthOpenRankBtn.y = 338;
+      this.growthOpenRankBtn.fontSize = fs(gc.BODY_SIZE);
+    }
+
+    this.growthTaskSectionTitle.fontSize = fs(gc.SUBTITLE_SIZE);
+    if (mobile) {
+      const step = gc.MIN_TOUCH + 8;
+      let ty = 36;
+      this.growthSignBtn.x = 0;
+      this.growthSignBtn.y = ty;
+      this.growthSignBtn.fontSize = fs(gc.BODY_SIZE);
+      ty += step;
+      this.growthMakeupBtn.x = 0;
+      this.growthMakeupBtn.y = ty;
+      this.growthMakeupBtn.fontSize = fs(gc.BODY_SIZE);
+      ty += step;
+      this.growthClaimAllBtn.x = 0;
+      this.growthClaimAllBtn.y = ty;
+      this.growthClaimAllBtn.fontSize = fs(gc.BODY_SIZE);
+      ty += step + 8;
+      this.growthTaskListGroup.x = 0;
+      this.growthTaskListGroup.y = ty;
+      this.growthTaskListGroup.width = contentW;
+      this.growthTaskListGroup.height = Math.max(100, contentH - ty - 4);
+    } else {
+      this.growthSignBtn.x = 0;
+      this.growthSignBtn.y = 36;
+      this.growthSignBtn.fontSize = fs(gc.BODY_SIZE);
+      this.growthMakeupBtn.x = 72;
+      this.growthMakeupBtn.y = 36;
+      this.growthMakeupBtn.fontSize = fs(gc.BODY_SIZE);
+      this.growthClaimAllBtn.x = 148;
+      this.growthClaimAllBtn.y = 36;
+      this.growthClaimAllBtn.fontSize = fs(gc.BODY_SIZE);
+      this.growthTaskListGroup.x = 0;
+      this.growthTaskListGroup.y = 72;
+      this.growthTaskListGroup.width = contentW;
+      this.growthTaskListGroup.height = Math.max(160, contentH - 80);
+    }
+
+    const cardStroke = mobile ? 0 : 1;
+    this.growthAchieveCardBg.width = contentW;
+    this.growthSkinsCardBg.width = contentW;
+    this.growthDataCardBg.width = contentW;
+    this.growthAchieveCardBg.strokeWidth = cardStroke;
+    this.growthSkinsCardBg.strokeWidth = cardStroke;
+    this.growthDataCardBg.strokeWidth = cardStroke;
+  }
+
   private applyGrowthData_() {
     if (!this.growthCached) return;
     const { board, tasks, checkin, level } = this.growthCached;
@@ -1608,6 +1892,7 @@ export default class E_MainMenu extends Group {
   private renderGrowthTasks_(tasks: Array<any>) {
     this.growthTaskListGroup.removeAll();
     this.GrowthTaskClaimButtons = [];
+    const mobile = this.growthLayoutMobile;
     if (!tasks.length) {
       this.growthTaskListGroup.add(
         new Text({
@@ -1615,52 +1900,57 @@ export default class E_MainMenu extends Group {
           y: 0,
           around: "left",
           text: "今天暂无任务",
-          fontSize: 13,
+          fontSize: mobile ? 14 : 13,
           fill: "#64748B"
         })
       );
       return;
     }
 
-    const hostW = Math.max(260, (this.growthContentHost?.width || 520) - 24);
-    const rowWidth = Math.min(hostW, 640);
-    const actionX = rowWidth - 54;
+    const hostW = Math.max(200, (this.growthContentHost?.width || 520) - (mobile ? 8 : 24));
+    const rowWidth = mobile ? hostW : Math.min(hostW, 640);
+    const rowStride = mobile ? 90 : 78;
+    const rowH = mobile ? 78 : 66;
+    const titleFs = mobile ? 14 : 14;
+    const metaFs = mobile ? 12 : 12;
+    const actionX = rowWidth - (mobile ? 40 : 54);
+    const strokeW = mobile ? 0 : 1;
     tasks.forEach((t, idx) => {
-      const y = idx * 78;
+      const y = idx * rowStride;
       const row = new Rect({
         x: 0,
         y,
         width: rowWidth,
-        height: 66,
+        height: rowH,
         radius: 10,
         fill: t.status === "completed" ? "#E8FFF1" : "#F8FAFC",
         stroke: "rgba(15,23,42,0.08)",
-        strokeWidth: 1
+        strokeWidth: strokeW
       });
       const title = new Text({
         x: 12,
-        y: y + 11,
+        y: y + 12,
         around: "left",
         text: t.title,
-        fontSize: 14,
+        fontSize: titleFs,
         fill: "#0F172A"
       });
       const meta = new Text({
         x: 12,
-        y: y + 36,
+        y: y + (mobile ? 44 : 36),
         around: "left",
         text: `进度 ${t.progress}/${t.target} ｜ 奖励 +${t.rewardPoints}`,
-        fontSize: 12,
+        fontSize: metaFs,
         fill: "#475569"
       });
       const statusText =
         t.status === "claimed" ? "已领取" : t.status === "completed" ? "可领取" : "进行中";
       const actionBtn = new Text({
         x: actionX,
-        y: y + 24,
+        y: y + rowH / 2,
         around: "center",
         text: t.status === "completed" ? "领取" : statusText,
-        fontSize: 12,
+        fontSize: mobile ? 13 : 12,
         fill: t.status === "completed" ? ColorConf.SUCCESS : "#94A3B8",
         cursor: t.status === "completed" ? "pointer" : "default"
       });
@@ -1987,67 +2277,152 @@ export default class E_MainMenu extends Group {
   private relocateGrowthPanelLayout_(width: number, height: number) {
     if (!this.GrowthCard || !this.growthRootGroup) return;
     const gc = this.confUI.GrowthCenter;
-    const cardWidth = Math.min(width * 0.92, gc.CARD_MAX_W);
-    const cardHeight = Math.min(height * 0.86, gc.CARD_MAX_H);
-    const left = width / 2 - cardWidth / 2;
-    const top = height / 2 - cardHeight / 2;
-    const mobile = this.isGrowthMobileLayout_(width);
+    const mobile = width < gc.BREAKPOINT;
+    this.growthLayoutMobile = mobile;
 
-    this.GrowthCard.x = width / 2;
-    this.GrowthCard.y = height / 2;
+    let cardWidth: number;
+    let cardHeight: number;
+    let left: number;
+    let top: number;
+
+    if (mobile) {
+      cardWidth = Math.max(280, width - 2 * gc.MOBILE_MARGIN);
+      left = gc.MOBILE_MARGIN;
+      top = gc.MOBILE_V_MARGIN;
+      const maxH = height - top - gc.MOBILE_V_MARGIN;
+      cardHeight = Math.min(gc.CARD_MAX_H, maxH);
+      this.GrowthCard.strokeWidth = 0;
+      this.GrowthCard.stroke = "transparent";
+    } else {
+      cardWidth = Math.min(gc.CARD_FIXED_W_PC, width - 48);
+      cardWidth = Math.max(520, cardWidth);
+      const ch = Math.min(gc.CARD_MAX_H, height * 0.88);
+      cardHeight = ch;
+      left = (width - cardWidth) / 2;
+      top = (height - cardHeight) / 2;
+      this.GrowthCard.strokeWidth = 1;
+      this.GrowthCard.stroke = gc.CARD_STROKE;
+    }
+
+    this.GrowthCard.x = left + cardWidth / 2;
+    this.GrowthCard.y = top + cardHeight / 2;
     this.GrowthCard.width = cardWidth;
     this.GrowthCard.height = cardHeight;
 
     this.growthRootGroup.x = left;
     this.growthRootGroup.y = top;
 
+    const fsc = this.growthFontScale_(width, mobile);
+    const fs = (n: number) => Math.round(n * fsc);
+
+    this.growthTitleText.fontSize = fs(mobile ? gc.SUBTITLE_SIZE + 1 : gc.TITLE_SIZE);
     this.growthTitleText.x = gc.PAD;
-    this.growthTitleText.y = 18;
-    this.growthTitleText.fontSize = mobile ? gc.SUBTITLE_SIZE : gc.TITLE_SIZE;
+    this.growthTitleText.y = mobile ? 14 : 18;
 
+    this.GrowthStatusText.fontSize = fs(gc.CAPTION_SIZE);
     this.GrowthStatusText.x = cardWidth - gc.PAD;
-    this.GrowthStatusText.y = 20;
+    this.GrowthStatusText.y = mobile ? 16 : 20;
 
-    this.growthCloseBtn.x = cardWidth - gc.PAD;
-    this.growthCloseBtn.y = 18;
+    this.growthCloseBtn.fontSize = fs(22);
+    this.growthCloseBtn.x = cardWidth - gc.PAD - 8;
+    this.growthCloseBtn.y = mobile ? 14 : 18;
+
+    if (this.growthCloseHit) {
+      this.growthCloseHit.around = "center";
+      this.growthCloseHit.x = this.growthCloseBtn.x;
+      this.growthCloseHit.y = this.growthCloseBtn.y;
+      this.growthCloseHit.width = gc.MIN_TOUCH;
+      this.growthCloseHit.height = gc.MIN_TOUCH;
+    }
 
     this.growthNavGroup.visible = !mobile;
     this.growthTabGroup.visible = mobile;
-    this.growthNavGroup.y = 52;
-    this.growthTabGroup.y = 48;
+    this.growthNavGroup.y = 50;
+    this.growthTabGroup.y = 44;
     this.growthTabGroup.x = gc.PAD;
 
-    const navW = mobile ? 0 : gc.NAV_W;
-    const tabH = mobile ? gc.TAB_H + 10 : 0;
-    const contentX = mobile ? gc.PAD : navW + 16;
-    const contentY = mobile ? 48 + tabH : 52;
-    const contentW = cardWidth - contentX - gc.PAD;
-    const contentH = cardHeight - contentY - 52;
+    const tabBarH = mobile ? Math.max(gc.TAB_H, gc.MIN_TOUCH) + 8 : 0;
+    const contentX = mobile ? gc.PAD : gc.NAV_W + 16;
+    const contentY = mobile ? 40 + tabBarH : 52;
+    const footerReserve = mobile ? 112 : 52;
+    const contentW = Math.max(240, cardWidth - contentX - gc.PAD);
+    const contentH = Math.max(160, cardHeight - contentY - footerReserve);
+
+    if (mobile && this.growthTabEntries.length) {
+      const tabUsableW = cardWidth - 2 * gc.PAD;
+      const tabW = tabUsableW / this.growthTabEntries.length;
+      this.growthTabGroup.width = tabUsableW;
+      this.growthTabGroup.height = tabBarH;
+      this.growthTabEntries.forEach((e, i) => {
+        e.wrap.x = i * tabW;
+        e.hit.width = Math.max(gc.MIN_TOUCH, tabW - 6);
+        e.hit.height = Math.max(gc.TAB_H, gc.MIN_TOUCH);
+        e.hit.x = (tabW - e.hit.width) / 2;
+        e.hit.y = 2;
+        e.label.x = tabW / 2;
+        e.label.y = e.hit.y + e.hit.height / 2;
+        e.label.around = "center";
+        e.label.fontSize = fs(gc.CAPTION_SIZE + 1);
+      });
+    }
 
     this.growthContentHost.x = contentX;
     this.growthContentHost.y = contentY;
     this.growthContentHost.width = contentW;
     this.growthContentHost.height = contentH;
 
-    this.growthOverviewProgressTrack.width = Math.min(420, Math.max(180, contentW - 100));
+    this.layoutGrowthResponsiveContent_(contentW, contentH, mobile, fs);
 
-    this.growthFooterGroup.y = cardHeight - 46;
     this.growthFooterGroup.x = gc.PAD;
+    this.growthFooterGroup.width = cardWidth - 2 * gc.PAD;
+    this.growthFooterGroup.y = cardHeight - footerReserve;
 
-    const footY = 24;
-    const spacing = mobile ? 72 : 100;
-    const map: Record<string, number> = {
-      refresh: 48,
-      "switch-type": 48 + spacing,
-      "switch-scope": 48 + spacing * 2,
-      close: cardWidth - gc.PAD * 2 - 40
-    };
-    this.GrowthActionButtons.forEach(({ action, button }) => {
-      if (map[action] != null) {
+    if (mobile) {
+      const fw = this.growthFooterGroup.width;
+      const colGap = 10;
+      const cellW = (fw - colGap) / 2;
+      const rowH = gc.MIN_TOUCH;
+      const grid: Record<string, { col: number; row: number }> = {
+        refresh: { col: 0, row: 0 },
+        "switch-type": { col: 1, row: 0 },
+        "switch-scope": { col: 0, row: 1 },
+        close: { col: 1, row: 1 }
+      };
+      this.GrowthActionButtons.forEach(({ action, button }) => {
+        const g = grid[action];
+        if (!g) return;
+        button.x = cellW / 2 + g.col * (cellW + colGap);
+        button.y = rowH / 2 + g.row * (rowH + 10);
+        const hit = button.children[0] as Rect;
+        hit.width = Math.min(cellW - 6, 160);
+        hit.height = rowH;
+        hit.x = -hit.width / 2;
+        hit.y = -rowH / 2;
+        (button.children[1] as Text).fontSize = fs(gc.BODY_SIZE);
+      });
+      this.growthFooterGroup.height = rowH * 2 + 10 + 8;
+    } else {
+      const spacing = 92;
+      const footY = 22;
+      const map: Record<string, number> = {
+        refresh: 48,
+        "switch-type": 48 + spacing,
+        "switch-scope": 48 + spacing * 2,
+        close: this.growthFooterGroup.width - 52
+      };
+      this.GrowthActionButtons.forEach(({ action, button }) => {
+        if (map[action] == null) return;
         button.x = map[action];
         button.y = footY;
-      }
-    });
+        const hit = button.children[0] as Rect;
+        hit.width = gc.FOOTER_BTN_MIN_W;
+        hit.height = gc.MIN_TOUCH;
+        hit.x = -hit.width / 2;
+        hit.y = -gc.MIN_TOUCH / 2;
+        (button.children[1] as Text).fontSize = fs(gc.BODY_SIZE);
+      });
+      this.growthFooterGroup.height = 48;
+    }
 
     if (this.growthLeaderModal?.visible) {
       this.syncGrowthLeaderModalLayout_(width, height);
@@ -2057,6 +2432,7 @@ export default class E_MainMenu extends Group {
       const pct = Math.max(0, Math.min(1, this.growthCached.level.progressToNextLevel));
       const tw = this.growthOverviewProgressTrack.width || 420;
       this.growthOverviewProgressFill.width = Math.max(4, tw * pct);
+      this.renderGrowthTasks_(this.growthCached.tasks.tasks);
     }
   }
 
