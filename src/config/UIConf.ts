@@ -139,6 +139,24 @@ export const UIConf = {
       HINT_FILL: ColorConf.LIGHT_GRAY,
       PRIMARY_BTN_FILL: ColorConf.PRIMARY,
       DANGER_BTN_FILL: ColorConf.DANGER
+    },
+    GrowthCenter: {
+      BREAKPOINT: 768,
+      CARD_MAX_W: 940,
+      CARD_MAX_H: 680,
+      NAV_W: 112,
+      PAD: 20,
+      GAP: 14,
+      CARD_FILL: "#F5FCFF",
+      CARD_STROKE: "rgba(32,168,215,0.25)",
+      TITLE_SIZE: 20,
+      SUBTITLE_SIZE: 16,
+      BODY_SIZE: 14,
+      CAPTION_SIZE: 12,
+      PROGRESS_H: 8,
+      NAV_ITEM_H: 44,
+      TAB_H: 44,
+      FOOTER_BTN_MIN_W: 88
     }
   },
   OptionsMenu: {
