@@ -22,6 +22,7 @@ import {
 } from "../utils/auth";
 import { openAuthPanel } from "../ui/authPanel";
 import { showAlert, showConfirm, showPrompt } from "../ui/inPageModal";
+import { bindTapWithFeedback } from "../utils/uiTapFeedback";
 
 type DifficultyKey = keyof typeof DIFFICULTY_LEVELS;
 
@@ -207,7 +208,7 @@ export default class E_MainMenu extends Group {
         cursor: "pointer"
       }) as DifficultyText;
       t.$difficultyKey = key;
-      t.on(PointerEvent.TAP, () => this.onDifficultyTap(key));
+      bindTapWithFeedback(t, () => this.onDifficultyTap(key));
       this.DifficultyGroup.add(t);
       this.difficultyButtons.push(t);
     });
@@ -233,7 +234,7 @@ export default class E_MainMenu extends Group {
       cursor: "pointer"
     });
     this.HistoryButton.opacity = 0;
-    this.HistoryButton.on(PointerEvent.TAP, () => this.showHistory_());
+    bindTapWithFeedback(this.HistoryButton, () => this.showHistory_());
     this.HistoryButton.hoverStyle = { fill: histBtnConf.FILL_HOVER };
 
     this.GrowthButton = new Text({
@@ -246,7 +247,7 @@ export default class E_MainMenu extends Group {
       cursor: "pointer"
     });
     this.GrowthButton.opacity = 0;
-    this.GrowthButton.on(PointerEvent.TAP, () => this.showGrowthPanel_());
+    bindTapWithFeedback(this.GrowthButton, () => this.showGrowthPanel_());
     this.GrowthButton.hoverStyle = { fill: histBtnConf.FILL_HOVER };
 
     const accBtnConf = this.confUI.AccountButton;
@@ -259,7 +260,7 @@ export default class E_MainMenu extends Group {
       fill: accBtnConf.FILL,
       cursor: "pointer"
     });
-    this.AccountButton.on(PointerEvent.TAP, () => this.onAccountTap_());
+    bindTapWithFeedback(this.AccountButton, () => this.onAccountTap_());
     this.AccountButton.hoverStyle = { fill: accBtnConf.FILL_HOVER };
 
     this.HistoryPanel = this.createHistoryPanel_();
@@ -283,6 +284,7 @@ export default class E_MainMenu extends Group {
 
   private createHistoryPanel_() {
     const conf = this.confUI.ScoreHistory;
+    const Gl = UIConf.Glass;
     const panel = new Group({
       x: 0,
       y: 0,
@@ -296,20 +298,41 @@ export default class E_MainMenu extends Group {
       y: 0,
       width: GP.bw,
       height: GP.bh,
-      fill: UIConf.BACKGROUND_FILL,
-      opacity: 0.95
+      fill: Gl.OVERLAY_DIM,
+      opacity: 1
     });
     panel.add(bg);
+    const cardW = Math.min(580, GP.bw - 40);
+    const cardH = Math.min(GP.bh * 0.58, 520);
+    const historyCard = new Rect({
+      x: GP.bw / 2,
+      y: GP.bh * 0.44,
+      around: "center",
+      width: cardW,
+      height: cardH,
+      radius: Gl.RADIUS_WINDOW,
+      fill: Gl.CARD,
+      stroke: Gl.STROKE_ACCENT,
+      strokeWidth: 1,
+      shadow: {
+        x: 0,
+        y: Gl.SHADOW_Y,
+        blur: Gl.SHADOW_BLUR,
+        spread: 0,
+        color: Gl.SHADOW_COLOR
+      }
+    });
+    panel.add(historyCard);
     const title = new Text({
       x: GP.bw / 2,
-      y: GP.bh * 0.18,
+      y: GP.bh * 0.2,
       around: "center",
       text: "历史成绩",
       fontSize: conf.TITLE_FONT_SIZE,
       fill: conf.TITLE_FILL
     });
     panel.add(title);
-    this.HistoryRows = new Group({ x: GP.bw / 2, y: GP.bh * 0.32, around: "center" });
+    this.HistoryRows = new Group({ x: GP.bw / 2, y: GP.bh * 0.34, around: "center" });
     panel.add(this.HistoryRows);
     const buttonsY = GP.bh * 0.82;
     const closeBtn = new Text({
@@ -321,7 +344,7 @@ export default class E_MainMenu extends Group {
       fill: conf.CLOSE_FILL,
       cursor: "pointer"
     });
-    closeBtn.on(PointerEvent.TAP, () => this.hideHistory_());
+    bindTapWithFeedback(closeBtn, () => this.hideHistory_());
     closeBtn.hoverStyle = { fill: this.confUI.HistoryButton.FILL_HOVER };
     panel.add(closeBtn);
     const clearBtn = new Text({
@@ -333,7 +356,7 @@ export default class E_MainMenu extends Group {
       fill: conf.CLOSE_FILL,
       cursor: "pointer"
     });
-    clearBtn.on(PointerEvent.TAP, () => this.clearHistory_());
+    bindTapWithFeedback(clearBtn, () => this.clearHistory_());
     clearBtn.hoverStyle = { fill: this.confUI.HistoryButton.FILL_HOVER };
     panel.add(clearBtn);
     return panel;
@@ -341,6 +364,7 @@ export default class E_MainMenu extends Group {
 
   private createGrowthPanel_() {
     const gc = this.confUI.GrowthCenter;
+    const Gl = UIConf.Glass;
     const panel = new Group({
       x: 0,
       y: 0,
@@ -355,8 +379,8 @@ export default class E_MainMenu extends Group {
       y: 0,
       width: GP.bw,
       height: GP.bh,
-      fill: UIConf.BACKGROUND_FILL,
-      opacity: 0.95
+      fill: Gl.OVERLAY_DIM,
+      opacity: 1
     });
     panel.add(bg);
 
@@ -366,10 +390,17 @@ export default class E_MainMenu extends Group {
       around: "center",
       width: Math.min(GP.bw - 2 * gc.MOBILE_MARGIN, gc.CARD_FIXED_W_PC),
       height: Math.min(GP.bh * 0.86, gc.CARD_MAX_H),
-      radius: 16,
-      fill: gc.CARD_FILL,
-      stroke: gc.CARD_STROKE,
-      strokeWidth: 1
+      radius: Gl.RADIUS_WINDOW,
+      fill: Gl.CARD_DEEP,
+      stroke: Gl.STROKE_ACCENT,
+      strokeWidth: 1,
+      shadow: {
+        x: 0,
+        y: Gl.SHADOW_Y,
+        blur: Gl.SHADOW_BLUR,
+        spread: 0,
+        color: Gl.SHADOW_COLOR
+      }
     });
     panel.add(this.GrowthCard);
 
@@ -408,7 +439,7 @@ export default class E_MainMenu extends Group {
       cursor: "pointer"
     });
     this.growthCloseBtn.hoverStyle = { fill: ColorConf.PRIMARY, scale: 1.08 };
-    this.growthCloseBtn.on(PointerEvent.TAP, () => this.hideGrowthPanel_());
+    bindTapWithFeedback(this.growthCloseBtn, () => this.hideGrowthPanel_());
     rg.add(this.growthCloseBtn);
 
     this.growthCloseHit = new Rect({
@@ -419,7 +450,7 @@ export default class E_MainMenu extends Group {
       fill: "rgba(0,0,0,0.02)",
       cursor: "pointer"
     });
-    this.growthCloseHit.on(PointerEvent.TAP, () => this.hideGrowthPanel_());
+    bindTapWithFeedback(this.growthCloseHit, () => this.hideGrowthPanel_());
     rg.add(this.growthCloseHit);
 
     this.growthNavGroup = new Group({ x: 8, y: 50, width: gc.NAV_W, height: 520 });
@@ -442,9 +473,9 @@ export default class E_MainMenu extends Group {
         y: gy,
         width: gc.NAV_W - 4,
         height: gc.NAV_ITEM_H,
-        radius: 10,
-        fill: "rgba(32,168,215,0.12)",
-        stroke: "rgba(32,168,215,0.2)",
+        radius: Gl.RADIUS_CHIP,
+        fill: "rgba(32,168,215,0.14)",
+        stroke: "rgba(32,168,215,0.28)",
         strokeWidth: 1,
         cursor: "pointer"
       });
@@ -456,22 +487,16 @@ export default class E_MainMenu extends Group {
         fontSize: gc.BODY_SIZE - 1,
         fill: ColorConf.GRAY
       });
-      bgNav.on(PointerEvent.TAP, () => {
+      const navGo = () => {
         if (n.id === "settings") {
           this.hideGrowthPanel_();
           void this.showUserPanel_();
           return;
         }
         this.setGrowthSection_(n.id);
-      });
-      label.on(PointerEvent.TAP, () => {
-        if (n.id === "settings") {
-          this.hideGrowthPanel_();
-          void this.showUserPanel_();
-          return;
-        }
-        this.setGrowthSection_(n.id);
-      });
+      };
+      bindTapWithFeedback(bgNav, navGo);
+      bindTapWithFeedback(label, navGo);
       label.cursor = "pointer";
       this.growthNavGroup.add(bgNav);
       this.growthNavGroup.add(label);
@@ -496,7 +521,7 @@ export default class E_MainMenu extends Group {
         width: 72,
         height: Math.max(gc.TAB_H, gc.MIN_TOUCH),
         fill: "rgba(0,0,0,0.02)",
-        radius: 8
+        radius: Gl.RADIUS_CHIP
       });
       const lab = new Text({
         x: 36,
@@ -508,8 +533,8 @@ export default class E_MainMenu extends Group {
         cursor: "pointer"
       });
       const go = () => this.setGrowthSection_(t.id);
-      hit.on(PointerEvent.TAP, go);
-      lab.on(PointerEvent.TAP, go);
+      bindTapWithFeedback(hit, go);
+      bindTapWithFeedback(lab, go);
       lab.hoverStyle = { fill: ColorConf.PRIMARY };
       wrap.add(hit);
       wrap.add(lab);
@@ -532,9 +557,9 @@ export default class E_MainMenu extends Group {
         y,
         width: 680,
         height: h,
-        radius: 12,
-        fill: ColorConf.WHITE,
-        stroke: "rgba(15,23,42,0.08)",
+        radius: Gl.RADIUS_CARD,
+        fill: Gl.CARD,
+        stroke: Gl.STROKE_ACCENT,
         strokeWidth: strokeW
       });
 
@@ -639,9 +664,9 @@ export default class E_MainMenu extends Group {
         y: 0,
         width: 200,
         height: 72,
-        radius: 10,
-        fill: "#F8FAFC",
-        stroke: "rgba(32,168,215,0.15)",
+        radius: Gl.RADIUS_CARD,
+        fill: Gl.CARD,
+        stroke: Gl.STROKE_ACCENT,
         strokeWidth: 1
       });
       g.add(inner);
@@ -680,7 +705,7 @@ export default class E_MainMenu extends Group {
         this.growthShortcutCheckG = g;
         this.growthShortcutCheckInner = inner;
       }
-      g.on(PointerEvent.TAP, () => {
+      bindTapWithFeedback(g, () => {
         if (dot === "task" || dot === "check") this.setGrowthSection_("tasks");
         else this.setGrowthSection_("achievements");
       });
@@ -714,7 +739,7 @@ export default class E_MainMenu extends Group {
       cursor: "pointer"
     });
     this.growthOverviewRankLine.hoverStyle = { fill: ColorConf.PRIMARY };
-    this.growthOverviewRankLine.on(PointerEvent.TAP, () => this.showGrowthLeaderModal_());
+    bindTapWithFeedback(this.growthOverviewRankLine, () => this.showGrowthLeaderModal_());
     this.growthSectionOverview.add(this.growthOverviewRankLine);
 
     this.growthOpenRankBtn = new Text({
@@ -727,7 +752,7 @@ export default class E_MainMenu extends Group {
       cursor: "pointer"
     });
     this.growthOpenRankBtn.hoverStyle = { scale: 1.03 };
-    this.growthOpenRankBtn.on(PointerEvent.TAP, () => this.showGrowthLeaderModal_());
+    bindTapWithFeedback(this.growthOpenRankBtn, () => this.showGrowthLeaderModal_());
     this.growthSectionOverview.add(this.growthOpenRankBtn);
 
     this.growthTaskSectionTitle = new Text({
@@ -749,7 +774,7 @@ export default class E_MainMenu extends Group {
       fill: ColorConf.PRIMARY,
       cursor: "pointer"
     });
-    this.growthSignBtn.on(PointerEvent.TAP, () => void this.handleGrowthAction_("checkin"));
+    bindTapWithFeedback(this.growthSignBtn, () => void this.handleGrowthAction_("checkin"));
     this.growthMakeupBtn = new Text({
       x: 64,
       y: taskBarY,
@@ -759,7 +784,7 @@ export default class E_MainMenu extends Group {
       fill: ColorConf.PRIMARY,
       cursor: "pointer"
     });
-    this.growthMakeupBtn.on(PointerEvent.TAP, () => void this.handleGrowthAction_("makeup"));
+    bindTapWithFeedback(this.growthMakeupBtn, () => void this.handleGrowthAction_("makeup"));
     this.growthClaimAllBtn = new Text({
       x: 140,
       y: taskBarY,
@@ -770,7 +795,7 @@ export default class E_MainMenu extends Group {
       cursor: "pointer"
     });
     this.growthClaimAllBtn.hoverStyle = { fill: ColorConf.PRIMARY, rotation: 10 };
-    this.growthClaimAllBtn.on(PointerEvent.TAP, () => void this.claimAllGrowthTasks_());
+    bindTapWithFeedback(this.growthClaimAllBtn, () => void this.claimAllGrowthTasks_());
     this.growthSectionTasks.add(this.growthSignBtn);
     this.growthSectionTasks.add(this.growthMakeupBtn);
     this.growthSectionTasks.add(this.growthClaimAllBtn);
@@ -808,7 +833,7 @@ export default class E_MainMenu extends Group {
           y: 0,
           width: 632,
           height: 56,
-          radius: 10,
+          radius: Gl.RADIUS_CARD,
           fill,
           stroke,
           strokeWidth: 1
@@ -970,7 +995,7 @@ export default class E_MainMenu extends Group {
       fill: ColorConf.PRIMARY,
       cursor: "pointer"
     });
-    this.growthDataRankBtn.on(PointerEvent.TAP, () => this.showGrowthLeaderModal_());
+    bindTapWithFeedback(this.growthDataRankBtn, () => this.showGrowthLeaderModal_());
     this.growthSectionData.add(this.growthDataRankBtn);
     this.growthDataAccountBtn = new Text({
       x: gc.CARD_PAD,
@@ -982,7 +1007,7 @@ export default class E_MainMenu extends Group {
       cursor: "pointer"
     });
     this.growthDataAccountBtn.hoverStyle = { fill: ColorConf.DARK_GRAY };
-    this.growthDataAccountBtn.on(PointerEvent.TAP, () => {
+    bindTapWithFeedback(this.growthDataAccountBtn, () => {
       this.hideGrowthPanel_();
       void this.showUserPanel_();
     });
@@ -1006,7 +1031,7 @@ export default class E_MainMenu extends Group {
         width: hw,
         height: hh,
         fill: "rgba(0,0,0,0.02)",
-        radius: 8
+        radius: Gl.RADIUS_CHIP
       });
       const lab = new Text({
         x: 0,
@@ -1019,8 +1044,8 @@ export default class E_MainMenu extends Group {
       });
       lab.hoverStyle = { fill: ColorConf.PRIMARY, scale: 1.03 };
       const fire = () => void this.handleGrowthAction_(action);
-      hit.on(PointerEvent.TAP, fire);
-      lab.on(PointerEvent.TAP, fire);
+      bindTapWithFeedback(hit, fire);
+      bindTapWithFeedback(lab, fire);
       g.add(hit);
       g.add(lab);
       this.GrowthActionButtons.push({ action, button: g });
@@ -1044,7 +1069,7 @@ export default class E_MainMenu extends Group {
       y: 0,
       width: GP.bw,
       height: GP.bh,
-      fill: "rgba(15,23,42,0.45)",
+      fill: Gl.OVERLAY_DIM,
       cursor: "pointer"
     });
     this.growthLeaderModal.add(leaderDim);
@@ -1054,10 +1079,17 @@ export default class E_MainMenu extends Group {
       around: "center",
       width: Math.min(GP.bw * 0.85, 420),
       height: Math.min(GP.bh * 0.7, 480),
-      radius: 14,
-      fill: "#F0FCFF",
-      stroke: "rgba(32,168,215,0.3)",
-      strokeWidth: 1
+      radius: Gl.RADIUS_WINDOW,
+      fill: Gl.CARD_DEEP,
+      stroke: Gl.STROKE_ACCENT,
+      strokeWidth: 1,
+      shadow: {
+        x: 0,
+        y: Gl.SHADOW_Y,
+        blur: Gl.SHADOW_BLUR,
+        spread: 0,
+        color: Gl.SHADOW_COLOR
+      }
     });
     this.growthLeaderModal.add(modalCard);
     this.growthLeaderRowsText = new Text({
@@ -1098,7 +1130,7 @@ export default class E_MainMenu extends Group {
       fill: ColorConf.PRIMARY,
       cursor: "pointer"
     });
-    modalClose.on(PointerEvent.TAP, () => this.hideGrowthLeaderModal_());
+    bindTapWithFeedback(modalClose, () => this.hideGrowthLeaderModal_());
     this.growthLeaderModal.add(modalClose);
     const mSwType = new Text({
       x: GP.bw / 2 - 80,
@@ -1109,7 +1141,7 @@ export default class E_MainMenu extends Group {
       fill: ColorConf.PRIMARY,
       cursor: "pointer"
     });
-    mSwType.on(PointerEvent.TAP, () => void this.handleGrowthAction_("switch-type"));
+    bindTapWithFeedback(mSwType, () => void this.handleGrowthAction_("switch-type"));
     const mSwScope = new Text({
       x: GP.bw / 2 + 80,
       y: GP.bh / 2 + 175,
@@ -1119,11 +1151,11 @@ export default class E_MainMenu extends Group {
       fill: ColorConf.PRIMARY,
       cursor: "pointer"
     });
-    mSwScope.on(PointerEvent.TAP, () => void this.handleGrowthAction_("switch-scope"));
+    bindTapWithFeedback(mSwScope, () => void this.handleGrowthAction_("switch-scope"));
     this.growthLeaderModal.add(mSwType);
     this.growthLeaderModal.add(mSwScope);
 
-    leaderDim.on(PointerEvent.TAP, () => this.hideGrowthLeaderModal_());
+    bindTapWithFeedback(leaderDim, () => this.hideGrowthLeaderModal_());
 
     panel.add(this.growthLeaderModal);
 
@@ -1142,14 +1174,14 @@ export default class E_MainMenu extends Group {
       zIndex: 992
     });
 
-    // 遮罩：与登录/注册一致的主题色浅青蒙层
+    const Gl = UIConf.Glass;
     const overlay = new Rect({
       x: 0,
       y: 0,
       width: GP.bw,
       height: GP.bh,
-      fill: ColorConf.LIGHT_WHITE,
-      opacity: 0.92
+      fill: Gl.OVERLAY_TINT,
+      opacity: 1
     });
     panel.add(overlay);
 
@@ -1158,23 +1190,22 @@ export default class E_MainMenu extends Group {
     const centerX = GP.bw / 2;
     const centerY = GP.bh / 2;
 
-    // 卡片：与登录/注册一致的玻璃风格（浅青白底、青蓝描边与阴影）
     const card = new Rect({
       x: centerX,
       y: centerY,
       around: "center",
       width: cardWidth,
       height: cardHeight,
-      radius: 16,
-      fill: "#F0FCFF",
-      stroke: "rgba(0,229,255,0.35)",
+      radius: Gl.RADIUS_WINDOW,
+      fill: Gl.CARD_DEEP,
+      stroke: Gl.STROKE_ACCENT,
       strokeWidth: 1,
       shadow: {
         x: 0,
-        y: 20,
-        blur: 50,
+        y: Gl.SHADOW_Y + 4,
+        blur: Gl.SHADOW_BLUR + 8,
         spread: 0,
-        color: "rgba(32,168,215,0.2)"
+        color: Gl.SHADOW_COLOR
       }
     });
     this.UserPanelCard = card;
@@ -1398,8 +1429,8 @@ export default class E_MainMenu extends Group {
         y: -btnH / 2,
         width: btnW,
         height: btnH,
-        radius: 10,
-        cornerRadius: 10,
+        radius: Gl.RADIUS_CHIP,
+        cornerRadius: Gl.RADIUS_CHIP,
         fill: bgFill
       });
       const text = new Text({
@@ -1412,7 +1443,7 @@ export default class E_MainMenu extends Group {
       });
       g.add(bg);
       g.add(text);
-      g.on(PointerEvent.TAP, onClick);
+      bindTapWithFeedback(g, onClick);
       g.hoverStyle = { scale: 1.02 };
       contentGroup.add(g);
     };
@@ -1440,7 +1471,7 @@ export default class E_MainMenu extends Group {
       cursor: "pointer"
     });
     closeBtn.hoverStyle = { fill: titleFill, scale: 1.1 };
-    closeBtn.on(PointerEvent.TAP, () => this.hideUserPanel_());
+    bindTapWithFeedback(closeBtn, () => this.hideUserPanel_());
     contentGroup.add(closeBtn);
 
     panel.add(contentGroup);
@@ -2244,6 +2275,7 @@ export default class E_MainMenu extends Group {
     this.GrowthTaskClaimButtons = [];
     const mobile = this.growthLayoutMobile;
     const gc = this.confUI.GrowthCenter;
+    const Gl = UIConf.Glass;
     const cw = this.growthContentHost?.width || 520;
     if (!tasks.length) {
       this.growthTaskListGroup.add(
@@ -2318,7 +2350,7 @@ export default class E_MainMenu extends Group {
         y,
         width: rowWidth,
         height: rowH,
-        radius: 10,
+        radius: Gl.RADIUS_CARD,
         fill: bg,
         stroke,
         strokeWidth: strokeW
@@ -2382,7 +2414,7 @@ export default class E_MainMenu extends Group {
         });
         this.growthTaskListGroup.add(badge);
         actionBtn.hoverStyle = { fill: ColorConf.PRIMARY, rotation: 14 };
-        actionBtn.on(PointerEvent.TAP, async () => {
+        bindTapWithFeedback(actionBtn, async () => {
           try {
             await claimDailyTask(t.taskType);
           } catch (e: any) {

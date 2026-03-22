@@ -27,6 +27,21 @@ export const FontConf = {
 export const UIConf = {
   BACKGROUND_FILL: ColorConf.LIGHT_WHITE,
   LOADING_FADE_OUT_DURATION: 0.3,
+  /** 画布内模拟毛玻璃（半透叠色 + 描边 + 阴影）；HTML 弹层用 backdrop-filter */
+  Glass: {
+    OVERLAY_TINT: "rgba(238, 255, 255, 0.56)",
+    OVERLAY_DIM: "rgba(15, 23, 42, 0.42)",
+    CARD: "rgba(255, 255, 255, 0.8)",
+    CARD_DEEP: "rgba(245, 252, 255, 0.88)",
+    STROKE_SOFT: "rgba(255, 255, 255, 0.55)",
+    STROKE_ACCENT: "rgba(32, 168, 215, 0.36)",
+    RADIUS_WINDOW: 22,
+    RADIUS_CARD: 18,
+    RADIUS_CHIP: 12,
+    SHADOW_Y: 18,
+    SHADOW_BLUR: 44,
+    SHADOW_COLOR: "rgba(32,168,215,0.18)"
+  },
   Ball: {
     X_RATIO: 1 / 2,
     Y_RATIO: 1 / 4,
