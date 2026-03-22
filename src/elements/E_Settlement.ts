@@ -1,12 +1,14 @@
-import { AnimateEvent, Group, Text } from "leafer-game";
+import { AnimateEvent, Group, Rect, Text } from "leafer-game";
 import { evBus, GEV, GP, Mask, Scoring, Timing, timer } from "../core/instances";
 import TextLine from "../utils/TextLine";
 import { UIConf, getDifficultyKey } from "../config";
 import { addScore, getBestScoreByDifficulty } from "../utils/scoreStorage";
 import { pushScoreForCurrentUser } from "../utils/auth";
+import { glassCardFillLighter } from "../utils/glassFill";
 
 export default class E_Settlement extends Group {
   confUI = UIConf.Settlement;
+  PanelCard: Rect;
   Title: Text;
   Hint1: any;
   Hint2: any;
@@ -21,6 +23,26 @@ export default class E_Settlement extends Group {
       height: GP.bh,
       visible: false,
       zIndex: 991
+    });
+    const Gl = UIConf.Glass;
+    this.PanelCard = new Rect({
+      x: GP.bw * this.confUI.X_RATIO,
+      y: GP.bh * 0.44,
+      around: "center",
+      width: Math.min(560, GP.bw - 40),
+      height: Math.min(340, GP.bh * 0.52),
+      radius: Gl.RADIUS_WINDOW,
+      fill: glassCardFillLighter() as any,
+      stroke: Gl.STROKE_ACCENT,
+      strokeWidth: 1,
+      opacity: 0,
+      shadow: {
+        x: 0,
+        y: Gl.SHADOW_Y * 0.65,
+        blur: Gl.SHADOW_BLUR * 0.8,
+        spread: 0,
+        color: Gl.SHADOW_COLOR
+      }
     });
     this.Title = new Text({
       x: GP.bw * this.confUI.X_RATIO,
@@ -65,7 +87,7 @@ export default class E_Settlement extends Group {
       opacity: 0,
       scale: 1.4
     });
-    this.add([this.Title, this.Hint1, this.Hint2, this.RecordText]);
+    this.add([this.PanelCard, this.Title, this.Hint1, this.Hint2, this.RecordText]);
 
     this.init_ = this.init_.bind(this);
     this.setupEventListeners();
@@ -89,7 +111,19 @@ export default class E_Settlement extends Group {
   }
 
   relocate_(e: { width: number; height: number }) {
+    const Gl = UIConf.Glass;
     this.cx = e.width / 2;
+    this.PanelCard.x = e.width / 2;
+    this.PanelCard.y = e.height * 0.44;
+    this.PanelCard.width = Math.min(560, e.width - 40);
+    this.PanelCard.height = Math.min(340, e.height * 0.52);
+    this.PanelCard.shadow = {
+      x: 0,
+      y: Gl.SHADOW_Y * 0.65,
+      blur: Gl.SHADOW_BLUR * 0.8,
+      spread: 0,
+      color: Gl.SHADOW_COLOR
+    };
     this.Title.y = (e.height * 2) / 7;
     this.Hint1.y = (e.height * 9) / 14 - 12;
     this.Hint2.y = (e.height * 9) / 14 + 12;
@@ -117,6 +151,7 @@ export default class E_Settlement extends Group {
   show_() {
     this.visible = true;
     this.relocate_({ width: GP.bw, height: GP.bh });
+    (this.PanelCard as any).fadeIn_(0.32, 0.04);
     this.Title.animate([{ scale: 1, opacity: 1 }], {
       duration: this.confUI.Title.SHOW_DURATION,
       join: true
@@ -126,6 +161,7 @@ export default class E_Settlement extends Group {
   }
 
   hide_() {
+    (this.PanelCard as any).fadeOut_(0.22);
     this.Title.animate([{ scale: this.confUI.Title.HIDE_SCALE, opacity: 0 }], {
       duration: this.confUI.Title.HIDE_DURATION,
       join: true

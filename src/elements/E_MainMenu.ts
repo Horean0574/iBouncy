@@ -23,6 +23,7 @@ import {
 import { openAuthPanel } from "../ui/authPanel";
 import { showAlert, showConfirm, showPrompt } from "../ui/inPageModal";
 import { bindTapWithFeedback } from "../utils/uiTapFeedback";
+import { glassCardFillDeep, glassCardFillLighter } from "../utils/glassFill";
 
 type DifficultyKey = keyof typeof DIFFICULTY_LEVELS;
 
@@ -311,7 +312,7 @@ export default class E_MainMenu extends Group {
       width: cardW,
       height: cardH,
       radius: Gl.RADIUS_WINDOW,
-      fill: Gl.CARD,
+      fill: glassCardFillLighter() as any,
       stroke: Gl.STROKE_ACCENT,
       strokeWidth: 1,
       shadow: {
@@ -391,7 +392,7 @@ export default class E_MainMenu extends Group {
       width: Math.min(GP.bw - 2 * gc.MOBILE_MARGIN, gc.CARD_FIXED_W_PC),
       height: Math.min(GP.bh * 0.86, gc.CARD_MAX_H),
       radius: Gl.RADIUS_WINDOW,
-      fill: Gl.CARD_DEEP,
+      fill: glassCardFillDeep() as any,
       stroke: Gl.STROKE_ACCENT,
       strokeWidth: 1,
       shadow: {
@@ -447,6 +448,7 @@ export default class E_MainMenu extends Group {
       y: 0,
       width: gc.MIN_TOUCH,
       height: gc.MIN_TOUCH,
+      radius: Gl.RADIUS_CHIP,
       fill: "rgba(0,0,0,0.02)",
       cursor: "pointer"
     });
@@ -558,7 +560,7 @@ export default class E_MainMenu extends Group {
         width: 680,
         height: h,
         radius: Gl.RADIUS_CARD,
-        fill: Gl.CARD,
+        fill: glassCardFillLighter() as any,
         stroke: Gl.STROKE_ACCENT,
         strokeWidth: strokeW
       });
@@ -665,7 +667,7 @@ export default class E_MainMenu extends Group {
         width: 200,
         height: 72,
         radius: Gl.RADIUS_CARD,
-        fill: Gl.CARD,
+        fill: glassCardFillLighter() as any,
         stroke: Gl.STROKE_ACCENT,
         strokeWidth: 1
       });
@@ -1080,7 +1082,7 @@ export default class E_MainMenu extends Group {
       width: Math.min(GP.bw * 0.85, 420),
       height: Math.min(GP.bh * 0.7, 480),
       radius: Gl.RADIUS_WINDOW,
-      fill: Gl.CARD_DEEP,
+      fill: glassCardFillDeep() as any,
       stroke: Gl.STROKE_ACCENT,
       strokeWidth: 1,
       shadow: {
@@ -1180,7 +1182,7 @@ export default class E_MainMenu extends Group {
       y: 0,
       width: GP.bw,
       height: GP.bh,
-      fill: Gl.OVERLAY_TINT,
+      fill: Gl.OVERLAY_DIM,
       opacity: 1
     });
     panel.add(overlay);
@@ -1197,7 +1199,7 @@ export default class E_MainMenu extends Group {
       width: cardWidth,
       height: cardHeight,
       radius: Gl.RADIUS_WINDOW,
-      fill: Gl.CARD_DEEP,
+      fill: glassCardFillDeep() as any,
       stroke: Gl.STROKE_ACCENT,
       strokeWidth: 1,
       shadow: {
@@ -1430,7 +1432,6 @@ export default class E_MainMenu extends Group {
         width: btnW,
         height: btnH,
         radius: Gl.RADIUS_CHIP,
-        cornerRadius: Gl.RADIUS_CHIP,
         fill: bgFill
       });
       const text = new Text({
@@ -2312,14 +2313,14 @@ export default class E_MainMenu extends Group {
       else if ((t.progress || 0) > 0) st = "prog";
       else st = "idle";
 
-      let bg = "#F1F5F9";
+      let bg: string | object = "#F1F5F9";
       let stroke = "rgba(15,23,42,0.08)";
       let icon = "○";
-      let iconFill = gc.TEXT_MUTED;
-      let titleFill = gc.TEXT_BODY;
+      let iconFill: string = gc.TEXT_MUTED;
+      let titleFill: string = gc.TEXT_BODY;
 
       if (st === "idle") {
-        bg = "#F1F5F9";
+        bg = glassCardFillLighter() as any;
         icon = "○";
       } else if (st === "prog") {
         bg = {

@@ -30,7 +30,17 @@ export default class E_Scoring extends Group {
         "  Z",
       x: 120,
       y: 0,
-      fill: this.confUI.Panel.FILL
+      fill: {
+        type: "linear",
+        from: { x: 0, y: 0 },
+        to: { x: 0, y: 1 },
+        stops: [
+          { offset: 0, color: "rgba(255, 255, 255, 0.72)" },
+          { offset: 1, color: "rgba(230, 244, 252, 0.52)" }
+        ]
+      } as any,
+      stroke: this.confUI.Panel.STROKE,
+      strokeWidth: this.confUI.Panel.STROKE_WIDTH
     });
     this.Integer = new Text({
       x: -GP.bw,
