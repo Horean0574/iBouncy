@@ -1,5 +1,5 @@
 import { getHistory, setHistoryFromServer } from "./scoreStorage";
-import { showLoading, hideLoading } from "../ui/loadingOverlay";
+import { showLoading, hideLoadingSuccess, showLoadFailureAndWait } from "../ui/loadingOverlay";
 
 const AUTH_STORAGE_KEY = "iBouncy_user";
 const API_BASE = "/api";
@@ -127,23 +127,29 @@ export function logout() {
 
 async function requestJson(path: string, options: RequestInit = {}) {
   showLoading();
-  try {
-    const res = await fetch(API_BASE + path, {
-      headers: {
-        "Content-Type": "application/json",
-        ...(options.headers || {})
-      },
-      credentials: "include",
-      ...options
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      const msg = (data && (data as any).error) || `请求失败：${res.status}`;
-      throw new Error(msg);
+  for (;;) {
+    try {
+      const res = await fetch(API_BASE + path, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(options.headers || {})
+        },
+        credentials: "include",
+        ...options
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = (data && (data as any).error) || `请求失败：${res.status}`;
+        throw new Error(msg);
+      }
+      hideLoadingSuccess();
+      return data as any;
+    } catch (e) {
+      const retry = await showLoadFailureAndWait(e);
+      if (!retry) {
+        throw e;
+      }
     }
-    return data as any;
-  } finally {
-    hideLoading();
   }
 }
 
