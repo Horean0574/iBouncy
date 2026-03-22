@@ -53,27 +53,40 @@ npm run build
 npm run preview  # 预览构建结果
 ```
 
+### 环境变量（登录与成绩同步）
+
+启用「登录 / 注册」与「历史成绩云端同步」时，需配置以下环境变量（如使用 Vercel 部署，请在项目 Settings → Environment Variables 中设置）：
+
+| 变量名 | 说明 |
+|--------|------|
+| `POSTGRES_URL` | PostgreSQL 数据库连接串，例如：`postgres://用户:密码@主机:5432/数据库名` |
+| `JWT_SECRET` | 用于签发登录会话 Token 的密钥，建议使用较长随机字符串 |
+
+- **仅本地/前端**：不配置上述变量时，游戏可正常游玩，成绩仅保存在浏览器本地。
+- **本地跑后端**：在项目根目录执行 `npm run server` 前，需设置 `POSTGRES_URL` 和（若使用 token 登录）`JWT_SECRET`。
+- **Vercel 部署**：在 Vercel 控制台为项目配置 `POSTGRES_URL` 与 `JWT_SECRET` 后，前端请求会走 `/api` 云函数，实现登录与成绩同步。
+
 ## 📁 项目结构
 ```text
 iBouncy/
 ├── src/
 │   ├── core/              # 核心实例管理
-│   │   └── instances.js   # 中央实例管理器
+│   │   └── instances.ts   # 中央实例管理器
 │   ├── elements/          # 游戏元素组件
-│   │   ├── E_Ball.js      # 弹球类
-│   │   ├── E_Tablet.js    # 挡板类
-│   │   ├── E_Scoring.js   # 计分系统
+│   │   ├── E_Ball.ts      # 弹球类
+│   │   ├── E_Tablet.ts    # 挡板类
+│   │   ├── E_Scoring.ts   # 计分系统
 │   │   └── ...
 │   ├── utils/               # 工具类
-│   │   ├── EmbeddedTimer.js # 重制计时器
-│   │   ├── Queue.js         # 队列数据类型
+│   │   ├── EmbeddedTimer.ts # 重制计时器
+│   │   ├── Queue.ts         # 队列数据类型
 │   │   └── ...
-│   └── app.js            # 游戏主入口
+│   └── app.ts            # 游戏主入口
 ├── assets/               # 静态资源
 │   ├── fonts/           # 字体文件
 │   ├── img/             # 图片资源
 │   └── svg/             # SVG图标
-├── vite.config.js       # Vite 配置
+├── vite.config.ts       # Vite 配置
 └── package.json         # 项目依赖
 ```
 
@@ -108,7 +121,7 @@ $$
 |--------------------------------|----------|----------|
 | [LeaferJS](https://leaferjs.com) | Canvas 渲染引擎 | 1.12.0 |
 | [Vite](https://vite.dev)       | 构建工具与开发服务器 | 7.x |
-| Vanilla JavaScript             | 核心逻辑 | ES2022+ |
+| TypeScript                     | 核心逻辑 | 5.x |
 
 ## 🤝 贡献指南
 欢迎提交 Issue 和 Pull Request！
