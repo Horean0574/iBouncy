@@ -1,36 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>iBouncy - H</title>
-    <style>
-        * {
-            user-select: none;
-            -webkit-user-drag: none;
-        }
-
-        body {
-            width: 100vw;
-            height: 100vh;
-            margin: 0;
-        }
-
-        canvas {
-            position: fixed;
-            width: 100vw;
-            height: 100vh;
-        }
-
-        #loading {
-            position: fixed;
-            transform: translate(calc(50vw - 117px), calc(50vh - 50px)) scale(1.2);
-        }
-    </style>
+    <title>iBouncy</title>
+    <meta name="description" content="iBouncy is a bounce game built with the LeaferJS Canvas engine. Test your reflexes and precision.">
+    <meta property="og:title" content="iBouncy - Bounce Game">
+    <meta property="og:description" content="A bounce game built with the LeaferJS Canvas engine.">
+    <meta property="og:type" content="website">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#20A8D7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="iBouncy">
+    <link rel="preload" href="/fonts/HYDiSiKe-U.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/src/styles/glass.css">
+    <link rel="stylesheet" href="/src/styles/mobile-adapter.css">
 </head>
 <body>
 <canvas></canvas>
-<img id="loading" src="./src/assets/svg/loading.svg" alt="Loading..." draggable="false">
-<script defer type="module" src="src/app.js"></script>
+    <img id="loading" src="/svg/loading.svg" alt="Loading..." draggable="false">
+<div id="cloud-ui-root"></div>
+<div id="error-screen">
+    <div class="error-icon">!</div>
+    <h2 id="error-title"></h2>
+    <p id="error-message"></p>
+    <button class="error-retry-btn" id="error-retry-btn" onclick="location.reload()"></button>
+</div>
+    <script>
+        // 根据浏览器语言预设错误页面文本（i18n 模块加载前）
+        (function(){
+            var l=(navigator.language||"").startsWith("zh")?1:0;
+            var m=l?["游戏加载失败","请检查网络连接或尝试刷新页面。如果问题持续存在，请尝试使用最新版 Chrome 或 Edge 浏览器。","重新加载"]:["Failed to load game","Please check your network connection or try refreshing the page. If the problem persists, try using the latest version of Chrome or Edge.","Reload"];
+            var errorTitle=document.getElementById("error-title");
+            var errorMessage=document.getElementById("error-message");
+            var errorRetryBtn=document.getElementById("error-retry-btn");
+            if(errorTitle) errorTitle.textContent=m[0];
+            if(errorMessage) errorMessage.textContent=m[1];
+            if(errorRetryBtn) errorRetryBtn.textContent=m[2];
+        })();
+    </script>
+<script defer type="module" src="src/app.ts"></script>
 </body>
 </html>

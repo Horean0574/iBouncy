@@ -1,0 +1,18 @@
+{
+	"name": "iBouncy",
+	"short_name": "iBouncy",
+	"description": "iBouncy 是一款基于 LeaferJS Canvas 引擎的弹球游戏",
+	"start_url": "/",
+	"display": "standalone",
+	"orientation": "any",
+	"background_color": "#EEFFFF",
+	"theme_color": "#20A8D7",
+	"icons": [
+		{
+			"src": "/favicon.svg",
+			"sizes": "any",
+			"type": "image/svg+xml",
+			"purpose": "any maskable"
+		}
+	]
+}
