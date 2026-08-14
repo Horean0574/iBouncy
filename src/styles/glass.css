@@ -1,0 +1,1948 @@
+/* ================================================================
+   iOS 26 Liquid Glass · Prismatic Design System
+   Pillars: Prismatic Edge Refraction, Caustic Light Speckles,
+           Spatial Parallax Depth, Liquid Physics Motion,
+           Iridescent Opalescence, Dynamic Ambient Light
+   ================================================================ */
+
+
+/* ───────────────────────────────────────────────────────────────
+   1. Reset & Base
+   ─────────────────────────────────────────────────────────────── */
+* {
+    user-select: none;
+    -webkit-user-drag: none;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    /* 移动端动态地址栏适配：dvh 随可见视口变化，避免底部 UI 被遮挡 */
+    height: 100dvh;
+    margin: 0;
+    overflow: hidden;
+    background: #080810;
+    background-image:
+        radial-gradient(ellipse 80% 60% at 20% 30%, rgba(74,158,255,0.10) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 80% at 80% 70%, rgba(94,234,212,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse 55% 55% at 50% 45%, rgba(192,132,252,0.05) 0%, transparent 60%),
+        radial-gradient(ellipse 70% 40% at 65% 25%, rgba(255,107,157,0.04) 0%, transparent 50%),
+        linear-gradient(180deg, #080810 0%, #0C0C1E 40%, #0A0A19 100%);
+    animation: auroraDrift 20s ease-in-out infinite;
+}
+
+@keyframes auroraDrift {
+    0%, 100% { background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%; }
+    33% { background-position: 2% -1%, -1% 2%, 1% 1%, -2% -1%, 0% 0%; }
+    66% { background-position: -2% 2%, 1% -1%, -1% -2%, 2% 1%, 0% 0%; }
+}
+
+canvas {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    /* 移动端动态地址栏适配 */
+    height: 100dvh;
+    z-index: 0;
+}
+
+#loading {
+    position: fixed;
+    transform: translate(calc(50vw - 117px), calc(50vh - 50px)) scale(1.2);
+}
+
+
+/* ───────────────────────────────────────────────────────────────
+   2. Design Tokens — CSS Custom Properties
+   ─────────────────────────────────────────────────────────────── */
+:root {
+    --prism-blue: #4A9EFF;
+    --prism-teal: #5EEAD4;
+    --prism-pink: #FF6B9D;
+    --prism-purple: #C084FC;
+    --prism-gold: #F5D78C;
+    --prism-amber: #F59E0B;
+
+    --glass-depth-bg: rgba(255,255,255,0.025);
+    --glass-depth-low: rgba(255,255,255,0.05);
+    --glass-depth-mid: rgba(255,255,255,0.08);
+    --glass-depth-high: rgba(255,255,255,0.12);
+    --glass-depth-active: rgba(255,255,255,0.16);
+
+    --prism-edge-r: rgba(255,140,170,0.12);
+    --prism-edge-g: rgba(140,250,210,0.10);
+    --prism-edge-b: rgba(120,170,255,0.12);
+
+    --glass-blur-atmosphere: saturate(280%) blur(80px);
+    --glass-blur-deep: saturate(260%) blur(60px);
+    --glass-blur-mid: saturate(240%) blur(40px);
+    --glass-blur-surface: saturate(220%) blur(24px);
+    --glass-blur-light: saturate(200%) blur(14px);
+
+    --depth-atmosphere: 0 8px 60px rgba(0,0,0,0.45);
+    --depth-deep: 0 16px 80px rgba(0,0,0,0.55);
+    --depth-mid: 0 8px 40px rgba(0,0,0,0.40);
+    --depth-near: 0 4px 20px rgba(0,0,0,0.30);
+    --depth-surface: 0 2px 8px rgba(0,0,0,0.20);
+
+    --spec-top: inset 0 0.5px 0 rgba(255,255,255,0.22);
+    --spec-side: inset 0 0 0 0.5px rgba(255,255,255,0.07);
+    --spec-shimmer: inset 0 1px 0 rgba(255,255,255,0.10);
+
+    --radius-xl: 32px;
+    --radius-lg: 24px;
+    --radius-md: 18px;
+    --radius-sm: 14px;
+    --radius-xs: 10px;
+    --radius-full: 999px;
+
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-fluid: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-exit: cubic-bezier(0.4, 0, 0.55, 1);
+}
+
+
+/* ───────────────────────────────────────────────────────────────
+   3. UI Root Container
+   ─────────────────────────────────────────────────────────────── */
+#cloud-ui-root {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2000;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", ui-sans-serif, system-ui, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: auto;
+    user-select: text;
+}
+
+#cloud-ui-root * {
+    user-select: text;
+    -webkit-user-drag: none;
+}
+
+
+/* ───────────────────────────────────────────────────────────────
+   4. Keyframes Library — All Animations
+   ─────────────────────────────────────────────────────────────── */
+
+@keyframes accentShimmer {
+    0%, 100% { opacity: 0.7; filter: hue-rotate(0deg); }
+    50% { opacity: 1; filter: hue-rotate(15deg); }
+}
+
+@keyframes causticFlow {
+    0%, 100% { background-position: 25% 30%, 70% 25%, 55% 65%; }
+    30% { background-position: 30% 35%, 65% 30%, 60% 60%; }
+    60% { background-position: 20% 28%, 75% 22%, 50% 70%; }
+}
+
+@keyframes errorBounceIn {
+    0%   { transform: translateX(8px) scale(0.88); opacity: 0; }
+    52%  { transform: translateX(-2px) scale(1.05); opacity: 1; }
+    78%  { transform: translateX(1px) scale(0.97); }
+    100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+@keyframes errorPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,157,0.20), var(--spec-top); }
+    50% { box-shadow: 0 0 0 20px rgba(255,107,157,0), var(--spec-top); }
+}
+
+@keyframes glassShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+@keyframes glassSpringIn {
+    0%   { transform: scale(0.85) translateY(30px); }
+    45%  { transform: scale(1.018) translateY(-5px); }
+    68%  { transform: scale(0.993) translateY(2px); }
+    85%  { transform: scale(1.004) translateY(-1px); }
+    100% { transform: scale(1) translateY(0); }
+}
+
+@keyframes glassSpringOut {
+    0%   { transform: scale(1) translateY(0) translateZ(0); opacity: 1; }
+    100% { transform: scale(0.82) translateY(36px) translateZ(0); opacity: 0; }
+}
+
+@keyframes liquidFieldSpring {
+    0%   { opacity: 0; transform: translateY(20px) scale(0.92); filter: blur(3px); }
+    50%  { opacity: 1; transform: translateY(-4px) scale(1.03); filter: blur(0); }
+    75%  { transform: translateY(2px) scale(0.99); }
+    100% { transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+@keyframes orbShift {
+    0%, 100% { background-position: 30% 20%; }
+    50% { background-position: 70% 80%; }
+}
+
+@keyframes pillBreathe {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-4px) scale(1.015); }
+}
+
+@keyframes prismRim {
+    0%, 100% {
+        box-shadow:
+            0 0 0 0.5px rgba(120,170,255,0.10),
+            0 0 0 1px rgba(255,140,170,0.05),
+            var(--depth-near),
+            var(--spec-top);
+    }
+    25% {
+        box-shadow:
+            0 0 0 0.5px rgba(140,250,210,0.12),
+            0 0 0 1px rgba(120,170,255,0.07),
+            var(--depth-near),
+            var(--spec-top),
+            0 0 24px rgba(74,158,255,0.06);
+    }
+    50% {
+        box-shadow:
+            0 0 0 0.5px rgba(192,132,252,0.12),
+            0 0 0 1px rgba(255,107,157,0.06),
+            var(--depth-near),
+            var(--spec-top);
+    }
+    75% {
+        box-shadow:
+            0 0 0 0.5px rgba(74,158,255,0.12),
+            0 0 0 1px rgba(94,234,212,0.07),
+            var(--depth-near),
+            var(--spec-top),
+            0 0 24px rgba(94,234,212,0.06);
+    }
+}
+
+@keyframes prismSpin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes rimSweep {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes selfPulse {
+    0%, 100% { box-shadow: 0 0 0 0.5px rgba(94,234,212,0.15), 0 0 24px rgba(94,234,212,0.06), var(--spec-top); }
+    50% { box-shadow: 0 0 0 0.5px rgba(94,234,212,0.25), 0 0 36px rgba(94,234,212,0.12), var(--spec-top); }
+}
+
+@keyframes spinnerSpin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes staggerSpringIn {
+    0%   { transform: translateY(22px) scale(0.88); opacity: 0; filter: blur(4px); }
+    55%  { transform: translateY(-3px) scale(1.03); opacity: 1; filter: blur(0); }
+    78%  { transform: translateY(1px) scale(0.995); }
+    100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
+}
+
+@keyframes tabBounceIn {
+    0%   { transform: scale(0.86); }
+    50%  { transform: scale(1.06); }
+    72%  { transform: scale(0.96); }
+    88%  { transform: scale(1.015); }
+    100% { transform: scale(1); }
+}
+
+@keyframes toastBounceSlide {
+    0%   { transform: translateX(-50%) translateY(-80px) scale(0.8); opacity: 0; }
+    45%  { transform: translateX(-50%) translateY(6px) scale(1.04); opacity: 1; }
+    70%  { transform: translateX(-50%) translateY(-4px) scale(0.98); }
+    90%  { transform: translateX(-50%) translateY(1px) scale(1.01); }
+    100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+}
+
+
+/* ───────────────────────────────────────────────────────────────
+   5. Components
+   ─────────────────────────────────────────────────────────────── */
+
+/*
+ *  5a. Buttons — Liquid Glass with Prismatic Hover
+ */
+#cloud-ui-root button {
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+    position: relative;
+    overflow: hidden;
+    outline: none;
+}
+
+#cloud-ui-root .btn {
+    border-radius: var(--radius-full);
+    padding: 8px 14px;
+    color: rgba(255,255,255,0.96);
+    background: var(--glass-depth-high);
+    border: 0.5px solid rgba(255,255,255,0.14);
+    backdrop-filter: var(--glass-blur-surface);
+    -webkit-backdrop-filter: var(--glass-blur-surface);
+    box-shadow:
+        var(--depth-surface),
+        var(--spec-top);
+    transition:
+        all 0.35s var(--ease-fluid),
+        transform 0.4s var(--ease-spring);
+    font-weight: 540;
+    font-size: 12.5px;
+    letter-spacing: 0.15px;
+    transform: translateZ(0);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+#cloud-ui-root .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+        150deg,
+        rgba(255,255,255,0.22) 0%,
+        transparent 40%,
+        rgba(120,170,255,0.10) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+#cloud-ui-root .btn:hover {
+    transform: translateY(-2px);
+    background: var(--glass-depth-high);
+    border-color: rgba(180,200,255,0.25);
+    box-shadow:
+        var(--depth-mid),
+        var(--spec-top),
+        0 0 32px rgba(74,158,255,0.08),
+        0 0 0 0.5px rgba(140,250,210,0.06);
+}
+
+#cloud-ui-root .btn:hover::before {
+    opacity: 1;
+}
+
+#cloud-ui-root .btn:active {
+    transform: translateY(0) scale(0.96);
+    background: var(--glass-depth-active);
+    transition: transform 0.06s ease, background 0.12s ease;
+}
+
+/* Liquid ripple on click */
+#cloud-ui-root .btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle,
+        rgba(255,255,255,0.55) 0%,
+        rgba(180,220,255,0.25) 35%,
+        transparent 65%
+    );
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#cloud-ui-root .btn:active::after {
+    width: 280%;
+    height: 280%;
+    opacity: 1;
+    transition: width 0s, height 0s, opacity 0.25s ease;
+}
+
+/* Primary — iridescent prism gradient */
+#cloud-ui-root .btn.primary {
+    background: linear-gradient(
+        145deg,
+        rgba(74,158,255,0.45) 0%,
+        rgba(120,180,255,0.38) 30%,
+        rgba(94,234,212,0.28) 70%,
+        rgba(192,132,252,0.22) 100%
+    );
+    border-color: rgba(140,210,255,0.30);
+    box-shadow:
+        0 4px 24px rgba(74,158,255,0.22),
+        0 0 0 0.5px rgba(140,250,210,0.08),
+        var(--spec-top);
+}
+
+#cloud-ui-root .btn.primary:hover {
+    background: linear-gradient(
+        145deg,
+        rgba(74,158,255,0.58) 0%,
+        rgba(140,200,255,0.48) 30%,
+        rgba(94,234,212,0.38) 70%,
+        rgba(192,132,252,0.30) 100%
+    );
+    border-color: rgba(160,230,255,0.50);
+    box-shadow:
+        0 8px 36px rgba(74,158,255,0.35),
+        0 0 0 0.5px rgba(140,250,210,0.12),
+        0 0 48px rgba(94,234,212,0.10),
+        var(--spec-top);
+}
+
+/* Danger — warm prism */
+#cloud-ui-root .btn.danger {
+    background: linear-gradient(
+        145deg,
+        rgba(255,107,157,0.30) 0%,
+        rgba(255,130,160,0.24) 50%,
+        rgba(255,140,170,0.18) 100%
+    );
+    border-color: rgba(255,140,160,0.25);
+}
+
+#cloud-ui-root .btn.danger:hover {
+    background: linear-gradient(
+        145deg,
+        rgba(255,107,157,0.48) 0%,
+        rgba(255,130,160,0.38) 50%,
+        rgba(255,140,170,0.28) 100%
+    );
+    border-color: rgba(255,140,160,0.45);
+    box-shadow:
+        0 6px 28px rgba(255,107,157,0.22),
+        0 0 0 0.5px rgba(255,180,200,0.08),
+        var(--spec-top);
+}
+
+/* Loading state */
+#cloud-ui-root .btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+#cloud-ui-root .btn.loading .btn-text {
+    opacity: 0;
+}
+
+#cloud-ui-root .btn-loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.15);
+    border-top-color: rgba(255,255,255,0.95);
+    border-right-color: rgba(140,210,255,0.7);
+    border-radius: 50%;
+    animation: prismSpin 0.7s linear infinite;
+    display: none;
+}
+
+#cloud-ui-root .btn.loading .btn-loader {
+    display: block;
+}
+
+
+/*
+ *  5b. Badge — Prismatic Glass Chip
+ */
+#cloud-ui-root .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    font-size: 11.5px;
+    font-weight: 540;
+    color: rgba(255,255,255,0.96);
+    background: rgba(160,180,255,0.18);
+    border: 0.5px solid rgba(140,210,255,0.25);
+    backdrop-filter: var(--glass-blur-surface);
+    -webkit-backdrop-filter: var(--glass-blur-surface);
+    box-shadow: var(--spec-top);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+    letter-spacing: 0.1px;
+}
+
+
+/*
+ *  5c. FAB & Floating Pills
+ */
+#cloud-ui-root .cloud-fab {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    pointer-events: auto;
+    transform-origin: top right;
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+    filter: blur(0);
+    transition:
+        opacity 0.45s var(--ease-fluid),
+        transform 0.45s var(--ease-spring),
+        filter 0.38s ease;
+    perspective: 1000px;
+}
+
+#cloud-ui-root .cloud-fab.cloud-fab--game-hidden {
+    opacity: 0;
+    transform: scale(0.6) translateY(8px);
+    pointer-events: none;
+    filter: blur(4px);
+    transition:
+        opacity 0.28s var(--ease-exit),
+        transform 0.28s var(--ease-exit),
+        filter 0.25s ease;
+}
+
+/* Sound toggle button — bottom right corner */
+#cloud-ui-root .sound-toggle-btn {
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    pointer-events: auto;
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+    border-radius: var(--radius-full);
+    border: 0.5px solid rgba(255,255,255,0.14);
+    background: var(--glass-depth-low);
+    backdrop-filter: var(--glass-blur-mid);
+    -webkit-backdrop-filter: var(--glass-blur-mid);
+    color: rgba(200,210,230,0.9);
+    cursor: pointer;
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        0 0 0 0.5px rgba(120,170,255,0.08),
+        var(--depth-near),
+        var(--spec-top);
+    transition:
+        color 0.2s ease,
+        background 0.2s ease,
+        transform 0.35s var(--ease-spring),
+        opacity 0.28s var(--ease-exit),
+        filter 0.25s ease;
+}
+
+#cloud-ui-root .sound-toggle-btn:hover {
+    color: rgba(255,255,255,0.95);
+    background: rgba(100,140,200,0.18);
+}
+
+#cloud-ui-root .sound-toggle-btn svg {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
+
+#cloud-ui-root .sound-toggle-btn.sound-toggle-btn--hidden {
+    opacity: 0;
+    transform: scale(0.6);
+    pointer-events: none;
+    filter: blur(4px);
+}
+
+#cloud-ui-root .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 5px 5px 12px;
+    border-radius: var(--radius-full);
+    color: rgba(255,255,255,0.96);
+    border: 0.5px solid rgba(255,255,255,0.14);
+    background: var(--glass-depth-low);
+    backdrop-filter: var(--glass-blur-mid);
+    -webkit-backdrop-filter: var(--glass-blur-mid);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+    box-shadow:
+        0 0 0 0.5px rgba(120,170,255,0.08),
+        0 0 0 1px rgba(255,140,170,0.06),
+        var(--depth-near),
+        var(--spec-top);
+    animation: pillBreathe 5s ease-in-out infinite, prismRim 7s ease-in-out infinite;
+    transform-style: preserve-3d;
+    transition:
+        transform 0.4s var(--ease-spring),
+        box-shadow 0.4s ease,
+        border-color 0.4s ease;
+    position: relative;
+}
+
+/* Ambient light orb inside pill */
+#cloud-ui-root .pill::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: radial-gradient(
+        ellipse 120% 80% at 30% 20%,
+        rgba(160,200,255,0.12) 0%,
+        transparent 60%
+    );
+    pointer-events: none;
+    animation: orbShift 6s ease-in-out infinite;
+}
+
+#cloud-ui-root .pill:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow:
+        0 0 0 0.5px rgba(140,250,210,0.18),
+        0 0 0 1px rgba(120,170,255,0.10),
+        var(--depth-mid),
+        var(--spec-top),
+        0 0 48px rgba(74,158,255,0.10),
+        0 0 24px rgba(94,234,212,0.06);
+    border-color: rgba(255,255,255,0.18);
+}
+
+
+/*
+ *  5c-2. Replay FAB — same position & glass as cloud FAB
+ */
+#cloud-ui-root .replay-fab {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    pointer-events: auto;
+    transform-origin: top right;
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+    filter: blur(0);
+    transition:
+        opacity 0.45s var(--ease-fluid),
+        transform 0.45s var(--ease-spring),
+        filter 0.38s ease;
+    z-index: 2001;
+}
+
+#cloud-ui-root .replay-fab.replay-fab--hidden {
+    opacity: 0;
+    transform: scale(0.6) translateY(8px);
+    pointer-events: none;
+    filter: blur(4px);
+    transition:
+        opacity 0.28s var(--ease-exit),
+        transform 0.28s var(--ease-exit),
+        filter 0.25s ease;
+}
+
+#cloud-ui-root .replay-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 5px 5px 12px;
+    border-radius: var(--radius-full);
+    color: rgba(255,255,255,0.96);
+    border: 0.5px solid rgba(255,255,255,0.14);
+    background: var(--glass-depth-low);
+    backdrop-filter: var(--glass-blur-mid);
+    -webkit-backdrop-filter: var(--glass-blur-mid);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+    box-shadow:
+        0 0 0 0.5px rgba(120,170,255,0.08),
+        0 0 0 1px rgba(255,140,170,0.06),
+        var(--depth-near),
+        var(--spec-top);
+    animation: pillBreathe 5s ease-in-out infinite, prismRim 7s ease-in-out infinite;
+    transform-style: preserve-3d;
+    transition:
+        transform 0.4s var(--ease-spring),
+        box-shadow 0.4s ease,
+        border-color 0.4s ease;
+    position: relative;
+}
+
+/* Ambient light orb inside replay pill */
+#cloud-ui-root .replay-pill::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: radial-gradient(
+        ellipse 120% 80% at 30% 20%,
+        rgba(160,200,255,0.12) 0%,
+        transparent 60%
+    );
+    pointer-events: none;
+    animation: orbShift 6s ease-in-out infinite;
+}
+
+#cloud-ui-root .replay-pill:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow:
+        0 0 0 0.5px rgba(140,250,210,0.18),
+        0 0 0 1px rgba(120,170,255,0.10),
+        var(--depth-mid),
+        var(--spec-top),
+        0 0 48px rgba(74,158,255,0.10),
+        0 0 24px rgba(94,234,212,0.06);
+    border-color: rgba(255,255,255,0.18);
+}
+
+/* Progress bar */
+#cloud-ui-root .replay-progress {
+    position: relative;
+    width: 96px;
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: rgba(255,255,255,0.08);
+    cursor: pointer;
+    overflow: visible;
+    flex-shrink: 0;
+}
+
+#cloud-ui-root .replay-progress-track {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+}
+
+#cloud-ui-root .replay-progress-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--prism-blue), var(--prism-teal));
+    transition: width 0.08s linear;
+}
+
+#cloud-ui-root .replay-progress-handle {
+    position: absolute;
+    top: 50%;
+    left: 0%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #fff;
+    transform: translate(-50%, -50%);
+    box-shadow:
+        0 1px 4px rgba(0,0,0,0.35),
+        0 0 0 0.5px rgba(255,255,255,0.20);
+    cursor: grab;
+    transition: left 0.08s linear, transform 0.15s var(--ease-spring);
+    z-index: 2;
+}
+
+#cloud-ui-root .replay-progress-handle:hover {
+    transform: translate(-50%, -50%) scale(1.25);
+}
+
+#cloud-ui-root .replay-progress-handle:active {
+    cursor: grabbing;
+    transform: translate(-50%, -50%) scale(1.15);
+}
+
+#cloud-ui-root .replay-time {
+    font-size: 11px;
+    font-weight: 520;
+    color: rgba(255,255,255,0.65);
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Icon buttons inside replay pill */
+#cloud-ui-root .replay-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border-radius: var(--radius-full);
+    background: var(--glass-depth-high);
+    border: 0.5px solid rgba(255,255,255,0.12);
+    backdrop-filter: var(--glass-blur-surface);
+    -webkit-backdrop-filter: var(--glass-blur-surface);
+    color: rgba(255,255,255,0.92);
+    cursor: pointer;
+    box-shadow: var(--depth-surface), var(--spec-top);
+    transition:
+        all 0.3s var(--ease-fluid),
+        transform 0.35s var(--ease-spring);
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+#cloud-ui-root .replay-btn svg {
+    width: 14px;
+    height: 14px;
+    display: block;
+}
+
+#cloud-ui-root .replay-btn:hover {
+    transform: translateY(-1px);
+    background: var(--glass-depth-active);
+    border-color: rgba(180,200,255,0.25);
+    box-shadow:
+        var(--depth-mid),
+        var(--spec-top),
+        0 0 20px rgba(74,158,255,0.08);
+}
+
+#cloud-ui-root .replay-btn:active {
+    transform: translateY(0) scale(0.92);
+    transition: transform 0.06s ease;
+}
+
+/* Play button — slightly larger, teal accent */
+#cloud-ui-root .replay-play-btn {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(
+        145deg,
+        rgba(94,234,212,0.28) 0%,
+        rgba(74,158,255,0.22) 100%
+    );
+    border-color: rgba(140,250,220,0.30);
+    color: var(--prism-teal);
+}
+
+#cloud-ui-root .replay-play-btn:hover {
+    background: linear-gradient(
+        145deg,
+        rgba(94,234,212,0.42) 0%,
+        rgba(74,158,255,0.35) 100%
+    );
+    border-color: rgba(140,250,220,0.45);
+    box-shadow:
+        0 4px 18px rgba(94,234,212,0.18),
+        var(--spec-top);
+}
+
+/* Speed button — text style */
+#cloud-ui-root .replay-speed-btn {
+    width: auto;
+    padding: 0 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    font-family: inherit;
+}
+
+/* Exit button — warm tint */
+#cloud-ui-root .replay-exit-btn:hover {
+    background: rgba(255,107,157,0.20);
+    border-color: rgba(255,140,160,0.30);
+    color: rgba(255,160,180,0.95);
+    box-shadow:
+        0 4px 16px rgba(255,107,157,0.15),
+        var(--spec-top);
+}
+
+/* Export button — teal tint */
+#cloud-ui-root .replay-export-btn:hover {
+    background: rgba(94,234,212,0.18);
+    border-color: rgba(94,234,212,0.30);
+    color: var(--prism-teal);
+    box-shadow:
+        0 4px 16px rgba(94,234,212,0.12),
+        var(--spec-top);
+}
+
+
+/*
+ *  5d. Modal System
+ */
+
+/* Backdrop — atmospheric overlay with strong blur */
+#cloud-ui-root .modal-backdrop {
+    position: absolute;
+    inset: 0;
+    display: none;
+    place-items: center;
+    pointer-events: auto;
+    background: rgba(6,8,22,0.62);
+    backdrop-filter: saturate(140%) blur(50px);
+    -webkit-backdrop-filter: saturate(140%) blur(50px);
+    opacity: 0;
+    transition: opacity 0.45s var(--ease-fluid);
+    perspective: 1400px;
+}
+
+#cloud-ui-root .modal-backdrop.open {
+    display: grid;
+    opacity: 1;
+}
+
+#cloud-ui-root .modal-backdrop.closing {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s var(--ease-exit);
+}
+
+#cloud-ui-root .modal-backdrop.closing .modal {
+    animation: glassSpringOut 0.42s cubic-bezier(0.4, 0, 0.25, 1) forwards;
+}
+
+/* Panel — multi-layer prismatic glass */
+#cloud-ui-root .modal {
+    position: relative;
+    width: min(480px, calc(100vw - 32px));
+    max-height: calc(100vh - 40px);
+    border-radius: var(--radius-xl);
+    padding: 30px 28px;
+    color: rgba(255,255,255,0.93);
+    border: 0.5px solid rgba(255,255,255,0.10);
+    background:
+        linear-gradient(
+            175deg,
+            rgba(255,255,255,0.07) 0%,
+            rgba(255,255,255,0.03) 25%,
+            rgba(200,195,245,0.03) 55%,
+            rgba(255,255,255,0.05) 100%
+        );
+    backdrop-filter: saturate(240%) blur(48px);
+    -webkit-backdrop-filter: saturate(240%) blur(48px);
+    box-shadow:
+        0 0 0 0.5px rgba(120,170,255,0.07),
+        0 0 0 1px rgba(255,140,170,0.05),
+        var(--depth-mid),
+        var(--spec-top),
+        inset 0 0 140px rgba(74,158,255,0.015),
+        inset 0 0 70px rgba(94,234,212,0.010);
+    transform: scale(0.88) translateY(35px) translateZ(0);
+    opacity: 0;
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.14, 1), opacity 0.55s cubic-bezier(0.22, 1, 0.14, 1);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    overscroll-behavior: contain;
+    contain: layout style;
+    will-change: transform, opacity;
+}
+
+#cloud-ui-root .modal::-webkit-scrollbar {
+    display: none;
+}
+
+/* Caustic light pattern overlay */
+#cloud-ui-root .modal::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background:
+        radial-gradient(ellipse 30% 40% at 25% 30%, rgba(255,255,255,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 20% 30% at 70% 25%, rgba(200,220,255,0.04) 0%, transparent 55%),
+        radial-gradient(ellipse 35% 35% at 55% 65%, rgba(180,240,220,0.03) 0%, transparent 60%);
+    pointer-events: none;
+    will-change: background-position;
+    animation: causticFlow 14s ease-in-out infinite;
+    z-index: 0;
+}
+
+/* Prismatic rim light sweep */
+#cloud-ui-root .modal::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: calc(var(--radius-xl) + 2px);
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        rgba(74,158,255,0.08) 30deg,
+        transparent 60deg,
+        rgba(94,234,212,0.06) 120deg,
+        transparent 150deg,
+        rgba(192,132,252,0.07) 210deg,
+        transparent 240deg,
+        rgba(255,107,157,0.05) 300deg,
+        transparent 330deg,
+        transparent 360deg
+    );
+    will-change: transform;
+    animation: rimSweep 8s linear infinite;
+    pointer-events: none;
+    z-index: -1;
+    filter: blur(4px);
+}
+
+#cloud-ui-root .modal > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Open — spring physics entrance */
+#cloud-ui-root .modal-backdrop.open .modal {
+    transform: scale(1) translateY(0) translateZ(0);
+    opacity: 1;
+    animation: glassSpringIn 0.75s cubic-bezier(0.22, 1, 0.08, 1) forwards;
+}
+
+/* Variants */
+#cloud-ui-root .modal-auth {
+    width: min(420px, calc(100vw - 32px));
+    background:
+        linear-gradient(
+            175deg,
+            rgba(255,255,255,0.06) 0%,
+            rgba(210,200,250,0.04) 35%,
+            rgba(200,215,255,0.03) 65%,
+            rgba(255,255,255,0.04) 100%
+        );
+    box-shadow:
+        0 0 0 0.5px rgba(160,200,255,0.08),
+        0 0 0 1px rgba(200,170,255,0.04),
+        var(--depth-mid),
+        var(--spec-top),
+        0 0 80px rgba(74,158,255,0.03);
+}
+
+#cloud-ui-root .modal-history {
+    width: min(520px, calc(100vw - 32px));
+    background:
+        linear-gradient(
+            175deg,
+            rgba(255,255,255,0.06) 0%,
+            rgba(220,200,255,0.04) 30%,
+            rgba(210,205,255,0.03) 60%,
+            rgba(255,255,255,0.04) 100%
+        );
+    box-shadow:
+        0 0 0 0.5px rgba(160,180,255,0.08),
+        0 0 0 1px rgba(180,160,240,0.04),
+        var(--depth-mid),
+        var(--spec-top);
+}
+
+#cloud-ui-root .modal-leaderboard {
+    border-color: rgba(230,210,160,0.15);
+    background:
+        linear-gradient(
+            175deg,
+            rgba(255,255,255,0.05) 0%,
+            rgba(245,215,140,0.03) 30%,
+            rgba(240,220,180,0.02) 55%,
+            rgba(255,255,255,0.03) 100%
+        );
+    box-shadow:
+        0 0 0 0.5px rgba(245,215,140,0.09),
+        0 0 0 1px rgba(230,210,160,0.05),
+        var(--depth-mid),
+        var(--spec-top);
+}
+
+/* Title — iridescent gradient text */
+#cloud-ui-root .modal h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 670;
+    letter-spacing: -0.4px;
+    background: linear-gradient(
+        160deg,
+        #FFFFFF 0%,
+        #D8D8FF 35%,
+        #B8C8F0 65%,
+        #C8D8F8 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+
+/*
+ *  5e. Layout Helpers
+ */
+#cloud-ui-root .row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#cloud-ui-root .row.title-row {
+    margin-bottom: 6px;
+    padding-bottom: 16px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.06);
+}
+
+
+/*
+ *  5f. Tabs — Liquid Glass Segment Pill
+ */
+#cloud-ui-root .tabs {
+    display: inline-flex;
+    gap: 3px;
+    padding: 4px;
+    border-radius: var(--radius-full);
+    background: rgba(255,255,255,0.04);
+    border: 0.5px solid rgba(255,255,255,0.08);
+    backdrop-filter: var(--glass-blur-light);
+    -webkit-backdrop-filter: var(--glass-blur-light);
+    box-shadow: var(--spec-top),
+                inset 0 1px 2px rgba(0,0,0,0.08);
+}
+
+#cloud-ui-root .tabs.tabs-auth {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 4px;
+}
+
+#cloud-ui-root .tabs.tabs-auth .tab {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+}
+
+#cloud-ui-root .tab {
+    position: relative;
+    overflow: hidden;
+    padding: 10px 20px;
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: rgba(255,255,255,0.68);
+    border: 0.5px solid transparent;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.35s var(--ease-fluid);
+    cursor: pointer;
+    z-index: 1;
+}
+
+#cloud-ui-root .tab:hover {
+    color: rgba(255,255,255,0.88);
+    background: rgba(255,255,255,0.05);
+}
+
+#cloud-ui-root .tab:active {
+    transform: scale(0.95);
+    transition: transform 0.08s ease;
+}
+
+#cloud-ui-root .tab.active {
+    animation: tabBounceIn 0.45s var(--ease-spring) forwards;
+    background: linear-gradient(
+        145deg,
+        rgba(74,158,255,0.38) 0%,
+        rgba(120,180,255,0.30) 50%,
+        rgba(94,234,212,0.22) 100%
+    );
+    color: rgba(255,255,255,0.96);
+    border-color: rgba(140,210,255,0.28);
+    box-shadow:
+        0 4px 18px rgba(74,158,255,0.20),
+        var(--spec-shimmer),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+
+/*
+ *  5g. Form Fields — Liquid Glass Inputs
+ */
+#cloud-ui-root .auth-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+#cloud-ui-root .auth-head {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    margin-bottom: 2px;
+    padding-bottom: 18px;
+    border-bottom: 0.5px solid rgba(255,255,255,0.05);
+}
+
+#cloud-ui-root .field {
+    margin-top: 18px;
+    display: grid;
+    gap: 8px;
+}
+
+#cloud-ui-root .field.auth-stagger {
+    animation: liquidFieldSpring 0.5s var(--ease-spring) backwards;
+    animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+#cloud-ui-root label {
+    font-size: 13px;
+    font-weight: 520;
+    color: rgba(210,210,250,0.92);
+    margin-left: 4px;
+    letter-spacing: 0.1px;
+}
+
+#cloud-ui-root input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    border: 0.5px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.03);
+    color: rgba(255,255,255,0.93);
+    outline: none;
+    font-size: 14px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);
+    transition: all 0.35s var(--ease-fluid);
+    font-family: inherit;
+}
+
+#cloud-ui-root input::placeholder {
+    color: rgba(255,255,255,0.40);
+}
+
+#cloud-ui-root input:hover {
+    border-color: rgba(160,200,255,0.25);
+    background: rgba(255,255,255,0.055);
+}
+
+#cloud-ui-root input:focus {
+    border-color: rgba(140,210,255,0.45);
+    background: rgba(255,255,255,0.08);
+    box-shadow:
+        0 0 0 6px rgba(74,158,255,0.06),
+        0 0 0 1px rgba(94,234,212,0.08),
+        0 0 32px rgba(74,158,255,0.08),
+        inset 0 1px 2px rgba(0,0,0,0.06);
+}
+
+#cloud-ui-root .modal-auth input:focus {
+    border-color: rgba(140,230,220,0.40);
+    box-shadow:
+        0 0 0 6px rgba(94,234,212,0.05),
+        0 0 0 1px rgba(74,158,255,0.08),
+        0 0 32px rgba(94,234,212,0.06),
+        inset 0 1px 2px rgba(0,0,0,0.06);
+}
+
+#cloud-ui-root .optional-field label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#cloud-ui-root .optional-tag {
+    font-size: 10.5px;
+    font-weight: 560;
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    background: rgba(94,234,212,0.10);
+    border: 0.5px solid rgba(94,234,212,0.25);
+    color: rgba(140,245,220,0.90);
+}
+
+#cloud-ui-root .auth-actions {
+    margin-top: 22px;
+    padding-top: 4px;
+    align-items: center;
+}
+
+#cloud-ui-root .auth-actions-right {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+
+/*
+ *  5h. Hint Blocks — Frosted Info Panels
+ */
+#cloud-ui-root .hint {
+    margin-top: 16px;
+    padding: 14px 16px;
+    font-size: 12px;
+    color: rgba(210,215,250,0.88);
+    line-height: 1.65;
+    background: rgba(255,255,255,0.03);
+    border-radius: var(--radius-sm);
+    border: 0.5px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+#cloud-ui-root .auth-hint {
+    margin-top: 18px;
+    background: rgba(180,200,255,0.04);
+    border-color: rgba(160,200,255,0.12);
+    color: rgba(215,220,250,0.88);
+}
+
+/* 验证码输入行 */
+#cloud-ui-root .code-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+#cloud-ui-root .code-input-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+#cloud-ui-root .send-code-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 0 14px;
+    height: 34px;
+    font-size: 12px;
+    border-radius: var(--radius-sm);
+}
+
+#cloud-ui-root .send-code-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* 忘记密码链接 */
+#cloud-ui-root .forgot-link {
+    color: rgba(160, 200, 255, 0.7);
+    font-size: 12px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+#cloud-ui-root .forgot-link:hover {
+    color: rgba(180, 220, 255, 0.95);
+    text-decoration: underline;
+}
+
+
+/*
+ *  5i. Error Message — Liquid Glass Alert
+ */
+#cloud-ui-root .error {
+    margin-top: 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,210,210,0.95);
+    background: rgba(255,107,157,0.12);
+    border: 0.5px solid rgba(255,130,150,0.25);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    display: none;
+    animation: glassShake 0.45s ease;
+}
+
+#cloud-ui-root .error.show {
+    display: block;
+    animation: errorBounceIn 0.38s var(--ease-spring) forwards;
+}
+
+
+/*
+ *  5j. History Module
+ */
+#cloud-ui-root .history-head {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+#cloud-ui-root .history-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+#cloud-ui-root .history-title-accent {
+    width: 48px;
+    height: 3px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(
+        90deg,
+        var(--prism-blue),
+        var(--prism-teal),
+        var(--prism-purple)
+    );
+    opacity: 0.8;
+    animation: accentShimmer 4s ease-in-out infinite;
+}
+
+#cloud-ui-root .history-actions {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 0.5px solid rgba(255,255,255,0.05);
+}
+
+#cloud-ui-root .history-actions-right {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+
+/*
+ *  5k. Cards — 3D Parallax Glass Stat Panels
+ */
+#cloud-ui-root .cards {
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    perspective: 800px;
+}
+
+#cloud-ui-root .card {
+    padding: 18px 16px;
+    border-radius: var(--radius-lg);
+    background: rgba(255,255,255,0.04);
+    border: 0.5px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow:
+        var(--depth-near),
+        var(--spec-top),
+        inset 0 0 80px rgba(120,180,255,0.015);
+    transition:
+        all 0.45s var(--ease-fluid),
+        transform 0.5s var(--ease-spring);
+    transform: rotateX(0) rotateY(0) translateZ(0);
+    transform-style: preserve-3d;
+    overflow: hidden;
+    position: relative;
+    animation: staggerSpringIn 0.5s var(--ease-spring) backwards;
+}
+
+#cloud-ui-root .cards .card:nth-child(1)  { animation-delay: 0.08s; }
+#cloud-ui-root .cards .card:nth-child(2)  { animation-delay: 0.14s; }
+#cloud-ui-root .cards .card:nth-child(3)  { animation-delay: 0.20s; }
+#cloud-ui-root .cards .card:nth-child(4)  { animation-delay: 0.26s; }
+#cloud-ui-root .cards .card:nth-child(5)  { animation-delay: 0.32s; }
+#cloud-ui-root .cards .card:nth-child(6)  { animation-delay: 0.38s; }
+#cloud-ui-root .cards .card:nth-child(7)  { animation-delay: 0.44s; }
+#cloud-ui-root .cards .card:nth-child(8)  { animation-delay: 0.50s; }
+
+#cloud-ui-root .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+        155deg,
+        rgba(255,255,255,0.12) 0%,
+        transparent 45%,
+        rgba(120,180,255,0.06) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.45s ease;
+    pointer-events: none;
+}
+
+#cloud-ui-root .card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+        ellipse 140% 120% at 35% 30%,
+        rgba(160,210,255,0.04) 0%,
+        transparent 55%
+    );
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+}
+
+#cloud-ui-root .card:hover {
+    transform: rotateX(-3deg) rotateY(2deg);
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(160,200,255,0.22);
+    box-shadow:
+        var(--depth-mid),
+        var(--spec-top),
+        0 0 0 0.5px rgba(140,250,210,0.06),
+        0 0 48px rgba(74,158,255,0.05);
+}
+
+#cloud-ui-root .card:hover::before,
+#cloud-ui-root .card:hover::after {
+    opacity: 1;
+}
+
+#cloud-ui-root .history-cards .card {
+    background: rgba(200,195,255,0.04);
+    border-color: rgba(160,180,255,0.12);
+}
+
+#cloud-ui-root .card .k {
+    font-size: 10.5px;
+    font-weight: 560;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    color: rgba(210,210,250,0.85);
+}
+
+#cloud-ui-root .card .v {
+    margin-top: 10px;
+    font-weight: 720;
+    font-size: 24px;
+    letter-spacing: -0.6px;
+    background: linear-gradient(
+        160deg,
+        #FFFFFF 0%,
+        #D5D8FF 40%,
+        #B8C0EE 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+#cloud-ui-root .card.wide {
+    grid-column: 1 / -1;
+}
+
+#cloud-ui-root .spark {
+    width: 100%;
+    height: 60px;
+    margin-top: 14px;
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.02);
+    border: 0.5px solid rgba(255,255,255,0.05);
+    overflow: hidden;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+
+/*
+ *  5l. List & Leaderboard — Thin Glass Rows
+ */
+#cloud-ui-root .list {
+    margin-top: 16px;
+    display: grid;
+    gap: 8px;
+    max-height: min(45vh, 360px);
+    overflow: auto;
+    padding-right: 6px;
+}
+
+#cloud-ui-root .list::-webkit-scrollbar {
+    width: 5px;
+}
+
+#cloud-ui-root .list::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.02);
+    border-radius: 3px;
+    margin: 4px 0;
+}
+
+#cloud-ui-root .list::-webkit-scrollbar-thumb {
+    background: rgba(160,180,240,0.20);
+    border-radius: 3px;
+}
+
+#cloud-ui-root .list::-webkit-scrollbar-thumb:hover {
+    background: rgba(160,180,240,0.35);
+}
+
+#cloud-ui-root .item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    border-radius: var(--radius-md);
+    background: rgba(255,255,255,0.03);
+    border: 0.5px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--spec-top);
+    transition:
+        all 0.35s var(--ease-fluid),
+        transform 0.4s var(--ease-spring);
+    transform: translateZ(0);
+    animation: staggerSpringIn 0.45s var(--ease-spring) backwards;
+}
+
+#cloud-ui-root .list .item:nth-child(1)  { animation-delay: 0.06s; }
+#cloud-ui-root .list .item:nth-child(2)  { animation-delay: 0.11s; }
+#cloud-ui-root .list .item:nth-child(3)  { animation-delay: 0.16s; }
+#cloud-ui-root .list .item:nth-child(4)  { animation-delay: 0.21s; }
+#cloud-ui-root .list .item:nth-child(5)  { animation-delay: 0.26s; }
+#cloud-ui-root .list .item:nth-child(6)  { animation-delay: 0.31s; }
+#cloud-ui-root .list .item:nth-child(7)  { animation-delay: 0.36s; }
+#cloud-ui-root .list .item:nth-child(8)  { animation-delay: 0.41s; }
+#cloud-ui-root .list .item:nth-child(9)  { animation-delay: 0.46s; }
+#cloud-ui-root .list .item:nth-child(10) { animation-delay: 0.51s; }
+
+#cloud-ui-root .item:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(160,180,240,0.18);
+    transform: translateX(5px);
+    box-shadow:
+        0 4px 24px rgba(0,0,0,0.15),
+        var(--spec-top),
+        0 0 0 0.5px rgba(140,210,255,0.06);
+}
+
+#cloud-ui-root .history-list .item {
+    background: rgba(200,195,255,0.03);
+    border-color: rgba(160,180,255,0.07);
+}
+
+#cloud-ui-root .item .score {
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: -0.3px;
+    color: rgba(255,255,255,0.96);
+}
+
+#cloud-ui-root .item .time {
+    font-size: 11.5px;
+    color: rgba(210,210,250,0.78);
+    margin-top: 4px;
+}
+
+#cloud-ui-root .item .sync-badge {
+    font-size: 10px;
+    font-weight: 580;
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+    background: rgba(94,234,212,0.12);
+    color: rgba(140,245,220,0.90);
+    border: 0.5px solid rgba(94,234,212,0.22);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* Leaderboard — iridescent gold */
+#cloud-ui-root .leaderboard-list .item.item--leaderboard {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: nowrap;
+}
+
+#cloud-ui-root .leaderboard-list .lb-rank {
+    flex-shrink: 0;
+    min-width: 2.4em;
+    font-weight: 680;
+    font-size: 15px;
+    text-align: center;
+    background: linear-gradient(
+        160deg,
+        var(--prism-gold) 0%,
+        #E8C860 40%,
+        var(--prism-amber) 70%,
+        var(--prism-gold) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Top 3 special rank glow */
+#cloud-ui-root .leaderboard-list .item:nth-child(1) .lb-rank,
+#cloud-ui-root .leaderboard-list .item:nth-child(2) .lb-rank,
+#cloud-ui-root .leaderboard-list .item:nth-child(3) .lb-rank {
+    filter: drop-shadow(0 0 8px rgba(245,215,140,0.35));
+}
+
+#cloud-ui-root .leaderboard-list .lb-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+#cloud-ui-root .leaderboard-list .lb-name {
+    font-weight: 580;
+    color: rgba(255,255,255,0.90);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#cloud-ui-root .leaderboard-list .item .score {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+/* Self-highlight row — prismatic glow */
+#cloud-ui-root .leaderboard-list .item.item--self {
+    border-color: rgba(94,234,212,0.30);
+    background: rgba(94,234,212,0.06);
+    box-shadow:
+        0 0 0 0.5px rgba(94,234,212,0.15),
+        0 0 24px rgba(94,234,212,0.06),
+        var(--spec-top);
+    animation: selfPulse 3s ease-in-out infinite;
+}
+
+#cloud-ui-root .leaderboard-footer {
+    margin-top: 12px;
+    display: none;
+}
+
+#cloud-ui-root .leaderboard-footer .leaderboard-my-best {
+    margin: 0;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(215,220,250,0.88);
+    padding: 10px 16px;
+    background: rgba(255,255,255,0.03);
+    border-radius: var(--radius-sm);
+    border: 0.5px solid rgba(255,255,255,0.06);
+}
+
+/* Period tabs */
+#cloud-ui-root .period-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+    padding: 0 2px;
+}
+
+#cloud-ui-root .period-tab {
+    flex: 1;
+    padding: 6px 8px;
+    font-size: 12.5px;
+    font-weight: 550;
+    color: rgba(255,255,255,0.50);
+    background: rgba(255,255,255,0.04);
+    border: 0.5px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    font-family: inherit;
+    position: relative;
+    overflow: hidden;
+}
+
+#cloud-ui-root .period-tab:hover {
+    color: rgba(255,255,255,0.75);
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(255,255,255,0.10);
+}
+
+#cloud-ui-root .period-tab.active {
+    color: rgba(245,215,140,0.95);
+    background: rgba(245,215,140,0.10);
+    border-color: rgba(245,215,140,0.25);
+    box-shadow: 0 0 12px rgba(245,215,140,0.08);
+}
+
+
+/*
+ *  5m. Loading Overlay
+ */
+#cloud-ui-root .modal-loading {
+    position: absolute;
+    inset: 0;
+    z-index: 8;
+    display: grid;
+    place-items: center;
+    border-radius: inherit;
+    background: rgba(8,8,20,0.32);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+}
+
+#cloud-ui-root .modal-loading.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#cloud-ui-root .modal-loading-spinner {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2.5px solid rgba(255,255,255,0.08);
+    border-top-color: var(--prism-teal);
+    border-right-color: var(--prism-blue);
+    animation: spinnerSpin 0.65s linear infinite;
+    box-shadow:
+        0 0 28px rgba(74,158,255,0.12),
+        0 0 56px rgba(94,234,212,0.06),
+        inset 0 0 14px rgba(255,255,255,0.03);
+}
+
+
+/*
+ *  5n. Success Toast — Liquid Glass Popup
+ */
+#cloud-ui-root .success-toast {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-120px);
+    padding: 14px 28px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(
+        145deg,
+        rgba(94,234,212,0.30) 0%,
+        rgba(74,158,255,0.22) 100%
+    );
+    border: 0.5px solid rgba(140,250,220,0.35);
+    backdrop-filter: var(--glass-blur-mid);
+    -webkit-backdrop-filter: var(--glass-blur-mid);
+    color: rgba(255,255,255,0.96);
+    font-weight: 560;
+    font-size: 14px;
+    box-shadow:
+        0 8px 48px rgba(94,234,212,0.22),
+        0 0 0 0.5px rgba(140,250,220,0.10),
+        var(--spec-top);
+    opacity: 0;
+    transition: all 0.5s var(--ease-spring);
+    z-index: 3000;
+    pointer-events: none;
+}
+
+#cloud-ui-root .success-toast.show {
+    animation: toastBounceSlide 0.65s var(--ease-spring) forwards;
+}
+
+
+/* ───────────────────────────────────────────────────────────────
+   6. Responsive — Mobile Adaptation
+   ─────────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+    #cloud-ui-root .modal {
+        padding: 22px 18px;
+        border-radius: var(--radius-lg);
+    }
+
+    #cloud-ui-root .cards {
+        grid-template-columns: 1fr;
+    }
+
+    #cloud-ui-root .pill {
+        flex-wrap: wrap;
+        max-width: calc(100vw - 32px);
+        padding: 4px 4px 4px 10px;
+    }
+
+    #cloud-ui-root .btn {
+        font-size: 11.5px;
+        padding: 6px 11px;
+    }
+}
+
+
+/* ───────────────────────────────────────────────────────────────
+   7. Error Screen — Full-Screen Fallback
+   ─────────────────────────────────────────────────────────────── */
+#error-screen {
+    position: fixed;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    z-index: 99999;
+    background: #080810;
+    background-image:
+        radial-gradient(ellipse 60% 50% at 50% 40%, rgba(255,107,157,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 60% at 30% 60%, rgba(74,158,255,0.06) 0%, transparent 60%),
+        linear-gradient(180deg, #080810 0%, #0C0C1E 50%, #0A0A19 100%);
+    color: rgba(255,255,255,0.93);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", ui-sans-serif, system-ui, sans-serif;
+    text-align: center;
+    padding: 32px;
+}
+
+#error-screen.show {
+    display: flex;
+}
+
+#error-screen .error-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(255,107,157,0.10);
+    border: 1px solid rgba(255,140,160,0.35);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 240;
+    color: rgba(255,210,210,0.93);
+    animation: errorPulse 2.5s ease-in-out infinite;
+    box-shadow:
+        var(--spec-top),
+        0 0 48px rgba(255,107,157,0.12);
+}
+
+#error-screen h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+#error-screen p {
+    margin: 0;
+    max-width: 380px;
+    font-size: 14px;
+    color: rgba(210,210,245,0.88);
+    line-height: 1.6;
+}
+
+#error-screen .error-retry-btn {
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    margin-top: 8px;
+    padding: 12px 32px;
+    border-radius: var(--radius-full);
+    font-size: 15px;
+    font-weight: 580;
+    color: rgba(255,255,255,0.96);
+    background: linear-gradient(
+        145deg,
+        rgba(74,158,255,0.50) 0%,
+        rgba(120,180,255,0.40) 40%,
+        rgba(94,234,212,0.30) 100%
+    );
+    border: 0.5px solid rgba(140,210,255,0.35);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow:
+        0 4px 28px rgba(74,158,255,0.22),
+        var(--spec-top);
+    transition:
+        all 0.35s var(--ease-fluid),
+        transform 0.4s var(--ease-spring);
+}
+
+#error-screen .error-retry-btn:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow:
+        0 8px 36px rgba(74,158,255,0.35),
+        var(--spec-top);
+}
+
+/* 移动端性能优化：禁用全屏背景渐变动画并简化多层背景，减少持续绘制与 GPU 合成开销 */
+@media (pointer: coarse) {
+    body {
+        animation: none;
+        background-image: linear-gradient(180deg, #080810 0%, #0C0C1E 40%, #0A0A19 100%);
+    }
+}

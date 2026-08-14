@@ -1,14 +1,69 @@
+# Node.js / npm
+tmp/
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-.idea/
-.vscode/
-dist/
-
+.env.local
+.env.*.local
+*.log
+*.pid
+*.pid.lock
 .DS_Store
 Thumbs.db
 
-repomix-output.*
+# Build outputs
+dist/
+build/
+*.bundle.*
+*.map
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# AI tools
+.monkeycode/
+.trae/
+
+# Logs and temp
+logs/
+.tmp/
+
+# Key files to ignore
+*.env
+*.env.example
+*.pem
+*.key
+*.p12
+
+# Database files
+db.sqlite
+*.sqlite
+.db
+
+# External dependencies (should be committed via package-lock.json)
+node_modules/**
+.browserslist
+.pnp.*
+.yarn/install-state.gz
+
+# CI/CD
+coverage/
+coverage.html
+junit.xml
+
+# Temp
+*.tmp
+*.temp
+*_temp
+*~
+
+# Other
+*.min.js
+*.min.css
+license.txt
+readme.txt
